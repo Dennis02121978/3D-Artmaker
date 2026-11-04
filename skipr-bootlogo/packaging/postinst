@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+[ "$1" = "configure" ] || exit 0
+. /etc/skipr-bootlogo/config
+/usr/bin/python3 /usr/lib/skipr-bootlogo/setup_host.py install "$KLIPPER_USER"
+systemctl daemon-reload
+udevadm control --reload
+echo "Logo ist installiert. Es erscheint nach dem naechsten Neustart: sudo reboot"
+exit 0

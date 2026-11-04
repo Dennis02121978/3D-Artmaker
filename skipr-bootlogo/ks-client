@@ -1,0 +1,7 @@
+#!/bin/sh
+# Laeuft in X: Logo als Hintergrund setzen, bis KlipperScreen sein Fenster zeigt
+. /etc/skipr-bootlogo/config 2>/dev/null
+LOGO=$LOGO_DIR/logo.png
+[ -f "$LOGO" ] || LOGO=/usr/share/skipr-bootlogo/logo.png
+/usr/bin/display -window root "$LOGO" 2>/dev/null
+exec $KS_XCLIENT

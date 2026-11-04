@@ -1,0 +1,7 @@
+[Unit]
+Description=Logo auf dem Display anzeigen
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/skipr-bootlogo/show-logo

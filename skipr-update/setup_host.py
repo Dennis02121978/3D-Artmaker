@@ -8,7 +8,13 @@ import shutil
 import subprocess
 import sys
 
+import artmaker_updates as updates
+
 NGINX = "/etc/nginx/sites-available/mainsail"
+SEED = "/usr/share/skipr-update"
+FOLDER = "skipr-update"
+MARKER = "skipr-update"
+TITLE = "3D-Artmaker Firmware Updater"
 BEGIN = "    # BEGIN skipr-update\n"
 END = "    # END skipr-update\n"
 BLOCK = BEGIN + """    location = /update { return 302 /update/; }
@@ -117,11 +123,15 @@ def remove_navi(user):
 def main():
     action, user = sys.argv[1], sys.argv[2]
     if action == "install":
+        updates.install_folder(user, FOLDER, SEED)
         install_nginx()
         install_navi(user)
+        updates.register(user, MARKER, TITLE, FOLDER)
     elif action == "remove":
         write_nginx(strip_nginx)
         remove_navi(user)
+        updates.unregister(user, MARKER)
+        updates.remove_folder(user, FOLDER)
     else:
         sys.exit("Unbekannte Aktion: " + action)
 

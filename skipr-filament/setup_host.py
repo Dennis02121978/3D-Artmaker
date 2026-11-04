@@ -5,14 +5,18 @@ Aufruf: setup_host.py install|remove BENUTZER
 """
 import json
 import os
-import pwd
 import re
 import shutil
 import subprocess
 import sys
 
+import artmaker_updates as updates
+
 NGINX = "/etc/nginx/sites-available/mainsail"
 SEED = "/usr/share/skipr-filament"
+FOLDER = "skipr-filament"
+MARKER = "skipr-filament"
+TITLE = "3D-Artmaker 2in1 Hotend"
 BEGIN = "    # BEGIN skipr-filament\n"
 END = "    # END skipr-filament\n"
 BLOCK = BEGIN + """    location = /filament { return 302 /filament/; }
@@ -23,14 +27,6 @@ BLOCK = BEGIN + """    location = /filament { return 302 /filament/; }
         add_header Cache-Control "no-store";
     }
 """ + END + "\n"
-MR_BEGIN = "# BEGIN skipr-filament\n"
-MR_END = "# END skipr-filament\n"
-MR_BLOCK = MR_BEGIN + """[update_manager skipr-filament]
-type: web
-channel: stable
-repo: Dennis02121978/3D-Artmaker
-path: ~/skipr-filament
-""" + MR_END
 HREF = "/filament/"
 NAVI_ITEM = {
     "title": "Filament 2in1",
@@ -61,7 +57,7 @@ def write_nginx(change):
 
 
 def install_nginx(user):
-    block = BLOCK % web_dir(user)
+    block = BLOCK % (updates.home(user) + "/" + FOLDER)
     marker = "    location / {\n"
 
     def change(text):
@@ -73,65 +69,8 @@ def install_nginx(user):
     write_nginx(change)
 
 
-def home(user):
-    return pwd.getpwnam(user).pw_dir
-
-
-def web_dir(user):
-    return home(user) + "/skipr-filament"
-
-
-def read_version(folder):
-    try:
-        with open(folder + "/release_info.json") as f:
-            return str(json.load(f)["version"]).lstrip("v")
-    except (OSError, ValueError, KeyError, TypeError):
-        return None
-
-
-def install_web(user):
-    """Moonraker aktualisiert diesen Ordner. Eine neuere Seite von dort bleibt erhalten."""
-    target = web_dir(user)
-    current = read_version(target)
-    new = read_version(SEED)
-    if current and subprocess.run(["dpkg", "--compare-versions", current, "ge", new]).returncode == 0:
-        return
-    shutil.rmtree(target, ignore_errors=True)
-    shutil.copytree(SEED, target)
-    os.chmod(target, 0o755)
-    shutil.chown(target, user, user)
-    for name in os.listdir(target):
-        path = os.path.join(target, name)
-        os.chmod(path, 0o644)
-        shutil.chown(path, user, user)
-
-
-def write_moonraker(user, change):
-    path = home(user) + "/printer_data/config/moonraker.conf"
-    try:
-        with open(path) as f:
-            old_text = f.read()
-    except FileNotFoundError:
-        return
-    text = re.sub(r"\n?" + re.escape(MR_BEGIN) + r".*?" + re.escape(MR_END), "", old_text, flags=re.S)
-    new_text = change(text)
-    if new_text == old_text:
-        return
-    with open(path, "w") as f:
-        f.write(new_text)
-    subprocess.run(["systemctl", "try-restart", "moonraker"])
-
-
-def install_moonraker(user):
-    write_moonraker(user, lambda text: text.rstrip("\n") + "\n\n" + MR_BLOCK)
-
-
-def remove_moonraker(user):
-    write_moonraker(user, lambda text: text)
-
-
 def navi_path(user):
-    return home(user) + "/printer_data/config/.theme/navi.json"
+    return updates.home(user) + "/printer_data/config/.theme/navi.json"
 
 
 def read_navi(path):
@@ -179,15 +118,15 @@ def main():
         sys.exit(__doc__)
     action, user = sys.argv[1], sys.argv[2]
     if action == "install":
-        install_web(user)
+        updates.install_folder(user, FOLDER, SEED)
         install_nginx(user)
         install_navi(user)
-        install_moonraker(user)
+        updates.register(user, MARKER, TITLE, FOLDER)
     elif action == "remove":
         write_nginx(strip_nginx)
         remove_navi(user)
-        remove_moonraker(user)
-        shutil.rmtree(web_dir(user), ignore_errors=True)
+        updates.unregister(user, MARKER)
+        updates.remove_folder(user, FOLDER)
     else:
         sys.exit("Unbekannte Aktion: " + action)
 

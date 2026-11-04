@@ -15,7 +15,8 @@ UNITS="$ROOT/lib/systemd/system"
 mkdir -p "$LIB/files" "$UNITS" "$ROOT/DEBIAN" dist
 
 install -m 755 runner.py web.py setup_host.py "$LIB/"
-install -m 644 common.py index.html "$LIB/"
+install -m 644 common.py ../shared/artmaker_updates.py "$LIB/"
+../shared/make_web_files.sh skipr-update "$VERSION" "$ROOT/usr/share/skipr-update" index.html
 install -m 644 files/* "$LIB/files/"
 install -m 644 packaging/skipr-update.service packaging/skipr-update-web.service "$UNITS/"
 install -m 755 packaging/preinst packaging/postinst packaging/prerm packaging/postrm "$ROOT/DEBIAN/"

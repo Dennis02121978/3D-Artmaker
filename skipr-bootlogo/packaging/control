@@ -1,0 +1,11 @@
+Package: skipr-bootlogo
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Depends: python3, imagemagick, xinit
+Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
+Description: 3D-Artmaker-Logo beim Start auf dem MKS-SKIPR-Display
+ Zeigt beim Start das 3D-Artmaker-Logo auf dem 480x320-Display (ST7796), bis
+ KlipperScreen erscheint. Blendet dafuer Konsolentext und Plymouth auf dem
+ Display aus. Benoetigt Armbian und KlipperScreen.

@@ -1,0 +1,30 @@
+#!/bin/sh
+# Prueft vor dem Entpacken, ob das System passt. Schlaegt hier etwas fehl, bleibt alles unveraendert.
+set -e
+[ "$1" = "install" ] || [ "$1" = "upgrade" ] || exit 0
+
+fail() { echo "skipr-bootlogo: $1" >&2; exit 1; }
+
+[ -f /boot/armbianEnv.txt ] || fail "Dieses Paket ist nur fuer Armbian (/boot/armbianEnv.txt fehlt)."
+grep -q 'extraargs' /boot/boot.cmd 2>/dev/null || fail "Der Bootloader unterstuetzt keine zusaetzlichen Kernel-Argumente."
+modinfo fb_st7796 >/dev/null 2>&1 || fail "Der Displaytreiber fb_st7796 wurde nicht gefunden."
+systemctl cat KlipperScreen.service >/dev/null 2>&1 || fail "KlipperScreen wurde nicht gefunden."
+if [ -e /sys/class/graphics/fb0/virtual_size ]; then
+    SIZE=$(cat /sys/class/graphics/fb0/virtual_size)
+    [ "$SIZE" = "480,320" ] || fail "Das Logo passt nur auf ein 480x320-Display, gefunden wurde $SIZE."
+fi
+
+KUSER=$(systemctl show -p User --value klipper.service 2>/dev/null || true)
+[ -n "$KUSER" ] || fail "Der Dienst klipper.service wurde nicht gefunden oder hat keinen Benutzer."
+KHOME=$(getent passwd "$KUSER" | cut -d: -f6)
+[ -n "$KHOME" ] || fail "Benutzer $KUSER existiert nicht."
+
+# Reste der frueheren manuellen Installation entfernen
+rm -f /etc/udev/rules.d/70-boot-logo.rules /etc/systemd/system/boot-logo.service
+rm -f /etc/systemd/system/KlipperScreen.service.d/boot-logo.conf
+rmdir /etc/systemd/system/KlipperScreen.service.d 2>/dev/null || true
+rm -rf /usr/local/lib/boot-logo /usr/share/boot-logo
+
+mkdir -p /etc/skipr-bootlogo
+printf 'KLIPPER_USER=%s\nLOGO_DIR=%s/skipr-bootlogo\n' "$KUSER" "$KHOME" > /etc/skipr-bootlogo/config
+exit 0

@@ -127,7 +127,10 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlparse(self.path).path
         if path == "/":
-            with open(os.path.join(c.BASE, "index.html"), encoding="utf-8") as f:
+            page = os.path.join(c.WEB_DIR, "index.html")
+            if not os.path.isfile(page):  # Zum Beispiel waehrend Moonraker den Ordner ersetzt
+                page = os.path.join(c.SEED_DIR, "index.html")
+            with open(page, encoding="utf-8") as f:
                 self.respond(200, f.read(), "text/html; charset=utf-8")
         elif path == "/status":
             self.respond(200, json.dumps(status_payload()))

@@ -58,7 +58,7 @@ function version(s){
   const ver = el('p', {class:'ver'}, 'Installierte Version: ' + (s.version||'unbekannt') + mcu);
   if (!s.package_update) return ver;
   return el('div', {}, ver, el('div', {class:'note warn'},
-    'Für diese Update-Seite gibt es die neue Version ' + s.package_update + '. ',
+    'Neues Paket für den Firmware Updater: ' + s.package_update + '. ',
     el('a', {href:s.package_url, target:'_blank', rel:'noopener'}, 'Zum Download')));
 }
 function idle(s){

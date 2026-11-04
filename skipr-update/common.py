@@ -31,6 +31,8 @@ def _klipper_user():
 USER = _klipper_user()
 HOME = pwd.getpwnam(USER).pw_dir
 KLIPPER = HOME + "/klipper"
+WEB_DIR = HOME + "/skipr-update"  # Nur die Webseite, wird von Moonraker aktualisiert
+SEED_DIR = "/usr/share/skipr-update"
 
 
 def test_cfg():

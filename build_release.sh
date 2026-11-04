@@ -4,11 +4,14 @@ set -euo pipefail
 cd "$(dirname "$0")"
 VERSION=${1:?Version fehlt, zum Beispiel: ./build_release.sh 1.1.0}
 
-rm -rf dist skipr-filament/dist skipr-update/dist
+PACKAGES="skipr-filament skipr-update skipr-bootlogo"
+rm -rf dist
 mkdir dist
-skipr-filament/build_deb.sh "$VERSION"
-skipr-update/build_deb.sh "$VERSION"
-mv skipr-filament/dist/* skipr-update/dist/* dist/
-rmdir skipr-filament/dist skipr-update/dist
+for p in $PACKAGES; do
+    rm -rf "$p/dist"
+    "$p/build_deb.sh" "$VERSION"
+    mv "$p"/dist/* dist/
+    rmdir "$p/dist"
+done
 (cd dist && sha256sum -- * > SHA256SUMS)
 ls -l dist

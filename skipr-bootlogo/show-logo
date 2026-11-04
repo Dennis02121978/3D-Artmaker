@@ -1,0 +1,10 @@
+#!/bin/sh
+# Laeuft beim Start als Root. Die Datei im Benutzerordner wird nur aufs Display geschrieben,
+# deshalb reichen hier die Pruefung von Typ und Groesse.
+SEED=/usr/share/skipr-bootlogo/logo.rgb565
+. /etc/skipr-bootlogo/config 2>/dev/null
+LOGO=$LOGO_DIR/logo.rgb565
+if [ -L "$LOGO" ] || [ ! -f "$LOGO" ] || [ "$(stat -c %s "$LOGO")" != "307200" ]; then
+    LOGO=$SEED
+fi
+exec /bin/dd if="$LOGO" of=/dev/fb0 bs=4096 count=75 status=none
