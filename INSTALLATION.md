@@ -10,6 +10,7 @@ Diese Anleitung führt dich Schritt für Schritt durch die Installation. Du brau
 2. [Das brauchst du vorher](#2-das-brauchst-du-vorher)
 3. [Mit dem Drucker verbinden](#3-mit-dem-drucker-verbinden)
 4. [Paket installieren](#4-paket-installieren)
+   - [2in1-Config für Klipper](#2in1-config-für-klipper)
    - [3D-Artmaker 2in1 Hotend](#3d-artmaker-2in1-hotend)
    - [3D-Artmaker Firmware Updater](#3d-artmaker-firmware-updater)
    - [3D-Artmaker BootScreen](#3d-artmaker-bootscreen)
@@ -27,6 +28,8 @@ Du kannst dir aussuchen, was du haben möchtest. Jedes Paket funktioniert allein
 | **3D-Artmaker 2in1 Hotend** | Zeigt in Mainsail die beiden Extruder, die Filamentschalter und das Hotend live an. Mit Knöpfen startest du das Laden des Filaments. | du zwei Extruder an einem 2in1-Hotend hast und deine Klipper-Config [die nötigen Einträge](#3d-artmaker-2in1-hotend) enthält. |
 | **3D-Artmaker Firmware Updater** | Aktualisiert die Klipper-Firmware deines Boards per Knopfdruck in Mainsail. | du ein MKS-SKIPR-Board mit Micro-SD im MCU-Slot hast. |
 | **3D-Artmaker BootScreen** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du Armbian, KlipperScreen und ein 480x320-Display mit dem Treiber `fb_st7796` hast. |
+
+Für das 2in1-Hotend gibt es außerdem eine fertige [Klipper-Config](#2in1-config-für-klipper) mit den Makros für Werkzeugwechsel, Druckstart und Laden. Sie ist für den RF2000 mit 2in1-Umbau gemacht. Hast du schon eine passende Config, brauchst du sie nicht.
 
 > [!CAUTION]
 > Den **Firmware Updater** nur auf dem **MKS-SKIPR-Board** verwenden. Die Update-Seite prüft den Prozessor des Boards und sperrt das Update bei anderen Prozessoren. Installiere das Paket trotzdem nicht auf anderen Druckern.
@@ -103,9 +106,104 @@ Möchtest du mehrere Pakete haben, gehst du die Abschnitte einfach nacheinander 
 
 ---
 
+### 2in1-Config für Klipper
+
+Diese Datei bringt alles mit, was das 2in1-Hotend in Klipper braucht: Werkzeugwechsel, `PRINT_START`, `PRINT_END`, die Filamentschalter und `EXTRUDER_LADEN`.
+
+> [!WARNING]
+> Die Config ist für einen **RF2000 mit MKS-SKIPR-Board und 2in1-Umbau** gemacht und dort gemessen. Auf einem anderen Drucker können falsche Werte zu Filamentstau oder einer Kollision führen. Prüfe deshalb die folgende Liste, bevor du die Datei aktivierst.
+
+**1. Das muss schon in deiner `printer.cfg` stehen:**
+
+```ini
+[extruder]
+max_extrude_only_distance: 150.0
+
+[extruder_stepper extruder1]
+extruder:
+```
+
+Unter `[extruder_stepper extruder1]` kommen noch die Pins deines zweiten Extruders. Wichtig ist, dass hinter `extruder:` nichts steht. Außerdem muss deine `printer.cfg` die Zeile `[include mainsail.cfg]` enthalten, weil die Config die Pause und Meldungen von dort nutzt.
+
+**2. Passe diese Werte in `2in1_hotend.cfg` an, falls dein Drucker abweicht:**
+
+| Eintrag | Wert in der Datei | Bedeutung |
+|---|---|---|
+| `pin:` bei den beiden `gcode_button` | `PE15` und `PD9` | Anschlüsse der Filamentschalter |
+| `variable_prime_dist`, `variable_load_dist` | `65` | Strecke vom Schalter bis zum Hotend in mm. **Miss sie an deinem Drucker nach.** |
+| `variable_park_dist` | `70` | Parkposition: 5 mm hinter dem Schalter |
+| `variable_purge_y` | `-25` | Geht nur, wenn deine Y-Achse `position_min: -25` hat |
+| `G1 X0 Y200` in `PRINT_END` | | Position am Druckende, muss auf deinem Bett erreichbar sein |
+| `SET_LED LED=Led …` in `PRINT_END` | | Braucht `[neopixel Led]`. Ohne diese LED löschst du die Zeile. |
+
+**3. Prüfe, ob etwas doppelt vorkommt.** Entferne aus deinen anderen Config-Dateien:
+
+- einen `filament_switch_sensor`, der dieselben Pins nutzt
+- eigene Makros mit diesen Namen: `PRINT_START`, `PRINT_END`, `T0`, `T1`, `EXTRUDER_LADEN`
+
+**4. Datei auf den Drucker laden.** Gibt es dort schon eine Datei mit diesem Namen, wird sie vorher als `.bak` gesichert:
+
+```bash
+cd ~/printer_data/config
+[ -f 2in1_hotend.cfg ] && cp 2in1_hotend.cfg 2in1_hotend.cfg.bak
+wget -O 2in1_hotend.cfg https://raw.githubusercontent.com/Dennis02121978/3D-Artmaker/8774fffaa6127eeb4bd9101de120080e8603965d/config/2in1_hotend.cfg
+cd ~
+```
+
+**5. Datei prüfen:**
+
+```bash
+echo "b644d45514473574fa77f121dc7d8036331e89c24f9c9b230f3c624b6a27c9ce  printer_data/config/2in1_hotend.cfg" | sha256sum -c
+```
+
+Am Ende der Ausgabe muss `OK` stehen. Änderst du die Datei später, passt die Prüfsumme natürlich nicht mehr.
+
+**6. Config aktivieren:**
+
+1. Öffne in Mainsail links **Maschine**.
+2. Öffne unter **Konfigurationsdateien** die Datei `printer.cfg`.
+3. Füge bei den anderen `[include …]`-Zeilen diese Zeile hinzu:
+
+   ```ini
+   [include 2in1_hotend.cfg]
+   ```
+
+4. Klicke oben auf **Speichern & Neustart**.
+
+**Geklappt?** Klipper startet ohne Fehlermeldung neu. Meldet Klipper einen Fehler, lies zuerst den Text. Schau dazu in die [Fehlertabelle](#bei-der-2in1-config). Um alles rückgängig zu machen, löschst du die Zeile wieder und klickst noch einmal auf **Speichern & Neustart**.
+
+**7. Slicer einstellen.** Trage in OrcaSlicer beim Drucker unter **Maschinen-G-Code** ein:
+
+Start-G-Code:
+
+```text
+PRINT_START EXTRUDER_TEMP=[nozzle_temperature_initial_layer] BED_TEMP=[bed_temperature_initial_layer_single] PRINT_MIN={first_layer_print_min[0]},{first_layer_print_min[1]} PRINT_MAX={first_layer_print_max[0]},{first_layer_print_max[1]} INITIAL_TOOL=[initial_tool] USED_T0={is_extruder_used[0]} USED_T1={is_extruder_used[1]}
+```
+
+End-G-Code:
+
+```text
+PRINT_END
+```
+
+> [!NOTE]
+> `PRINT_MIN` und `PRINT_MAX` sind für ein adaptives Bettnetz gedacht, das ein eigenes `BED_MESH_CALIBRATE`-Makro braucht. Hast du keines, lass diese beiden Angaben weg. Dann wird das normale Bettnetz gemessen.
+
+**8. Vorsichtig testen:**
+
+1. Lege beide Filamente ein. Die Düse muss frei über dem Bett stehen.
+2. Halte den **Not-Halt** in Mainsail bereit.
+3. Gib in der Mainsail-Konsole `EXTRUDER_LADEN` ein. Der Drucker heizt selbst auf mindestens 190 °C und lädt dann beide Filamente.
+4. Dreht das Filament durch oder staut es sich, drücke den Not-Halt und prüfe die Strecken aus Schritt 2.
+
+> [!IMPORTANT]
+> Bleib beim ersten Druck mit Werkzeugwechsel am Drucker und beobachte die Wechsel.
+
+---
+
 ### 3D-Artmaker 2in1 Hotend
 
-**Prüfe zuerst deine Klipper-Config.** Die Seite ändert sie nicht, deshalb müssen diese Einträge schon vorhanden sein:
+**Prüfe zuerst deine Klipper-Config.** Die Seite ändert sie nicht, deshalb müssen diese Einträge schon vorhanden sein. Mit der [2in1-Config](#2in1-config-für-klipper) sind sie es bereits:
 
 ```ini
 [gcode_button filament_sensor_left]
@@ -295,6 +393,19 @@ Das ist Absicht und dient deiner Sicherheit. Manche Teile laufen mit Administrat
 
 Taucht während der Installation eine Zeile auf, die mit `N:` beginnt und `unsandboxed` enthält, kannst du sie ignorieren. Das ist nur ein Hinweis und kein Fehler.
 
+### Bei der 2in1-Config
+
+| Meldung | Was du tun kannst |
+|---|---|
+| `pin PE15 used multiple times` oder ähnlich | Ein anderer Eintrag nutzt denselben Pin, oft ein alter `filament_switch_sensor`. Entferne ihn. |
+| `Unknown pin` oder ein Fehler beim Pin | Der Pin passt nicht zu deinem Board. Trage deine eigenen Pins ein. |
+| `Extrude only move too long` | In `[extruder]` fehlt `max_extrude_only_distance: 150.0`. |
+| Fehler mit `SYNC_EXTRUDER_MOTION` oder `extruder1` | In deiner `printer.cfg` fehlt `[extruder_stepper extruder1]` oder der Name ist anders. |
+| `Move out of range` | Eine Position passt nicht zu deinem Drucker, oft `variable_purge_y` oder `G1 X0 Y200`. |
+| Fehler mit `SET_LED` | Du hast keine LED namens `Led`. Lösche die Zeile in `PRINT_END`. |
+| `T0 Filament erreicht den Sensor nicht` oder ein ähnlicher Abbruch | Prüfe, ob das Filament eingelegt ist und der Schalter auslöst. Das gilt genauso für T1. |
+| `T0 Sensor wird nicht frei` | Das Filament kommt beim Rückzug nicht vom Schalter weg. Prüfe Filament, Schalter und die Strecken. |
+
 ### Nach der Installation
 
 | Problem | Was du tun kannst |
@@ -324,6 +435,8 @@ Kommst du nicht weiter, öffne ein [Issue auf GitHub](https://github.com/Dennis0
 sudo apt remove skipr-filament
 ```
 
+**2in1-Config:** Die wird nicht mit einem Befehl entfernt. Lösche in der `printer.cfg` die Zeile `[include 2in1_hotend.cfg]` und klicke auf **Speichern & Neustart**. Danach fehlen die Makros und Schalter wieder, dein Drucker braucht dann eine andere Config für den Betrieb.
+
 **3D-Artmaker Firmware Updater:**
 
 ```bash
@@ -345,7 +458,7 @@ Der Eintrag im Update Manager und der Menüpunkt verschwinden damit ebenfalls. L
 Die Installation prüft vorher, ob das Paket zu deinem Drucker passt. Am riskantesten ist das eigentliche Firmware-Update, deshalb den Drucker dabei nicht ausschalten. Sichere vorher deine Config-Dateien wie in [Abschnitt 2](#2-das-brauchst-du-vorher) beschrieben.
 
 **Ändert ein Paket meine `printer.cfg`?**
-Nein. In die `moonraker.conf` kommt aber der Eintrag für den Update Manager. Beim Entfernen des Pakets wird er wieder gelöscht.
+Nein. Die [2in1-Config](#2in1-config-für-klipper) aktivierst du selbst. In die `moonraker.conf` kommt aber der Eintrag für den Update Manager. Beim Entfernen des Pakets wird er wieder gelöscht.
 
 **Muss ich danach Klipper neu starten?**
 Nein. Nur beim BootScreen ist ein Neustart des Druckers nötig, damit das Logo erscheint.

@@ -14,6 +14,8 @@ Jedes Paket lässt sich allein installieren und erscheint dann als eigener Eintr
 
 Die Pakete und ihre Prüfsummen liegen unter [Releases](https://github.com/Dennis02121978/3D-Artmaker/releases/latest).
 
+Dazu gibt es [`config/2in1_hotend.cfg`](config/2in1_hotend.cfg), die Klipper-Makros für einen RF2000 mit 2in1-Umbau. Sie ist kein Paket und wird nicht über den Update-Manager aktualisiert.
+
 ## Warum nicht alles per Klick aktualisiert wird
 
 Moonraker läuft als normaler Benutzer. Teile, die als Root laufen, bleiben deshalb im `.deb`, sonst könnte jedes Programm dieses Benutzers eigenen Code als Root ausführen. Das betrifft das Update-Programm von `skipr-update` und die Boot-Einstellungen von `skipr-bootlogo`. Ändern sich diese Teile, muss die neue `.deb` installiert werden.
