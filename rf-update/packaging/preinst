@@ -1,0 +1,36 @@
+#!/bin/sh
+# Prueft vor dem Entpacken, ob das System passt. Schlaegt hier etwas fehl, bleibt alles unveraendert.
+set -e
+[ "$1" = "install" ] || [ "$1" = "upgrade" ] || exit 0
+
+fail() { echo "rf-update: $1" >&2; exit 1; }
+
+if [ "$(systemctl show -p ActiveState --value rf-update.service 2>/dev/null)" = "activating" ]; then
+    fail "Gerade laeuft ein Firmware-Update. Bitte warten, bis es fertig ist."
+fi
+
+KUSER=$(systemctl show -p User --value klipper.service 2>/dev/null || true)
+[ -n "$KUSER" ] || fail "Der Dienst klipper.service wurde nicht gefunden oder hat keinen Benutzer."
+KHOME=$(getent passwd "$KUSER" | cut -d: -f6)
+[ -n "$KHOME" ] || fail "Benutzer $KUSER existiert nicht."
+[ -f "$KHOME/klipper/Makefile" ] || fail "Klipper wurde nicht unter $KHOME/klipper gefunden."
+[ -d "$KHOME/klippy-env" ] || fail "Die Klipper-Umgebung $KHOME/klippy-env fehlt."
+[ -d "$KHOME/printer_data/config" ] || fail "Der Config-Ordner $KHOME/printer_data/config fehlt."
+if command -v python3 >/dev/null; then
+    MCU=$(python3 -c "import json,urllib.request as u;print(json.load(u.urlopen('http://127.0.0.1:7125/printer/objects/query?mcu=mcu_constants',timeout=5))['result']['status']['mcu']['mcu_constants']['MCU'])" 2>/dev/null || true)
+    if [ -n "$MCU" ] && [ "$MCU" != "atmega2560" ]; then
+        fail "Dieses Paket ist nur fuer Boards mit ATmega2560, dein Drucker meldet $MCU."
+    fi
+fi
+[ -f /etc/nginx/sites-available/mainsail ] || fail "Mainsail mit nginx wurde nicht gefunden."
+grep -q '^    location / {$' /etc/nginx/sites-available/mainsail || fail "Die nginx-Konfiguration von Mainsail hat ein unbekanntes Format."
+
+# Reste der frueheren manuellen Installation entfernen
+systemctl stop rf-update-web.service 2>/dev/null || true
+systemctl disable rf-update-web.service 2>/dev/null || true
+rm -f /etc/systemd/system/rf-update.service /etc/systemd/system/rf-update-web.service
+rm -rf /usr/local/lib/rf-update
+
+mkdir -p /etc/rf-update
+echo "KLIPPER_USER=$KUSER" > /etc/rf-update/config
+exit 0

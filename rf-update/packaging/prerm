@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+[ "$1" = "remove" ] || exit 0
+
+if [ "$(systemctl show -p ActiveState --value rf-update.service 2>/dev/null)" = "activating" ]; then
+    echo "rf-update: Gerade laeuft ein Firmware-Update. Bitte warten, bis es fertig ist." >&2
+    exit 1
+fi
+
+systemctl disable --now rf-update-web.service 2>/dev/null || true
+if [ -f /etc/rf-update/config ]; then
+    . /etc/rf-update/config
+    /usr/bin/python3 /usr/lib/rf-update/setup_host.py remove "$KLIPPER_USER"
+fi
+exit 0

@@ -1,0 +1,7 @@
+[Unit]
+Description=Firmware-Update ATmega2560
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/rf-update/runner.py
+TimeoutStartSec=3600

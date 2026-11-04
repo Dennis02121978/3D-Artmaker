@@ -1,0 +1,13 @@
+Package: rf-update
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Depends: python3, nginx, sudo, git, make, util-linux, gcc-avr, avr-libc, binutils-avr, avrdude
+Conflicts: skipr-update
+Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
+Description: Firmware-Update fuer ATmega2560-Boards ueber Mainsail
+ Fuegt Mainsail den Menuepunkt "Firmware-Update" hinzu. Damit laesst sich die
+ Klipper-Firmware von ATmega2560-Boards ohne Terminal per Knopfdruck
+ aktualisieren. Benoetigt Klipper, Moonraker und Mainsail. Nur fuer das
+ Boards mit ATmega2560, 16 MHz und passender Baudrate geeignet.
