@@ -10,6 +10,7 @@ Jedes Paket lässt sich allein installieren und erscheint dann als eigener Eintr
 |---|---|---|---|
 | 3D-Artmaker 2in1 Hotend | `skipr-filament` | Filament-Anzeige für das 2in1-Hotend | Die ganze Seite |
 | 3D-Artmaker Firmware Updater | `skipr-update` | Firmware-Update für das MKS-SKIPR-Board | Nur die Webseite |
+| 3D-Artmaker Firmware Updater ATmega | `rf-update` | Firmware-Update für ATmega2560-Boards | Nur die Webseite |
 | 3D-Artmaker BootScreen | `skipr-bootlogo` | Logo beim Start auf dem Display | Nur das Logo |
 
 Die Pakete und ihre Prüfsummen liegen unter [Releases](https://github.com/Dennis02121978/3D-Artmaker/releases/latest).
@@ -18,7 +19,7 @@ Dazu gibt es [`config/2in1_hotend.cfg`](config/2in1_hotend.cfg), die Klipper-Mak
 
 ## Warum nicht alles per Klick aktualisiert wird
 
-Moonraker läuft als normaler Benutzer. Teile, die als Root laufen, bleiben deshalb im `.deb`, sonst könnte jedes Programm dieses Benutzers eigenen Code als Root ausführen. Das betrifft das Update-Programm von `skipr-update` und die Boot-Einstellungen von `skipr-bootlogo`. Ändern sich diese Teile, muss die neue `.deb` installiert werden.
+Moonraker läuft als normaler Benutzer. Teile, die als Root laufen, bleiben deshalb im `.deb`, sonst könnte jedes Programm dieses Benutzers eigenen Code als Root ausführen. Das betrifft das Update-Programm von `skipr-update` und `rf-update` und die Boot-Einstellungen von `skipr-bootlogo`. Ändern sich diese Teile, muss die neue `.deb` installiert werden.
 
 ## Neue Version veröffentlichen
 

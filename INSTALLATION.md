@@ -13,6 +13,7 @@ Diese Anleitung führt dich Schritt für Schritt durch die Installation. Du brau
    - [2in1-Config für Klipper](#2in1-config-für-klipper)
    - [3D-Artmaker 2in1 Hotend](#3d-artmaker-2in1-hotend)
    - [3D-Artmaker Firmware Updater](#3d-artmaker-firmware-updater)
+   - [3D-Artmaker Firmware Updater ATmega](#3d-artmaker-firmware-updater-atmega)
    - [3D-Artmaker BootScreen](#3d-artmaker-bootscreen)
 5. [Updates installieren](#5-updates-installieren)
 6. [Wenn etwas nicht klappt](#6-wenn-etwas-nicht-klappt)
@@ -27,6 +28,7 @@ Du kannst dir aussuchen, was du haben möchtest. Jedes Paket funktioniert allein
 |---|---|---|
 | **3D-Artmaker 2in1 Hotend** | Zeigt in Mainsail die beiden Extruder, die Filamentschalter und das Hotend live an. Mit Knöpfen startest du das Laden des Filaments. | du zwei Extruder an einem 2in1-Hotend hast und deine Klipper-Config [die nötigen Einträge](#3d-artmaker-2in1-hotend) enthält. |
 | **3D-Artmaker Firmware Updater** | Aktualisiert die Klipper-Firmware deines Boards per Knopfdruck in Mainsail. | du ein MKS-SKIPR-Board mit Micro-SD im MCU-Slot hast. |
+| **3D-Artmaker Firmware Updater ATmega** | Aktualisiert die Klipper-Firmware deines ATmega-Boards per Knopfdruck in Mainsail. | dein Board einen ATmega2560 mit 16 MHz hat und mit 250000 Baud läuft, zum Beispiel beim RF1000 oder RF2000. |
 | **3D-Artmaker BootScreen** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du Armbian, KlipperScreen und ein 480x320-Display mit dem Treiber `fb_st7796` hast. |
 
 Für das 2in1-Hotend gibt es außerdem eine fertige [Klipper-Config](#2in1-config-für-klipper) mit den Makros für Werkzeugwechsel, Druckstart und Laden. Sie ist für den RF2000 mit 2in1-Umbau gemacht. Hast du schon eine passende Config, brauchst du sie nicht.
@@ -219,13 +221,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.2.0/skipr-filament_1.2.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/skipr-filament_1.3.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "56b73c7d08ae43c7760e4ae5f17d3d46ccec3304cbc18fbae22076686e46fc1b  skipr-filament_1.2.0_all.deb" | sha256sum -c
+echo "ed80ad75749989c0a7aee338619773bb48de544cae6ba9ade030bfa693b571a1  skipr-filament_1.3.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -234,7 +236,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.2.0_all.deb
+sudo apt install ./skipr-filament_1.3.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -254,13 +256,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.2.0/skipr-update_1.2.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/skipr-update_1.3.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "dfa65d45aaba5d7d6ec65d1a6585b9d4fe228c2b97e9cf5de5c5b66c9ee2d56b  skipr-update_1.2.0_all.deb" | sha256sum -c
+echo "9b5c22a8765beb7dcd5bbf251f30cf93e2c544883e8f06aa32286eb62e6b50ef  skipr-update_1.3.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -269,7 +271,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.2.0_all.deb
+sudo apt install ./skipr-update_1.3.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -288,19 +290,24 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ---
 
-### 3D-Artmaker BootScreen
+### 3D-Artmaker Firmware Updater ATmega
+
+Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur einen der beiden Firmware Updater installieren.
+
+> [!IMPORTANT]
+> Der Knopf holt den neuesten Stand des Repos, aus dem dein `~/klipper` stammt, und schreibt ihn auf das Board. Der Update-Stand hängt also von diesem Repo ab. Dein Klipper-Ordner darf keine eigenen Änderungen enthalten.
 
 **1. Paket herunterladen:**
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.2.0/skipr-bootlogo_1.2.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/rf-update_1.3.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "2d3e095cad568d2296191e068de6eb4d5744308eeb5855e61ffff4eef1e441ff  skipr-bootlogo_1.2.0_all.deb" | sha256sum -c
+echo "f11f067108f872a8bc62e656afb3a80b8bf6dc39e4c388ff26fc799817ecb52c  rf-update_1.3.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -309,7 +316,47 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.2.0_all.deb
+sudo apt install ./rf-update_1.3.0_all.deb
+```
+
+Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
+
+**Geklappt?** Am Ende steht `Firmware-Update ist installiert`. Mainsail verliert dabei kurz die Verbindung, das ist normal.
+
+**4. Firmware aktualisieren:**
+
+1. Lade Mainsail mit **F5** neu.
+2. Klicke links auf **Firmware-Update**.
+3. Klicke auf **Update starten** und dann auf **Ja, jetzt starten**.
+4. Warte, bis **Update erfolgreich** erscheint. Das dauert meist nur wenige Minuten. Der Raspberry Pi startet dabei nicht neu.
+
+> [!CAUTION]
+> **Schalte den Drucker während des Firmware-Updates nicht aus!** Bricht das Schreiben trotzdem ab, schalte den Drucker aus und wieder ein und starte das Update erneut.
+
+---
+
+### 3D-Artmaker BootScreen
+
+**1. Paket herunterladen:**
+
+```bash
+cd ~
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/skipr-bootlogo_1.3.0_all.deb
+```
+
+**2. Datei prüfen:**
+
+```bash
+echo "21c225872f8453d2f95ed569855ecc21ffa500fa9f26de37ef342589c8c9cf66  skipr-bootlogo_1.3.0_all.deb" | sha256sum -c
+```
+
+Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
+
+**3. Installieren:**
+
+```bash
+sudo apt update
+sudo apt install ./skipr-bootlogo_1.3.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -350,6 +397,7 @@ Starte Updates am besten nur, wenn kein Druck läuft.
 |---|---|---|
 | **3D-Artmaker 2in1 Hotend** | Die Anzeige-Seite | Bei Änderungen am Installationsteil die neue `.deb` installieren |
 | **3D-Artmaker Firmware Updater** | Nur die Webseite | Bei einem Hinweis auf der Update-Seite die neue `.deb` installieren |
+| **3D-Artmaker Firmware Updater ATmega** | Nur die Webseite | Bei einem Hinweis auf der Update-Seite die neue `.deb` installieren |
 | **3D-Artmaker BootScreen** | Nur das Logo, es erscheint beim nächsten Start | Bei Änderungen an den Start-Einstellungen die neue `.deb` installieren |
 
 Ob eine neue `.deb` nötig ist und wie sie heißt, steht beim jeweiligen [Release](https://github.com/Dennis02121978/3D-Artmaker/releases). Du wiederholst dann die Schritte aus [Abschnitt 4](#4-paket-installieren) mit dem neuen Dateinamen und der neuen Prüfsumme aus der Datei `SHA256SUMS`. Das alte Paket musst du vorher nicht entfernen.
@@ -414,6 +462,8 @@ Taucht während der Installation eine Zeile auf, die mit `N:` beginnt und `unsan
 | Die Filament-Anzeige bleibt leer, oder ein Knopf meldet einen Fehler | In deiner Klipper-Config fehlt einer der [nötigen Einträge](#3d-artmaker-2in1-hotend). |
 | `Dieses Update ist nur für das MKS-SKIPR-Board` | Das Paket passt nicht zu deinem Board. Bitte nicht weiter versuchen. |
 | `Gerade läuft ein Druck` | Warte, bis der Druck fertig ist. |
+| `Dieses Update ist nur für Boards mit ATmega2560` oder `Die Firmware passt nicht zu deinem Board` | Das ATmega-Paket passt nicht zu deinem Board. Bitte nicht weiter versuchen. |
+| `Im Klipper-Ordner gibt es eigene Änderungen` | Im Ordner `~/klipper` wurden Dateien geändert. Kläre das zuerst, sonst könnten deine Änderungen verloren gehen. |
 | Das Firmware-Update hat nicht geklappt | Befolge den Hinweis auf der Seite und klicke auf **Erneut versuchen**. Hilft das nicht, öffne **Technische Details anzeigen**. |
 | Die Seite bleibt lange bei „Der Drucker startet neu“ | Warte mindestens 5 Minuten. Schalte den Drucker dann einmal aus und wieder ein. |
 | Das Logo erscheint nicht | Hast du den Drucker neu gestartet? Das Logo erscheint erst danach. |
@@ -441,6 +491,12 @@ sudo apt remove skipr-filament
 
 ```bash
 sudo apt purge skipr-update
+```
+
+**3D-Artmaker Firmware Updater ATmega:**
+
+```bash
+sudo apt purge rf-update
 ```
 
 **3D-Artmaker BootScreen:**
