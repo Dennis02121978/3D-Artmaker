@@ -2,6 +2,8 @@
 
 Zusätze für den RF1000 und RF2000 mit Klipper, Moonraker und Mainsail.
 
+**Neu hier? Hier geht es zur [Installationsanleitung für Einsteiger](INSTALLATION.md).**
+
 Jedes Paket lässt sich allein installieren und erscheint dann als eigener Eintrag im Update-Manager von Mainsail.
 
 | Eintrag im Update-Manager | Paket | Inhalt | Update per Klick |
@@ -23,7 +25,7 @@ git tag v1.2.0
 git push origin v1.2.0
 ```
 
-Danach baut GitHub alle Pakete und erstellt das Release. Alle Pakete tragen immer dieselbe Versionsnummer, deshalb meldet Mainsail auch dann ein Update, wenn sich nur ein anderes Paket geändert hat.
+Danach baut GitHub alle Pakete und erstellt das Release. Trage die neue Version und die Prüfsummen aus `SHA256SUMS` danach in `INSTALLATION.md` ein. Alle Pakete tragen immer dieselbe Versionsnummer, deshalb meldet Mainsail auch dann ein Update, wenn sich nur ein anderes Paket geändert hat.
 
 ## Lizenz
 
