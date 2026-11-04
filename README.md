@@ -17,6 +17,8 @@ Die Pakete und ihre Prüfsummen liegen unter [Releases](https://github.com/Denni
 
 Dazu gibt es [`config/2in1_hotend.cfg`](config/2in1_hotend.cfg), die Klipper-Makros für einen RF2000 mit 2in1-Umbau. Sie ist kein Paket und wird nicht über den Update-Manager aktualisiert.
 
+Das passende Klipper mit den RF1000-Modulen liegt in [Dennis02121978/klipper](https://github.com/Dennis02121978/klipper). Dort stehen auch die Anleitungen zum [Umstellen von Klipper](https://github.com/Dennis02121978/klipper/blob/master/KLIPPER_WECHSELN.md) und zum [Firmware Updater](https://github.com/Dennis02121978/klipper/blob/master/FIRMWARE_UPDATER.md).
+
 ## Warum nicht alles per Klick aktualisiert wird
 
 Moonraker läuft als normaler Benutzer. Teile, die als Root laufen, bleiben deshalb im `.deb`, sonst könnte jedes Programm dieses Benutzers eigenen Code als Root ausführen. Das betrifft das Update-Programm von `skipr-update` und `rf-update` und die Boot-Einstellungen von `skipr-bootlogo`. Ändern sich diese Teile, muss die neue `.deb` installiert werden.
