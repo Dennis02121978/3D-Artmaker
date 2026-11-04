@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+[ "$1" = "configure" ] || exit 0
+
+. /etc/skipr-update/config
+
+mkdir -p /var/lib/skipr-update
+chmod 755 /var/lib/skipr-update
+
+# Die Webseite laeuft als Klipper-Benutzer und darf nur diesen einen Dienst starten
+mkdir -p /etc/systemd/system/skipr-update-web.service.d
+printf '[Service]\nUser=%s\n' "$KLIPPER_USER" > /etc/systemd/system/skipr-update-web.service.d/user.conf
+
+TMP=$(mktemp)
+echo "$KLIPPER_USER ALL=(root) NOPASSWD: $(command -v systemctl) start --no-block skipr-update.service" > "$TMP"
+visudo -cqf "$TMP"
+install -o root -g root -m 440 "$TMP" /etc/sudoers.d/skipr-update
+rm -f "$TMP"
+
+systemctl daemon-reload
+systemctl enable skipr-update-web.service >/dev/null 2>&1
+systemctl restart skipr-update-web.service
+/usr/bin/python3 /usr/lib/skipr-update/setup_host.py install "$KLIPPER_USER"
+
+IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+echo "Firmware-Update ist installiert: Mainsail neu laden oder http://$IP/update/ oeffnen."
+exit 0

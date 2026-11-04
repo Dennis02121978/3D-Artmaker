@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filament 2in1</title>
+<style>
+/* Immer dunkel wie Mainsail: Hintergrund und Karten aus dessen Theme */
+:root{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--text:#fff;--muted:#a2a9b4;--line:#33363d;--tube:#3b3f47;--box:#2a2d33;--t0:#3fb1f2;--t1:#ff9838;--on:#34b56a;--on-text:#0d1f14;--off:#1e1e1e;--hot:#ef5350;--warm:#f0a020;--warn-bg:#3a2a12;--warn:#ffcc80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:32px 16px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:1.5rem;margin:0}
+a{color:inherit}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+.headline{font-size:1.25rem;font-weight:600;margin:0}
+.muted{color:var(--muted);margin:0}
+.note{border-radius:8px;padding:12px 14px;margin-top:12px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+svg{display:block;width:100%;height:auto;margin:12px 0 4px}
+svg text{fill:var(--text);font:13px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+svg text.dim{fill:var(--muted);font-size:12px}
+svg text.big{font-size:15px;font-weight:600}
+.tube{fill:none;stroke:var(--tube);stroke-width:12;stroke-linecap:round;stroke-linejoin:round}
+.fil{stroke-dasharray:0 1000;fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;transition:stroke-dasharray .8s ease,opacity .3s}
+#fil0{stroke:var(--t0)}#fil1{stroke:var(--t1)}
+.fil.free{opacity:.5}
+.ext{fill:var(--box);stroke:var(--line);stroke-width:1.5}
+#ext0.active{stroke:var(--t0);stroke-width:3}#ext1.active{stroke:var(--t1);stroke-width:3}
+.gear{fill:var(--muted);transform-box:fill-box;transform-origin:center}
+.gear.active0{fill:var(--t0)}.gear.active1{fill:var(--t1)}
+.gear.fwd{animation:spin 1s linear infinite}.gear.back{animation:spin 1s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.gear.fwd,.gear.back{animation:none}.fil{transition:none}}
+.sw{fill:var(--off);stroke:var(--muted);stroke-width:1.5}
+.sw.on{fill:var(--on);stroke:var(--on)}
+.block{fill:var(--box);stroke:var(--muted);stroke-width:1.5;transition:fill .5s,stroke .5s}
+.block.warm{stroke:var(--warm);stroke-width:2.5}
+.block.hot{fill:var(--hot);stroke:var(--hot)}
+.nozzle{fill:var(--muted)}
+.stale{opacity:.45}
+dl{margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px}
+dt{font-weight:600}dd{margin:0;color:var(--muted)}
+.foot{font-size:.875rem;color:var(--muted);margin:12px 0 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+button{font:inherit;font-weight:600;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text);padding:10px 16px;cursor:pointer;flex:1 1 100px}
+button.primary{flex:1 1 100%;padding:14px;font-size:1.125rem;background:var(--t0);border-color:var(--t0);color:#fff}
+button:disabled{opacity:.5;cursor:not-allowed}
+.msg{margin:10px 0 0;font-size:.9375rem}
+.msg.ok{color:var(--on);font-weight:600}
+.msg.err{color:var(--hot);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><h1>Filament 2in1</h1><a href="/">Zurück zu Mainsail</a></div>
+  <div class="card" aria-live="polite">
+    <p class="headline" id="head">Wird geladen …</p>
+    <p class="muted" id="sub">&nbsp;</p>
+    <div class="note" id="warn" hidden></div>
+    <svg id="pic" viewBox="0 0 420 430" role="img" aria-labelledby="head sub">
+      <path class="tube" d="M90 78 L210 300 L210 352"/>
+      <path class="tube" d="M330 78 L210 300 L210 352"/>
+      <path class="fil" id="fil0" d="M90 78 L210 300 L210 352"/>
+      <path class="fil" id="fil1" d="M330 78 L210 300 L210 352"/>
+
+      <rect class="ext" id="ext0" x="50" y="18" width="80" height="60" rx="8"/>
+      <rect class="ext" id="ext1" x="290" y="18" width="80" height="60" rx="8"/>
+      <g id="gear0" class="gear"><path d="M90 36l3 0 1 4 3 1 3-2 2 2-2 3 1 3 4 1 0 3-4 1-1 3 2 3-2 2-3-2-3 1-1 4-3 0-1-4-3-1-3 2-2-2 2-3-1-3-4-1 0-3 4-1 1-3-2-3 2-2 3 2 3-1z" transform="translate(-1.5 0)"/></g>
+      <g id="gear1" class="gear"><path d="M330 36l3 0 1 4 3 1 3-2 2 2-2 3 1 3 4 1 0 3-4 1-1 3 2 3-2 2-3-2-3 1-1 4-3 0-1-4-3-1-3 2-2-2 2-3-1-3-4-1 0-3 4-1 1-3-2-3 2-2 3 2 3-1z" transform="translate(-1.5 0)"/></g>
+      <text class="big" x="42" y="42" text-anchor="end">T0</text>
+      <text class="dim" x="42" y="58" text-anchor="end">links</text>
+      <text class="big" x="378" y="42">T1</text>
+      <text class="dim" x="378" y="58">rechts</text>
+      <text class="dim" id="act0" x="90" y="12" text-anchor="middle"></text>
+      <text class="dim" id="act1" x="330" y="12" text-anchor="middle"></text>
+
+      <rect class="sw" id="sw0" x="125" y="160" width="30" height="20" rx="4"/>
+      <rect class="sw" id="sw1" x="265" y="160" width="30" height="20" rx="4"/>
+      <text x="117" y="168" text-anchor="end">Schalter</text>
+      <text class="dim" id="swt0" x="117" y="184" text-anchor="end"></text>
+      <text x="303" y="168">Schalter</text>
+      <text class="dim" id="swt1" x="303" y="184"></text>
+
+      <rect class="block" id="block" x="168" y="340" width="84" height="46" rx="6"/>
+      <path class="nozzle" d="M194 386h32l-11 20h-10z"/>
+      <text x="264" y="358">Hotend</text>
+      <text class="big" id="temp" x="264" y="376"></text>
+      <text class="dim" id="target" x="264" y="392"></text>
+    </svg>
+    <dl>
+      <dt style="color:var(--t0)">T0</dt><dd id="d0">–</dd>
+      <dt style="color:var(--t1)">T1</dt><dd id="d1">–</dd>
+    </dl>
+    <div class="actions">
+      <button class="primary" id="btnAll" type="button" disabled>Extruder laden (beide)</button>
+      <button id="btnT0" type="button" disabled>Nur T0 laden</button>
+      <button id="btnT1" type="button" disabled>Nur T1 laden</button>
+    </div>
+    <p class="msg" id="msg" role="status">Heizt selbst auf mindestens 190 °C. Die Düse muss frei über dem Bett stehen.</p>
+    <p class="foot">Die Stellung ist aus Schaltern und aktivem Werkzeug abgeleitet, nicht gemessen. <span id="dist"></span></p>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const SENSOR = ['filament_sensor_left', 'filament_sensor_right'];
+const NAME = ['T0 (links)', 'T1 (rechts)'];
+const OBJECTS = 'gcode_button%20filament_sensor_left&gcode_button%20filament_sensor_right&gcode_macro%20_TOOL_STATE&extruder=temperature,target&motion_report=live_extruder_velocity&print_stats=state&idle_timeout=state';
+// Weg je Werkzeug in Bildpunkten: Extruder bis Zusammenlauf, dann bis ins Hotend
+const BRANCH = Math.hypot(120, 222), TOTAL = BRANCH + 52, SWITCH = BRANCH * (170 - 78) / 222;
+const STOP = {park: SWITCH - 22, front: SWITCH + 30, hotend: TOTAL};
+const WARN_AFTER = 3000;
+// Beim Abgleich ist ein Schalter oft nur Bruchteile einer Sekunde frei:
+// schnell abfragen, solange Klipper arbeitet, und "frei" kurz stehen lassen.
+const POLL_IDLE = 500, POLL_BUSY = 150, FREE_HOLD = 1200;
+let warnKey = '', warnSince = 0, hasData = false, job = null, pollDelay = POLL_IDLE;
+const lastFree = [-Infinity, -Infinity];
+
+async function get(url){
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 3000);
+  try {
+    const r = await fetch(url, {signal: ctl.signal, cache: 'no-store'});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return (await r.json()).result;
+  } finally { clearTimeout(timer); }
+}
+
+function setFilament(tool, stop, free){
+  const el = $('fil' + tool);
+  el.style.strokeDasharray = STOP[stop] + ' ' + (TOTAL + 20);
+  el.classList.toggle('free', free);
+}
+
+function setMsg(text, kind){
+  $('msg').textContent = text;
+  $('msg').className = 'msg' + (kind ? ' ' + kind : '');
+}
+
+function setButtons(enabled){
+  ['btnAll', 'btnT0', 'btnT1'].forEach(id => { $(id).disabled = !enabled; });
+}
+
+async function load(command){
+  job = {detached: false, idleSince: 0};
+  setButtons(false);
+  setMsg('Läuft: Heizen und Laden. Das kann einige Minuten dauern …');
+  try {
+    const r = await fetch('/printer/gcode/script?script=' + encodeURIComponent(command), {method: 'POST'});
+    if (r.ok) { job = null; setMsg('Laden fertig.', 'ok'); return; }
+    if (r.status >= 500) { job.detached = true; return; }
+    let text = 'HTTP ' + r.status;
+    try { text = (await r.json()).error.message; } catch (e) {}
+    job = null;
+    setMsg('Abgebrochen: ' + text, 'err');
+  } catch (e) {
+    // Antwort verloren, das Makro kann trotzdem weiterlaufen
+    if (job) job.detached = true;
+  }
+}
+
+function trackJob(busy){
+  if (!job || !job.detached) return;
+  if (busy) { job.idleSince = 0; return; }
+  if (!job.idleSince) { job.idleSince = Date.now(); return; }
+  if (Date.now() - job.idleSince >= 3000) {
+    job = null;
+    setMsg('Klipper ist wieder frei. Das Ergebnis steht in der Mainsail-Konsole.');
+  }
+}
+
+function offline(message){
+  setButtons(false);
+  $('pic').classList.add('stale');
+  $('head').textContent = message;
+  $('sub').textContent = hasData ? 'Die Anzeige zeigt den letzten bekannten Stand.' : 'Noch keine Daten vom Drucker.';
+  $('warn').hidden = true;
+  warnKey = '';
+}
+
+function warning(key, text){
+  // Kurze Zustaende beim Werkzeugwechsel sind normal, erst dauerhafte melden
+  if (key !== warnKey){ warnKey = key; warnSince = Date.now(); }
+  const show = key && Date.now() - warnSince >= WARN_AFTER;
+  $('warn').hidden = !show;
+  if (show) $('warn').textContent = text;
+}
+
+function render(s){
+  const macro = s['gcode_macro _TOOL_STATE'] || {};
+  const active = macro.active_tool;
+  const pressed = SENSOR.map(n => (s['gcode_button ' + n] || {}).state === 'PRESSED');
+  const v = (s.motion_report || {}).live_extruder_velocity || 0;
+  const moving = Math.abs(v) > 0.1;
+  const printing = (s.print_stats || {}).state === 'printing';
+  const paused = (s.print_stats || {}).state === 'paused';
+  $('pic').classList.remove('stale');
+  hasData = true;
+  const busy = (s.idle_timeout || {}).state === 'Printing';
+  pollDelay = busy || job ? POLL_BUSY : POLL_IDLE;
+  trackJob(busy);
+  setButtons(!job && !busy && !printing && !paused);
+
+  const now = performance.now();
+  const shown = pressed.map((isPressed, t) => {
+    if (!isPressed) lastFree[t] = now;
+    return isPressed && now - lastFree[t] >= FREE_HOLD;
+  });
+
+  [0, 1].forEach(t => {
+    const isActive = active === t;
+    const stop = !shown[t] ? 'park' : isActive ? 'hotend' : 'front';
+    setFilament(t, stop, !shown[t]);
+    $('ext' + t).classList.toggle('active', isActive);
+    $('act' + t).textContent = isActive ? 'aktiv' : '';
+    const gear = $('gear' + t);
+    gear.setAttribute('class', 'gear' + (isActive ? ' active' + t : '') + (isActive && moving ? (v > 0 ? ' fwd' : ' back') : ''));
+    $('sw' + t).classList.toggle('on', shown[t]);
+    $('swt' + t).textContent = shown[t] ? 'gedrückt' : 'frei';
+    $('d' + t).textContent = !shown[t]
+      ? (isActive ? 'Aktiv, aber Schalter frei: Filament geparkt oder nicht geladen.' : 'Schalter frei: Filament geparkt oder nicht geladen.')
+      : (isActive ? 'Aktiv, Filament ist am Schalter vorbei bis zum Hotend geladen.' : 'Nicht aktiv, aber Schalter gedrückt: Filament ist nicht geparkt.');
+  });
+
+  $('head').textContent = active === 0 || active === 1 ? 'Aktiv: ' + NAME[active] : 'Aktives Werkzeug unbekannt';
+  const printText = printing ? 'Druck läuft' : paused ? 'Druck pausiert' : 'Kein Druck';
+  $('sub').textContent = printText + (moving ? (v > 0 ? ' · Extruder fördert' : ' · Extruder zieht zurück') : ' · Extruder steht');
+
+  const temp = (s.extruder || {}).temperature, target = (s.extruder || {}).target;
+  $('temp').textContent = temp == null ? '–' : Math.round(temp) + ' °C';
+  $('target').textContent = target ? 'Soll ' + Math.round(target) + ' °C' : 'Heizung aus';
+  $('block').setAttribute('class', 'block' + (temp >= 170 ? ' hot' : temp >= 50 ? ' warm' : ''));
+
+  if (macro.prime_dist != null && macro.park_dist != null)
+    $('dist').textContent = 'Schalter bis Hotend: ' + macro.prime_dist + ' mm, Parkposition ' + (macro.park_dist - macro.prime_dist) + ' mm hinter dem Schalter.';
+
+  if (moving) warning('', '');
+  else if (pressed[0] && pressed[1]) warning('both', 'Beide Schalter sind gedrückt. Ein Filament ist nicht geparkt. Vor dem Laden prüfen oder EXTRUDER_LADEN ausführen.');
+  else if ((active === 0 || active === 1) && !pressed[active] && (printing || paused)) warning('empty', NAME[active] + ' ist aktiv, der Schalter meldet aber kein Filament.');
+  else warning('', '');
+}
+
+async function poll(){
+  try {
+    const result = await get('/printer/objects/query?' + OBJECTS);
+    render(result.status);
+  } catch (e) {
+    try {
+      const info = await get('/printer/info');
+      offline(info.state === 'ready' ? 'Daten nicht lesbar' : 'Klipper ist nicht bereit (' + info.state + ')');
+    } catch (e2) { offline('Keine Verbindung zum Drucker'); }
+  }
+  setTimeout(poll, pollDelay);
+}
+$('btnAll').onclick = () => load('EXTRUDER_LADEN');
+$('btnT0').onclick = () => load('EXTRUDER_LADEN TOOL=0');
+$('btnT1').onclick = () => load('EXTRUDER_LADEN TOOL=1');
+poll();
+</script>
+</body>
+</html>

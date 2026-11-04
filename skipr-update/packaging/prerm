@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+[ "$1" = "remove" ] || exit 0
+
+if [ "$(systemctl show -p ActiveState --value skipr-update.service 2>/dev/null)" = "activating" ]; then
+    echo "skipr-update: Gerade laeuft ein Firmware-Update. Bitte warten, bis es fertig ist." >&2
+    exit 1
+fi
+
+systemctl disable --now skipr-update-web.service 2>/dev/null || true
+if [ -f /etc/skipr-update/config ]; then
+    . /etc/skipr-update/config
+    /usr/bin/python3 /usr/lib/skipr-update/setup_host.py remove "$KLIPPER_USER"
+fi
+exit 0

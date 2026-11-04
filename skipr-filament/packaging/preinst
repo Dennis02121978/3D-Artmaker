@@ -1,0 +1,19 @@
+#!/bin/sh
+# Prueft vor dem Entpacken, ob das System passt. Schlaegt hier etwas fehl, bleibt alles unveraendert.
+set -e
+[ "$1" = "install" ] || [ "$1" = "upgrade" ] || exit 0
+
+fail() { echo "skipr-filament: $1" >&2; exit 1; }
+
+KUSER=$(systemctl show -p User --value klipper.service 2>/dev/null || true)
+[ -n "$KUSER" ] || fail "Der Dienst klipper.service wurde nicht gefunden oder hat keinen Benutzer."
+KHOME=$(getent passwd "$KUSER" | cut -d: -f6)
+[ -n "$KHOME" ] || fail "Benutzer $KUSER existiert nicht."
+[ -d "$KHOME/printer_data/config" ] || fail "Der Config-Ordner $KHOME/printer_data/config fehlt."
+[ -f "$KHOME/printer_data/config/moonraker.conf" ] || fail "Die Datei moonraker.conf wurde nicht gefunden."
+[ -f /etc/nginx/sites-available/mainsail ] || fail "Mainsail mit nginx wurde nicht gefunden."
+grep -q '^    location / {$' /etc/nginx/sites-available/mainsail || fail "Die nginx-Konfiguration von Mainsail hat ein unbekanntes Format."
+
+mkdir -p /etc/skipr-filament
+echo "KLIPPER_USER=$KUSER" > /etc/skipr-filament/config
+exit 0

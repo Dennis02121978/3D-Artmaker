@@ -1,0 +1,13 @@
+Package: skipr-filament
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Depends: python3, nginx
+Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
+Description: Filament-Anzeige fuer das 2in1-Hotend in Mainsail
+ Fuegt Mainsail den Menuepunkt "Filament 2in1" hinzu. Die Seite zeigt beide
+ Extruder, die Filamentschalter und das Hotend live an und startet das Laden
+ per Knopfdruck. Benoetigt Klipper, Moonraker, Mainsail und eine Klipper-Config
+ mit den Makros _TOOL_STATE und EXTRUDER_LADEN sowie den gcode_button-Sensoren
+ filament_sensor_left und filament_sensor_right.

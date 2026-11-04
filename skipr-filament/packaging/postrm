@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove|purge)
+        rm -rf /usr/lib/skipr-filament /usr/share/skipr-filament
+        ;;
+esac
+if [ "$1" = "purge" ]; then
+    rm -rf /etc/skipr-filament
+fi
+exit 0

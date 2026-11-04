@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firmware-Update</title>
+<style>
+/* Immer dunkel wie Mainsail: Hintergrund und Karten aus dessen Theme */
+:root{color-scheme:dark;--bg:#121212;--card:#1e1e1e;--text:#fff;--muted:#a2a9b4;--line:#33363d;--accent:#e53935;--accent-text:#fff;--ok:#5fd08f;--warn-bg:#3a2c12;--warn:#f2c26b;--err-bg:#3d1a18;--err:#f5a29c;--track:#33363d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:32px 16px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:1.5rem;margin:0}
+a{color:inherit}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px}
+.headline{font-size:1.25rem;font-weight:600;margin:0 0 6px}
+.muted{color:var(--muted);margin:0}
+.ver{font-size:.875rem;color:var(--muted);margin:16px 0 0;overflow-wrap:anywhere}
+button{font:inherit;font-weight:600;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--text);padding:10px 16px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-text);width:100%;padding:16px;font-size:1.125rem;margin-top:20px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}.row button{flex:1 1 140px}
+.row button.primary{margin:0;padding:10px 16px;font-size:1rem;width:auto}
+.note{border-radius:8px;padding:12px 14px;margin-top:16px}
+.warn{background:var(--warn-bg);color:var(--warn);font-weight:600}
+.err{background:var(--err-bg);color:var(--err)}
+.bar{height:12px;background:var(--track);border-radius:6px;overflow:hidden;margin:16px 0 4px}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .5s}
+ol{list-style:none;padding:0;margin:16px 0 0}
+li{padding:5px 0 5px 28px;position:relative;color:var(--muted)}
+li::before{content:"";position:absolute;left:4px;top:12px;width:10px;height:10px;border-radius:50%;background:var(--track)}
+li.active{color:var(--text);font-weight:600}li.active::before{background:var(--accent)}
+li.done::before{background:var(--ok)}li.failed{color:var(--err);font-weight:600}li.failed::before{background:var(--err)}
+details{margin-top:16px;font-size:.875rem}pre{max-height:300px;overflow:auto;background:var(--bg);padding:10px;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere}
+.big-ok{color:var(--ok)}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><h1>Firmware-Update</h1><a href="/">Zurück zu Mainsail</a></div>
+  <div class="card" id="card" aria-live="polite"><p class="muted">Wird geladen …</p></div>
+  <details id="logbox" hidden><summary>Technische Details anzeigen</summary><pre id="log"></pre></details>
+</main>
+<script>
+const card = document.getElementById('card'), logbox = document.getElementById('logbox');
+let last = null, confirming = false, starting = false, offlineSince = 0, seenRunning = false, renderKey = '';
+
+function el(tag, attrs, ...kids){
+  const n = document.createElement(tag);
+  for (const k in attrs||{}) { if (k === 'onclick') n.onclick = attrs[k]; else if (attrs[k] !== false && attrs[k] != null) n.setAttribute(k, attrs[k]); }
+  for (const c of kids) n.append(c);
+  return n;
+}
+function show(...nodes){ card.replaceChildren(...nodes); }
+function version(s){
+  const mcu = s.mcu_version && s.mcu_version !== s.version ? ' · Board: ' + s.mcu_version : '';
+  const ver = el('p', {class:'ver'}, 'Installierte Version: ' + (s.version||'unbekannt') + mcu);
+  if (!s.package_update) return ver;
+  return el('div', {}, ver, el('div', {class:'note warn'},
+    'Für diese Update-Seite gibt es die neue Version ' + s.package_update + '. ',
+    el('a', {href:s.package_url, target:'_blank', rel:'noopener'}, 'Zum Download')));
+}
+function idle(s){
+  if (confirming) return show(
+    el('p',{class:'headline'},'Update wirklich starten?'),
+    el('p',{class:'muted'},'Das dauert etwa 5 bis 15 Minuten. Der Drucker ist in dieser Zeit nicht nutzbar und startet am Ende neu.'),
+    el('div',{class:'note warn'},'Den Drucker während des Updates nicht ausschalten.'),
+    el('div',{class:'row'},
+      el('button',{onclick(){confirming=false;render();}},'Abbrechen'),
+      el('button',{class:'primary',disabled:starting||false,onclick:start},starting?'Wird gestartet …':'Ja, jetzt starten'))
+  );
+  const text = s.update_available === true ? ['Ein Update ist verfügbar.','Hol dir die neueste Firmware für deinen Drucker.']
+    : s.update_available === false ? ['Dein Drucker ist auf dem neuesten Stand.','Du kannst die Firmware trotzdem neu aufspielen, falls etwas nicht stimmt.']
+    : ['Update-Status unbekannt.','Der Drucker konnte nicht prüfen, ob es etwas Neues gibt. Ist er mit dem Internet verbunden?'];
+  const nodes = [el('p',{class:'headline'},text[0]), el('p',{class:'muted'},text[1])];
+  if (s.block_reason) nodes.push(el('div',{class:'note warn'},s.block_reason));
+  nodes.push(el('button',{class:'primary',disabled:!!s.block_reason,onclick(){confirming=true;render();}},'Update starten'), version(s));
+  show(...nodes);
+}
+function steps(s){ return el('ol',{},...(s.steps||[]).map(i=>el('li',{class:i.state},i.title))); }
+function bar(p){ const i = el('i'); i.style.width = (p||0)+'%'; return el('div',{class:'bar'},i); }
+function running(s){
+  show(
+    el('p',{class:'headline'},s.state==='rebooting'?'Fast fertig: Der Drucker startet neu':'Update läuft …'),
+    el('p',{class:'muted'},'Du kannst diese Seite schließen, das Update läuft weiter.'),
+    bar(s.percent), steps(s),
+    el('div',{class:'note warn'},'Den Drucker jetzt nicht ausschalten.')
+  );
+}
+function failed(s){
+  show(
+    el('p',{class:'headline'},'Das Update hat nicht geklappt'),
+    el('div',{class:'note err'},s.message||'Unbekannter Fehler.'),
+    steps(s),
+    s.block_reason ? el('div',{class:'note warn'},s.block_reason) : '',
+    el('button',{class:'primary',disabled:!!s.block_reason,onclick(){confirming=true;last.state='idle';render();}},'Erneut versuchen'),
+    version(s)
+  );
+}
+function done(s){
+  const ready = s.klippy === 'ready';
+  const nodes = ready
+    ? [el('p',{class:'headline big-ok'},'Update erfolgreich'), el('p',{class:'muted'},'Dein Drucker ist bereit.'), version(s)]
+    : [el('p',{class:'headline'},'Der Drucker startet …'), el('p',{class:'muted'},'Das Update ist fertig, die Drucker-Software wird gerade geladen.')];
+  if (!ready && s.klippy) nodes.push(el('div',{class:'note warn'},'Die Drucker-Software meldet: ' + s.klippy + '. Falls das so bleibt, Details in Mainsail ansehen.'), version(s));
+  if (ready) nodes.push(el('div',{class:'row'},el('a',{href:'/'},'Zurück zu Mainsail')));
+  show(...nodes);
+}
+function offline(){
+  const long = offlineSince && Date.now()-offlineSince > 300000;
+  show(
+    el('p',{class:'headline'},seenRunning?'Der Drucker startet neu …':'Keine Verbindung zum Drucker'),
+    el('p',{class:'muted'},seenRunning?'Das dauert meist ein bis zwei Minuten. Diese Seite aktualisiert sich von selbst.':'Es wird weiter versucht, den Drucker zu erreichen.'),
+    long?el('div',{class:'note warn'},'Das dauert ungewöhnlich lange. Bitte den Drucker aus- und wieder einschalten.'):''
+  );
+}
+function render(){
+  if (!last) return;
+  ({idle,running,rebooting:running,failed,done}[last.state]||idle)(last);
+}
+async function start(){
+  starting = true; render();
+  try {
+    const r = await fetch('start',{method:'POST',headers:{'X-Skipr-Update':'1'}});
+    if (!r.ok) throw new Error((await r.json()).error);
+    confirming = false; seenRunning = true; last = {state:'running',percent:0,steps:[]};
+  } catch(e) {
+    confirming = false; last = Object.assign(last||{}, {state:'failed',message:e.message||'Das Update konnte nicht gestartet werden.',steps:[]});
+  }
+  starting = false; render();
+}
+async function poll(){
+  try {
+    const r = await fetch('status',{cache:'no-store'});
+    if (!r.ok) throw new Error();
+    const s = await r.json();
+    offlineSince = 0;
+    if (s.state==='running'||s.state==='rebooting') seenRunning = true;
+    const key = JSON.stringify(s) + confirming;
+    last = s;
+    if (key !== renderKey && !(confirming && s.state!=='running' && s.state!=='rebooting')) { renderKey = key; render(); }
+    else if (confirming && (s.state==='running'||s.state==='rebooting')) { confirming=false; render(); }
+    if (s.state !== 'idle' || s.step) {
+      logbox.hidden = false;
+      if (logbox.open) {
+        const t = await fetch('log',{cache:'no-store'});
+        if (t.ok) {
+          const pre = document.getElementById('log');
+          const atEnd = pre.scrollHeight - pre.scrollTop - pre.clientHeight < 40;
+          pre.textContent = await t.text();
+          if (atEnd) pre.scrollTop = pre.scrollHeight;
+        }
+      }
+    }
+  } catch(e) { if (!offlineSince) offlineSince = Date.now(); renderKey = ''; offline(); }
+}
+logbox.addEventListener('toggle', poll);
+poll(); setInterval(poll, 2000);
+</script>
+</body>
+</html>

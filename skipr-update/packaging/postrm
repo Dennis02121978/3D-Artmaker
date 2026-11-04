@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove|purge)
+        rm -f /etc/sudoers.d/skipr-update
+        rm -rf /etc/systemd/system/skipr-update-web.service.d
+        rm -rf /usr/lib/skipr-update  # dpkg laesst den Python-Cache sonst liegen
+        systemctl daemon-reload 2>/dev/null || true
+        ;;
+esac
+if [ "$1" = "purge" ]; then
+    rm -rf /etc/skipr-update /var/lib/skipr-update
+    rm -f /etc/nginx/mainsail.vor-skipr-update
+fi
+exit 0

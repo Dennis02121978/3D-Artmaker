@@ -1,0 +1,7 @@
+[Unit]
+Description=Firmware-Update MKS SKIPR
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/skipr-update/runner.py
+TimeoutStartSec=3600

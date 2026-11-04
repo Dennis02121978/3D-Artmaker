@@ -1,0 +1,12 @@
+Package: skipr-update
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Depends: python3, nginx, sudo, git, make, gcc, util-linux, gcc-arm-none-eabi, binutils-arm-none-eabi, libnewlib-arm-none-eabi
+Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
+Description: Firmware-Update fuer MKS SKIPR ueber Mainsail
+ Fuegt Mainsail den Menuepunkt "Firmware-Update" hinzu. Damit laesst sich die
+ Klipper-Firmware des MKS-SKIPR-Boards ohne Terminal per Knopfdruck
+ aktualisieren. Benoetigt Klipper, Moonraker und Mainsail. Nur fuer das
+ MKS-SKIPR-Board (STM32F407) geeignet.

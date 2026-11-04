@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+[ "$1" = "remove" ] || exit 0
+
+if [ -f /etc/skipr-filament/config ]; then
+    . /etc/skipr-filament/config
+    /usr/bin/python3 /usr/lib/skipr-filament/setup_host.py remove "$KLIPPER_USER"
+fi
+exit 0

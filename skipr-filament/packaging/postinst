@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+[ "$1" = "configure" ] || exit 0
+
+. /etc/skipr-filament/config
+/usr/bin/python3 /usr/lib/skipr-filament/setup_host.py install "$KLIPPER_USER"
+
+IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+echo "Filament-Anzeige ist installiert: Mainsail neu laden oder http://$IP/filament/ oeffnen."
+exit 0
