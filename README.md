@@ -20,6 +20,8 @@ Dazu gibt es [`config/2in1_hotend.cfg`](config/2in1_hotend.cfg), die Klipper-Mak
 
 Für den RF2000 v2 mit zwei Extrudern und zwei Düsen gibt es eine komplette Config mit OrcaSlicer-Einstellungen: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/releases/latest/download/RF2000v2_DualExtruder.zip) oder [Dateien ansehen](config/RF2000v2_DualExtruder/). Auch sie wird nicht über den Update-Manager aktualisiert.
 
+Fertige Images liegen wegen ihrer Größe bei Google Drive: [RF2000 v2 mit zwei Extrudern und ATmega2560](https://drive.google.com/file/d/1lhX58YXYUb97EdHdkSFAutRhuTZfrxYp/view?usp=share_link) (Raspberry Pi 3, 3,4 GB) und [RF2000 mit 2in1-Hotend und MKS SKIPR](https://drive.google.com/file/d/1tOGc1TmRw5Qx8h91m4WREEqGrIiXHiVt/view?usp=sharing) (1,7 GB). Das Zurückspielen und der erste Start sind noch nicht getestet. Mehr dazu steht im [Release v1.4.0](https://github.com/Dennis02121978/3D-Artmaker/releases/tag/v1.4.0).
+
 Das passende Klipper mit den RF1000-Modulen liegt in [Dennis02121978/klipper](https://github.com/Dennis02121978/klipper). Dort stehen auch die Anleitungen zum [Umstellen von Klipper](https://github.com/Dennis02121978/klipper/blob/master/KLIPPER_WECHSELN.md), zum [Firmware Updater](https://github.com/Dennis02121978/klipper/blob/master/FIRMWARE_UPDATER.md) und zum [BootScreen für den Raspberry Pi](https://github.com/Dennis02121978/klipper/blob/master/BOOTSCREEN.md).
 
 ## Warum nicht alles per Klick aktualisiert wird
