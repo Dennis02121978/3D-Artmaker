@@ -1,0 +1,12 @@
+Package: rf-bootlogo
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Depends: python3, imagemagick, xinit
+Conflicts: skipr-bootlogo
+Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
+Description: 3D-Artmaker-Logo beim Start auf dem Display des Raspberry Pi
+ Zeigt beim Start das 3D-Artmaker-Logo auf einem 480x320-SPI-Display (fbtft),
+ bis KlipperScreen erscheint. Blendet dafuer den Konsolentext aus. Benoetigt
+ einen Raspberry Pi und KlipperScreen.

@@ -1,0 +1,2 @@
+# Nur das SPI-Display: beim Start meldet sich zuerst der Framebuffer der Firmware (simplefb).
+ACTION=="add", SUBSYSTEM=="graphics", KERNEL=="fb[0-9]*", ATTR{name}=="fb_*", TAG+="systemd", ENV{SYSTEMD_WANTS}+="rf-boot-logo@%k.service"

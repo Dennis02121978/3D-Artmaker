@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 VERSION=${1:?Version fehlt, zum Beispiel: ./build_release.sh 1.1.0}
 
-PACKAGES="skipr-filament skipr-update skipr-bootlogo rf-update"
+PACKAGES="skipr-filament skipr-update skipr-bootlogo rf-update rf-bootlogo"
 rm -rf dist
 mkdir dist
 for p in $PACKAGES; do

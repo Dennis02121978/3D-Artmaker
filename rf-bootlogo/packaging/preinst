@@ -1,0 +1,34 @@
+#!/bin/sh
+# Prueft vor dem Entpacken, ob das System passt. Schlaegt hier etwas fehl, bleibt alles unveraendert.
+set -e
+[ "$1" = "install" ] || [ "$1" = "upgrade" ] || exit 0
+
+fail() { echo "rf-bootlogo: $1" >&2; exit 1; }
+
+[ ! -f /boot/armbianEnv.txt ] || fail "Dieses Paket ist nur fuer den Raspberry Pi. Fuer Armbian gibt es skipr-bootlogo."
+CMDLINE=/boot/firmware/cmdline.txt
+[ -f "$CMDLINE" ] || CMDLINE=/boot/cmdline.txt
+[ -f "$CMDLINE" ] || fail "Dieses Paket ist nur fuer den Raspberry Pi (cmdline.txt fehlt)."
+head -n 1 "$CMDLINE" | grep -q 'root=' || fail "In $CMDLINE fehlt der Eintrag root=."
+
+PANEL=
+for FB in /sys/class/graphics/fb[0-9]*; do
+    case "$(cat "$FB/name" 2>/dev/null)" in fb_*) PANEL=$FB; break ;; esac
+done
+[ -n "$PANEL" ] || fail "Kein SPI-Display gefunden. Das Display muss schon funktionieren."
+SIZE=$(cat "$PANEL/virtual_size")
+[ "$SIZE" = "480,320" ] || fail "Das Logo passt nur auf ein 480x320-Display im Querformat, gefunden wurde $SIZE."
+[ "$(cat "$PANEL/bits_per_pixel")" = "16" ] || fail "Das Logo braucht ein Display mit 16 Bit Farbtiefe."
+
+systemctl cat KlipperScreen.service >/dev/null 2>&1 || fail "KlipperScreen wurde nicht gefunden."
+systemctl show -p Environment --value KlipperScreen.service | grep -q 'BACKEND=[wW]' \
+    && fail "KlipperScreen laeuft mit Wayland, dieses Paket braucht X11."
+
+KUSER=$(systemctl show -p User --value klipper.service 2>/dev/null || true)
+[ -n "$KUSER" ] || fail "Der Dienst klipper.service wurde nicht gefunden oder hat keinen Benutzer."
+KHOME=$(getent passwd "$KUSER" | cut -d: -f6)
+[ -n "$KHOME" ] || fail "Benutzer $KUSER existiert nicht."
+
+mkdir -p /etc/rf-bootlogo
+printf 'KLIPPER_USER=%s\nLOGO_DIR=%s/rf-bootlogo\n' "$KUSER" "$KHOME" > /etc/rf-bootlogo/config
+exit 0

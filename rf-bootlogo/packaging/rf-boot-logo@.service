@@ -1,0 +1,7 @@
+[Unit]
+Description=Logo auf dem Display %i anzeigen
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/rf-bootlogo/show-logo /dev/%i

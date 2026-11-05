@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove|purge)
+        rm -rf /usr/lib/rf-bootlogo /var/lib/rf-bootlogo
+        systemctl daemon-reload 2>/dev/null || true
+        udevadm control --reload 2>/dev/null || true
+        echo "Logo ist entfernt. Die Aenderung wird nach dem naechsten Neustart wirksam: sudo reboot"
+        ;;
+esac
+if [ "$1" = "purge" ]; then
+    rm -rf /etc/rf-bootlogo
+fi
+exit 0
