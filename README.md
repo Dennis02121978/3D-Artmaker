@@ -18,6 +18,8 @@ Die Pakete und ihre Prüfsummen liegen unter [Releases](https://github.com/Denni
 
 Dazu gibt es [`config/2in1_hotend.cfg`](config/2in1_hotend.cfg), die Klipper-Makros für einen RF2000 mit 2in1-Umbau. Sie ist kein Paket und wird nicht über den Update-Manager aktualisiert.
 
+Für den RF2000 v2 mit zwei Extrudern und zwei Düsen gibt es eine komplette Config mit OrcaSlicer-Einstellungen: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/raw/main/config/RF2000v2_DualExtruder.zip) oder [Dateien ansehen](config/RF2000v2_DualExtruder/). Auch sie wird nicht über den Update-Manager aktualisiert.
+
 Das passende Klipper mit den RF1000-Modulen liegt in [Dennis02121978/klipper](https://github.com/Dennis02121978/klipper). Dort stehen auch die Anleitungen zum [Umstellen von Klipper](https://github.com/Dennis02121978/klipper/blob/master/KLIPPER_WECHSELN.md), zum [Firmware Updater](https://github.com/Dennis02121978/klipper/blob/master/FIRMWARE_UPDATER.md) und zum [BootScreen für den Raspberry Pi](https://github.com/Dennis02121978/klipper/blob/master/BOOTSCREEN.md).
 
 ## Warum nicht alles per Klick aktualisiert wird
