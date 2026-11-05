@@ -13,5 +13,6 @@ for p in $PACKAGES; do
     mv "$p"/dist/* dist/
     rmdir "$p/dist"
 done
+(cd config && python3 -m zipfile -c ../dist/RF2000v2_DualExtruder.zip RF2000v2_DualExtruder)
 (cd dist && sha256sum -- * > SHA256SUMS)
 ls -l dist
