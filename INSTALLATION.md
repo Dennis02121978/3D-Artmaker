@@ -15,6 +15,7 @@ Diese Anleitung führt dich Schritt für Schritt durch die Installation. Du brau
    - [3D-Artmaker Firmware Updater](#3d-artmaker-firmware-updater)
    - [3D-Artmaker Firmware Updater ATmega](#3d-artmaker-firmware-updater-atmega)
    - [3D-Artmaker BootScreen](#3d-artmaker-bootscreen)
+   - [3D-Artmaker BootScreen Pi](#3d-artmaker-bootscreen-pi)
 5. [Updates installieren](#5-updates-installieren)
 6. [Wenn etwas nicht klappt](#6-wenn-etwas-nicht-klappt)
 7. [Paket wieder entfernen](#7-paket-wieder-entfernen)
@@ -30,6 +31,7 @@ Du kannst dir aussuchen, was du haben möchtest. Jedes Paket funktioniert allein
 | **3D-Artmaker Firmware Updater** | Aktualisiert die Klipper-Firmware deines Boards per Knopfdruck in Mainsail. | du ein MKS-SKIPR-Board mit Micro-SD im MCU-Slot hast. |
 | **3D-Artmaker Firmware Updater ATmega** | Aktualisiert die Klipper-Firmware deines ATmega-Boards per Knopfdruck in Mainsail. | dein Board einen ATmega2560 mit 16 MHz hat und mit 250000 Baud läuft, zum Beispiel beim RF1000 oder RF2000. |
 | **3D-Artmaker BootScreen** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du Armbian, KlipperScreen und ein 480x320-Display mit dem Treiber `fb_st7796` hast. |
+| **3D-Artmaker BootScreen Pi** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du einen Raspberry Pi mit KlipperScreen und einem funktionierenden 480x320-SPI-Display hast, zum Beispiel einem 3,5-Zoll-RPi-LCD. |
 
 Für das 2in1-Hotend gibt es außerdem eine fertige [Klipper-Config](#2in1-config-für-klipper) mit den Makros für Werkzeugwechsel, Druckstart und Laden. Sie ist für den RF2000 mit 2in1-Umbau gemacht. Hast du schon eine passende Config, brauchst du sie nicht.
 
@@ -221,13 +223,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/skipr-filament_1.3.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/skipr-filament_1.4.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "ed80ad75749989c0a7aee338619773bb48de544cae6ba9ade030bfa693b571a1  skipr-filament_1.3.0_all.deb" | sha256sum -c
+echo "1615045400b1fd6f5c3b1a76341052d843e04b41690cbc63595c57b89f4f7ded  skipr-filament_1.4.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -236,7 +238,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.3.0_all.deb
+sudo apt install ./skipr-filament_1.4.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -256,13 +258,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/skipr-update_1.3.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/skipr-update_1.4.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "9b5c22a8765beb7dcd5bbf251f30cf93e2c544883e8f06aa32286eb62e6b50ef  skipr-update_1.3.0_all.deb" | sha256sum -c
+echo "e7a4b6bc40bb31268fc944980483ca1b45022747329caa56884628ff1dcc1864  skipr-update_1.4.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -271,7 +273,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.3.0_all.deb
+sudo apt install ./skipr-update_1.4.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -301,13 +303,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/rf-update_1.3.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/rf-update_1.4.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "f11f067108f872a8bc62e656afb3a80b8bf6dc39e4c388ff26fc799817ecb52c  rf-update_1.3.0_all.deb" | sha256sum -c
+echo "89ba07d7812a56c153ee18680bb51ea58c2963bf21e8edf7e9b31fbc167ff229  rf-update_1.4.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -316,7 +318,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.3.0_all.deb
+sudo apt install ./rf-update_1.4.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -341,13 +343,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.3.0/skipr-bootlogo_1.3.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/skipr-bootlogo_1.4.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "21c225872f8453d2f95ed569855ecc21ffa500fa9f26de37ef342589c8c9cf66  skipr-bootlogo_1.3.0_all.deb" | sha256sum -c
+echo "66e3e59670f83f411fe5dbb96fa0fd7d9218cef041ae27894b10f9ec57512dfe  skipr-bootlogo_1.4.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -356,7 +358,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.3.0_all.deb
+sudo apt install ./skipr-bootlogo_1.4.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -370,6 +372,56 @@ sudo reboot
 ```
 
 Das Logo erscheint jetzt beim Start, bis KlipperScreen geladen ist. Die Verbindung im Terminal bricht dabei ab, das Fenster kannst du schließen.
+
+---
+
+### 3D-Artmaker BootScreen Pi
+
+Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, das Paket richtet es nicht ein.
+
+**1. Paket herunterladen:**
+
+```bash
+cd ~
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/rf-bootlogo_1.4.0_all.deb
+```
+
+**2. Datei prüfen:**
+
+```bash
+echo "f2dbf736d959d7c37c317a485144a48bfc5b76077f2612ab2771aaad0da022c1  rf-bootlogo_1.4.0_all.deb" | sha256sum -c
+```
+
+Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
+
+**3. Installieren:**
+
+```bash
+sudo apt update
+sudo apt install ./rf-bootlogo_1.4.0_all.deb
+```
+
+Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
+
+**Geklappt?** Am Ende steht `Logo ist installiert`. Mainsail verliert dabei kurz die Verbindung, das ist normal.
+
+**4. Drucker neu starten:**
+
+```bash
+sudo reboot
+```
+
+Die Verbindung im Terminal bricht dabei ab, das Fenster kannst du schließen.
+
+**So sieht der Start danach aus** (gemessen auf einem Raspberry Pi 3):
+
+1. Das Display bleibt etwa 13 Sekunden weiß, bis der Treiber geladen ist. Das lässt sich mit diesem Paket nicht ändern.
+2. Das Logo erscheint.
+3. Kurz bevor KlipperScreen kommt, wird das Bild für einen Moment schwarz, dann ist das Logo wieder da.
+4. KlipperScreen erscheint, auf dem Pi 3 nach etwa 40 Sekunden.
+
+> [!NOTE]
+> Die Startmeldungen werden ausgeblendet. Hängt ein HDMI-Monitor am Pi, siehst du dort beim Start voraussichtlich auch keinen Text mehr.
 
 ---
 
@@ -399,6 +451,7 @@ Starte Updates am besten nur, wenn kein Druck läuft.
 | **3D-Artmaker Firmware Updater** | Nur die Webseite | Bei einem Hinweis auf der Update-Seite die neue `.deb` installieren |
 | **3D-Artmaker Firmware Updater ATmega** | Nur die Webseite | Bei einem Hinweis auf der Update-Seite die neue `.deb` installieren |
 | **3D-Artmaker BootScreen** | Nur das Logo, es erscheint beim nächsten Start | Bei Änderungen an den Start-Einstellungen die neue `.deb` installieren |
+| **3D-Artmaker BootScreen Pi** | Nur das Logo, es erscheint beim nächsten Start | Bei Änderungen an den Start-Einstellungen die neue `.deb` installieren |
 
 Ob eine neue `.deb` nötig ist und wie sie heißt, steht beim jeweiligen [Release](https://github.com/Dennis02121978/3D-Artmaker/releases). Du wiederholst dann die Schritte aus [Abschnitt 4](#4-paket-installieren) mit dem neuen Dateinamen und der neuen Prüfsumme aus der Datei `SHA256SUMS`. Das alte Paket musst du vorher nicht entfernen.
 
@@ -433,6 +486,10 @@ Das ist Absicht und dient deiner Sicherheit. Manche Teile laufen mit Administrat
 | `Klipper wurde nicht unter … gefunden` | Der Firmware Updater erwartet Klipper im Home-Ordner des Klipper-Benutzers. |
 | `Dieses Paket ist nur fuer Armbian` | Der BootScreen läuft auf deinem System nicht. |
 | `Der Displaytreiber fb_st7796 wurde nicht gefunden` | Dein Display wird vom BootScreen nicht unterstützt. |
+| `Dieses Paket ist nur fuer den Raspberry Pi` | Du hast den BootScreen Pi auf einem anderen System installiert. Unter Armbian nimmst du `skipr-bootlogo`. |
+| `Kein SPI-Display gefunden` | Das Display läuft noch nicht. Richte es zuerst ein, oder es wird nicht unterstützt. |
+| `Das Logo passt nur auf ein 480x320-Display im Querformat` | Dein Display hat eine andere Auflösung oder steht im Hochformat. |
+| `KlipperScreen laeuft mit Wayland` | Der BootScreen Pi funktioniert nur, wenn KlipperScreen mit X11 läuft. |
 | `KlipperScreen wurde nicht gefunden` | Installiere zuerst KlipperScreen. |
 | `Das Logo passt nur auf ein 480x320-Display` | Dein Display hat eine andere Auflösung. |
 
@@ -505,6 +562,15 @@ sudo apt purge rf-update
 sudo apt remove skipr-bootlogo
 sudo reboot
 ```
+
+**3D-Artmaker BootScreen Pi:**
+
+```bash
+sudo apt remove rf-bootlogo
+sudo reboot
+```
+
+ImageMagick bleibt dabei installiert. Mit `sudo apt autoremove` kannst du es ebenfalls entfernen, falls nichts anderes es braucht.
 
 Der Eintrag im Update Manager und der Menüpunkt verschwinden damit ebenfalls. Lade Mainsail danach mit **F5** neu.
 
