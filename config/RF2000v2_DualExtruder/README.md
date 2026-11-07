@@ -12,6 +12,7 @@ Das ist die Config eines Renkforce RF2000 v2 mit zwei Extrudern und zwei Düsen,
 | `printer.cfg` | Motoren, Heizungen, Wägezelle, Notfall-Pause, Sense Offset, Bettnetz, Display |
 | `macros.cfg` | `PRINT_START`, `PRINT_END`, `PAUSE`, `RESUME`, `M600`, `T0`, `T1`, Kalibrierung, Heißmessung |
 | `z_tasten.cfg` | Z-Achse mit den Tasten Z-UP und Z-DN fahren |
+| `rf_display.cfg` | Display und Menü wie in der RF-Firmware (Repetier) |
 | `offset_test.cfg` | Testdruck `OFFSET_TEST` und `NOZZLE_OFFSET_ADJUST` für den Düsenversatz |
 | `crowsnest.conf` | Kamera, nur nötig, wenn du Crowsnest nutzt |
 | `OrcaSlicer_Einstellungen.md` | Was du in OrcaSlicer einstellen musst |
@@ -80,7 +81,7 @@ Prüfe ihn an deinem Drucker mit dem Testdruck `OFFSET_TEST`. Die Linie, bei der
 - **Notfall-Pause und Flow-Kompensation:** Steigt die Kraft an der Düse stark an, pausiert der Druck. Bei erhöhter Kraft passt Klipper Flow und Geschwindigkeit an. Einstellungen unter `[rf1000_pressure_guard]`, Erklärung in [PRESSURE_GUARD.md](https://github.com/Dennis02121978/klipper/blob/master/PRESSURE_GUARD.md).
 - **Sense Offset:** Drückt die Düse im ersten Layer zu stark aufs Bett (Kraft über `force_threshold`), hebt Klipper den Abstand schrittweise an, höchstens um `max_z_offset` (0,2 mm). Homing setzt ihn wieder auf 0. Im Terminal erscheint jeder Anstieg um 0,02 mm und nach dem ersten Layer das Ergebnis mit höchster und mittlerer Kraft. `Z_SENSE_OFFSET QUERY=1` zeigt den Stand jederzeit.
 - **Anzeige in Mainsail:** Unter „Sonstige“ stehen `Load Cell` (Kraft an der Düse) und `Sense Offset` (in Mikrometern, 120 = 0,120 mm). Mainsail schreibt dort fest „g“ dahinter, gemeint sind Digits bzw. Mikrometer.
-- **Display:** Oben rechts steht die Kraft (`F…`), unten rechts der Sense Offset in mm (`S0.000`), solange er an ist. Im Menü erhöht die Taste hoch einen Wert, die Taste runter verringert ihn.
+- **Display wie in der RF-Firmware:** Startseiten und Menü sehen aus wie unter Repetier, mit deutschen Texten und Umlauten. Auf der Startanzeige blättern hoch und runter durch die Seiten, OK öffnet das Menü. Einstellungen aus dem Menü (DMS, Beschleunigung, Feedrate) werden in `rf_variables.cfg` gespeichert. Beschreibung in [DISPLAY_MENU.md](https://github.com/Dennis02121978/klipper/blob/master/DISPLAY_MENU.md).
 
 ## Stand der Tests
 
