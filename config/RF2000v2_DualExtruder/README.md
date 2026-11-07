@@ -9,9 +9,10 @@ Das ist die Config eines Renkforce RF2000 v2 mit zwei Extrudern und zwei Düsen,
 
 | Datei | Inhalt |
 |---|---|
-| `printer.cfg` | Motoren, Heizungen, Wägezelle, Bettnetz, Display |
-| `macros.cfg` | `PRINT_START`, `PRINT_END`, `PAUSE`, `RESUME`, `M600`, `T0`, `T1`, Kalibrierung, Tasten |
+| `printer.cfg` | Motoren, Heizungen, Wägezelle, Notfall-Pause, Sense Offset, Bettnetz, Display |
+| `macros.cfg` | `PRINT_START`, `PRINT_END`, `PAUSE`, `RESUME`, `M600`, `T0`, `T1`, Kalibrierung, Heißmessung |
 | `z_tasten.cfg` | Z-Achse mit den Tasten Z-UP und Z-DN fahren |
+| `offset_test.cfg` | Testdruck `OFFSET_TEST` und `NOZZLE_OFFSET_ADJUST` für den Düsenversatz |
 | `crowsnest.conf` | Kamera, nur nötig, wenn du Crowsnest nutzt |
 | `OrcaSlicer_Einstellungen.md` | Was du in OrcaSlicer einstellen musst |
 
@@ -49,25 +50,26 @@ serial: /dev/serial/by-id/DEIN-NAME
 
 ## Kalibrieren
 
-Ganz unten in der `printer.cfg` stehen im Bereich `SAVE_CONFIG` die Messwerte **dieses** Druckers: Z-Endstopp, Bettnetz und Input Shaper. Die PID-Werte stehen weiter oben bei den Heizungen. Sie alle passen nicht zu deinem Drucker.
+Ganz unten in der `printer.cfg` steht im Bereich `SAVE_CONFIG` das Bettnetz **dieses** Druckers. Die PID-Werte stehen weiter oben bei den Heizungen. Beides passt nicht zu deinem Drucker.
 
 Fahre die Schritte der Reihe nach, die Hand am Not-Halt:
 
-1. Fahre mit `G28 X` und `G28 Y` X und Y an, danach mit `G28 Z` die Z-Achse. Beobachte Z genau, der gespeicherte Endstopp-Wert stammt von einem anderen Drucker.
+1. Fahre mit `G28 X` und `G28 Y` X und Y an, danach mit `G28 Z` die Z-Achse. Beobachte Z genau. Y=0 ist die Vorderkante des Betts, der Y-Schalter liegt 10 mm davor.
 2. Starte `PID_TUNING_HOTEND_1`, danach `PID_TUNING_HOTEND_2` und `PID_TUNING_BED`. Jedes dieser Makros speichert die Werte und startet Klipper neu.
 3. Fahre wieder mit `G28` an und starte `BED_CALIBRATE`. Das Makro misst Z mit der Wägezelle, erstellt das Bettnetz und speichert es.
-4. Miss den Input Shaper neu, oder lösche den Abschnitt `[input_shaper]` im Bereich `SAVE_CONFIG`.
+
+`PRINT_START` misst nach dem Aufheizen Z mit heißer Düse neu (`HOT_Z_PROBE`, an einer zufälligen Stelle zwischen 30 und 50 mm).
 
 ## Düsenversatz einstellen
 
-Solange der Versatz nicht stimmt, druckt T1 an der falschen Stelle. Er steht in der `macros.cfg` beim Makro `T1` und ist hier auf 0 gesetzt:
+Solange der Versatz nicht stimmt, druckt T1 an der falschen Stelle. Er steht in der `macros.cfg` beim Makro `T1`. Eingetragen ist der Wert **dieses** Druckers:
 
 ```ini
-variable_offset_x: 0.0
-variable_offset_y: 0.0
+variable_offset_x: 35.00
+variable_offset_y: 0.00
 ```
 
-Beide Werte musst du an deinem Drucker messen. Wie das geht und wie weit T1 fahren kann, steht in [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md).
+Prüfe ihn an deinem Drucker mit dem Testdruck `OFFSET_TEST`. Die Linie, bei der oben und unten ohne Knick ineinander übergehen, zeigt die Korrektur. `NOZZLE_OFFSET_ADJUST X=… Y=…` übernimmt sie bis zum Neustart, danach trägst du den angezeigten Wert in `T1` ein. Die Anleitung steht oben in `offset_test.cfg`. Was du in OrcaSlicer einstellen musst und wie weit T1 fahren kann, steht in [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md).
 
 ## Funktionen
 
@@ -75,10 +77,14 @@ Beide Werte musst du an deinem Drucker messen. Wie das geht und wie weit T1 fahr
 - **Werkzeugwechsel:** `T0` und `T1` wechseln den Extruder und setzen den Düsenversatz.
 - **Druckende und Pause:** Der Kopf parkt ohne Versatz und bleibt so im Fahrweg. Am Druckende werden alle Heizungen ausgeschaltet.
 - **Filamentwechsel:** `M600` parkt den Kopf und wartet. Danach geht es mit `RESUME` weiter.
+- **Notfall-Pause und Flow-Kompensation:** Steigt die Kraft an der Düse stark an, pausiert der Druck. Bei erhöhter Kraft passt Klipper Flow und Geschwindigkeit an. Einstellungen unter `[rf1000_pressure_guard]`, Erklärung in [PRESSURE_GUARD.md](https://github.com/Dennis02121978/klipper/blob/master/PRESSURE_GUARD.md).
+- **Sense Offset:** Drückt die Düse im ersten Layer zu stark aufs Bett (Kraft über `force_threshold`), hebt Klipper den Abstand schrittweise an, höchstens um `max_z_offset` (0,2 mm). Homing setzt ihn wieder auf 0.
+- **Anzeige in Mainsail:** Unter „Sonstige“ stehen `Load Cell` (Kraft an der Düse) und `Sense Offset` (in Mikrometern, 120 = 0,120 mm). Mainsail schreibt dort fest „g“ dahinter, gemeint sind Digits bzw. Mikrometer.
+- **Display:** Oben rechts steht die Kraft (`F…`), unten rechts der Sense Offset in mm (`S0.000`), solange er an ist. Im Menü erhöht die Taste hoch einen Wert, die Taste runter verringert ihn.
 
 ## Stand der Tests
 
-`PRINT_END`, `PAUSE`, `RESUME`, `CANCEL_PRINT` und der Düsenversatz wurden zuletzt geändert. Sie liefen im Testmodus von Klipper ohne Fehler, aber noch nicht in einem echten Druck. Der Versatz wurde am Drucker nur ohne Bewegung geprüft. Achte beim ersten Druck deshalb besonders auf diese Stellen.
+Noch nicht in einem echten Druck gelaufen sind: die Heißmessung in `PRINT_START`, die Notfall-Pause und Flow-Kompensation, der Sense Offset (nur ohne Bewegung geprüft), `OFFSET_TEST` und der neue Y-Nullpunkt. Achte beim ersten Druck deshalb besonders auf diese Stellen und bleib mit der Hand am Not-Halt.
 
 ## Lizenz
 
