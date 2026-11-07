@@ -78,7 +78,7 @@ Prüfe ihn an deinem Drucker mit dem Testdruck `OFFSET_TEST`. Die Linie, bei der
 - **Druckende und Pause:** Der Kopf parkt ohne Versatz und bleibt so im Fahrweg. Am Druckende werden alle Heizungen ausgeschaltet.
 - **Filamentwechsel:** `M600` parkt den Kopf und wartet. Danach geht es mit `RESUME` weiter.
 - **Notfall-Pause und Flow-Kompensation:** Steigt die Kraft an der Düse stark an, pausiert der Druck. Bei erhöhter Kraft passt Klipper Flow und Geschwindigkeit an. Einstellungen unter `[rf1000_pressure_guard]`, Erklärung in [PRESSURE_GUARD.md](https://github.com/Dennis02121978/klipper/blob/master/PRESSURE_GUARD.md).
-- **Sense Offset:** Drückt die Düse im ersten Layer zu stark aufs Bett (Kraft über `force_threshold`), hebt Klipper den Abstand schrittweise an, höchstens um `max_z_offset` (0,2 mm). Homing setzt ihn wieder auf 0.
+- **Sense Offset:** Drückt die Düse im ersten Layer zu stark aufs Bett (Kraft über `force_threshold`), hebt Klipper den Abstand schrittweise an, höchstens um `max_z_offset` (0,2 mm). Homing setzt ihn wieder auf 0. Im Terminal erscheint jeder Anstieg um 0,02 mm und nach dem ersten Layer das Ergebnis mit höchster und mittlerer Kraft. `Z_SENSE_OFFSET QUERY=1` zeigt den Stand jederzeit.
 - **Anzeige in Mainsail:** Unter „Sonstige“ stehen `Load Cell` (Kraft an der Düse) und `Sense Offset` (in Mikrometern, 120 = 0,120 mm). Mainsail schreibt dort fest „g“ dahinter, gemeint sind Digits bzw. Mikrometer.
 - **Display:** Oben rechts steht die Kraft (`F…`), unten rechts der Sense Offset in mm (`S0.000`), solange er an ist. Im Menü erhöht die Taste hoch einen Wert, die Taste runter verringert ihn.
 
