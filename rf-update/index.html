@@ -34,6 +34,13 @@ li.active{color:var(--text);font-weight:600}li.active::before{background:var(--a
 li.done::before{background:var(--ok)}li.failed{color:var(--err);font-weight:600}li.failed::before{background:var(--err)}
 details{margin-top:16px;font-size:.875rem}pre{max-height:300px;overflow:auto;background:var(--bg);padding:10px;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere}
 .big-ok{color:var(--ok)}
+.printers{display:grid;gap:8px;margin-top:16px}
+.printer{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;font-weight:400;padding:12px 14px}
+.printer.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.printer b{display:block}.printer small{color:var(--muted);display:block;overflow-wrap:anywhere}
+.printer .dot{flex:none;width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);margin-top:4px}
+.printer.sel .dot{border-color:var(--accent);background:var(--accent)}
+.blink{color:var(--accent);font-weight:600}
 </style>
 </head>
 <body>
@@ -45,6 +52,7 @@ details{margin-top:16px;font-size:.875rem}pre{max-height:300px;overflow:auto;bac
 <script>
 const card = document.getElementById('card'), logbox = document.getElementById('logbox');
 let last = null, confirming = false, starting = false, offlineSince = 0, seenRunning = false, renderKey = '';
+let selected = null, blinking = null, dismissed = false, ledFailed = {};
 
 function el(tag, attrs, ...kids){
   const n = document.createElement(tag);
@@ -61,15 +69,56 @@ function version(s){
     'Neues Paket für den Firmware Updater: ' + s.package_update + '. ',
     el('a', {href:s.package_url, target:'_blank', rel:'noopener'}, 'Zum Download')));
 }
+function printers(s){ return s.printers || []; }
+function multi(s){ return printers(s).length > 1; }
+function current(s){ return printers(s).find(p => p.id === selected) || (multi(s) ? null : printers(s)[0]); }
+async function identify(id, off){
+  let ok = false;
+  try {
+    const r = await fetch('identify',{method:'POST',headers:{'X-Skipr-Update':'1','Content-Type':'application/json'},body:JSON.stringify({printer:id,off:!!off})});
+    ok = r.ok && (await r.json()).ok;
+  } catch(e) {}
+  if (!off) { ledFailed[id] = !ok; render(); }
+}
+function choose(id){
+  selected = id; blinking = id; identify(id); render();
+}
+function printerState(p){
+  if (p.klippy && p.klippy !== 'ready') return 'Klipper: ' + p.klippy;
+  if (p.update_available === true) return 'Update verfügbar' + (p.mcu_version ? ' (Board: ' + p.mcu_version + ')' : '');
+  if (p.update_available === false) return 'Firmware aktuell';
+  return 'Status unbekannt';
+}
+function chooser(s){
+  return el('div',{class:'printers',role:'radiogroup'},...printers(s).map(p => el('button',{
+      class:'printer' + (p.id === selected ? ' sel' : ''), role:'radio', 'aria-checked': p.id === selected ? 'true' : 'false',
+      onclick(){ choose(p.id); }},
+    el('span',{class:'dot'}),
+    el('span',{}, el('b',{},p.name), el('small',{},p.serial), el('small',{},printerState(p)),
+      p.id === blinking ? (ledFailed[p.id]
+        ? el('small',{class:'blink'},'Die LED lässt sich nicht ansteuern, weil Klipper nicht mit diesem Drucker verbunden ist (zum Beispiel noch Repetier-Firmware). Prüfe den Drucker am Anschluss ' + p.serial + '.')
+        : el('small',{class:'blink'},'Die LED dieses Druckers blinkt jetzt 30 Sekunden rot.')) : ''))));
+}
 function idle(s){
+  const p = current(s);
+  const who = multi(s) && p ? ' für ' + p.name : '';
   if (confirming) return show(
-    el('p',{class:'headline'},'Update wirklich starten?'),
+    el('p',{class:'headline'},'Update' + who + ' wirklich starten?'),
     el('p',{class:'muted'},'Das dauert etwa 3 bis 10 Minuten. Der Drucker ist in dieser Zeit nicht nutzbar.'),
     el('div',{class:'note warn'},'Den Drucker während des Updates nicht ausschalten.'),
     el('div',{class:'row'},
       el('button',{onclick(){confirming=false;render();}},'Abbrechen'),
       el('button',{class:'primary',disabled:starting||false,onclick:start},starting?'Wird gestartet …':'Ja, jetzt starten'))
   );
+  if (multi(s)) {
+    const nodes = [el('p',{class:'headline'},'Welcher Drucker soll aktualisiert werden?'),
+      el('p',{class:'muted'},'Tippe einen Drucker an. Seine LED blinkt dann rot, so siehst du, welcher es ist. Während des Updates leuchtet sie rot, danach 5 Sekunden grün.'),
+      chooser(s)];
+    if (p && p.block_reason) nodes.push(el('div',{class:'note warn'},p.block_reason));
+    nodes.push(el('button',{class:'primary',disabled:!p||!!p.block_reason,onclick(){confirming=true;render();}},
+      p ? 'Update für ' + p.name + ' starten' : 'Erst einen Drucker auswählen'), version(s));
+    return show(...nodes);
+  }
   const text = s.update_available === true ? ['Ein Update ist verfügbar.','Hol dir die neueste Firmware für deinen Drucker.']
     : s.update_available === false ? ['Dein Drucker ist auf dem neuesten Stand.','Du kannst die Firmware trotzdem neu aufspielen, falls etwas nicht stimmt.']
     : ['Update-Status unbekannt.','Der Drucker konnte nicht prüfen, ob es etwas Neues gibt. Ist er mit dem Internet verbunden?'];
@@ -83,6 +132,7 @@ function bar(p){ const i = el('i'); i.style.width = (p||0)+'%'; return el('div',
 function running(s){
   show(
     el('p',{class:'headline'},s.state==='rebooting'?'Fast fertig: Der Drucker startet neu':'Update läuft …'),
+    s.printer_name && multi(s) ? el('p',{class:'muted'},'Drucker: ' + s.printer_name + ' (LED leuchtet rot)') : '',
     el('p',{class:'muted'},'Du kannst diese Seite schließen, das Update läuft weiter.'),
     bar(s.percent), steps(s),
     el('div',{class:'note warn'},'Den Drucker jetzt nicht ausschalten.')
@@ -94,16 +144,20 @@ function failed(s){
     el('div',{class:'note err'},s.message||'Unbekannter Fehler.'),
     steps(s),
     s.block_reason ? el('div',{class:'note warn'},s.block_reason) : '',
-    el('button',{class:'primary',disabled:!!s.block_reason,onclick(){confirming=true;last.state='idle';render();}},'Erneut versuchen'),
+    el('button',{class:'primary',disabled:!!s.block_reason,onclick(){confirming=!multi(s);if(s.printer)selected=s.printer;dismissed=true;render();}},'Erneut versuchen'),
     version(s)
   );
 }
 function done(s){
   const ready = s.klippy === 'ready';
   const nodes = ready
-    ? [el('p',{class:'headline big-ok'},'Update erfolgreich'), el('p',{class:'muted'},'Dein Drucker ist bereit.'), version(s)]
+    ? [el('p',{class:'headline big-ok'},'Update erfolgreich'), el('p',{class:'muted'},(s.printer_name && multi(s) ? s.printer_name : 'Dein Drucker') + ' ist bereit. Die LED leuchtet 5 Sekunden grün.'), version(s)]
     : [el('p',{class:'headline'},'Der Drucker startet …'), el('p',{class:'muted'},'Das Update ist fertig, die Drucker-Software wird gerade geladen.')];
   if (!ready && s.klippy) nodes.push(el('div',{class:'note warn'},'Die Drucker-Software meldet: ' + s.klippy + '. Falls das so bleibt, Details in Mainsail ansehen.'), version(s));
+  const others = printers(s).filter(p => p.id !== s.printer && p.update_available === true);
+  if (ready && others.length) nodes.push(el('div',{class:'note warn'},
+    'Klipper wurde für alle Drucker auf den neuen Stand gebracht. Bitte auch ' + others.map(p => p.name).join(', ') + ' aktualisieren, sonst startet er beim nächsten Neustart eventuell nicht.'),
+    el('button',{class:'primary',onclick(){dismissed=true;selected=others[0].id;blinking=null;render();}},'Weiteren Drucker aktualisieren'));
   if (ready) nodes.push(el('div',{class:'row'},el('a',{href:'/'},'Zurück zu Mainsail')));
   show(...nodes);
 }
@@ -117,12 +171,15 @@ function offline(){
 }
 function render(){
   if (!last) return;
-  ({idle,running,rebooting:running,failed,done}[last.state]||idle)(last);
+  if (last.state==='running'||last.state==='rebooting') dismissed = false;
+  const st = dismissed && (last.state==='done'||last.state==='failed') ? 'idle' : last.state;
+  ({idle,running,rebooting:running,failed,done}[st]||idle)(last);
 }
 async function start(){
   starting = true; render();
   try {
-    const r = await fetch('start',{method:'POST',headers:{'X-Skipr-Update':'1'}});
+    const p = current(last||{});
+    const r = await fetch('start',{method:'POST',headers:{'X-Skipr-Update':'1','Content-Type':'application/json'},body:JSON.stringify(p?{printer:p.id}:{})});
     if (!r.ok) throw new Error((await r.json()).error);
     confirming = false; seenRunning = true; last = {state:'running',percent:0,steps:[]};
   } catch(e) {

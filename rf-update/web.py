@@ -67,24 +67,55 @@ def check_release():
         return release["newer"], release["url"]
 
 
-def versions():
+inst_cache = {"list": [], "time": 0}
+inst_lock = threading.Lock()
+
+
+def instances():
+    """Druckerliste, kurz zwischengespeichert, weil die Seite alle 2 Sekunden fragt."""
+    with inst_lock:
+        if time.time() - inst_cache["time"] > 15:
+            inst_cache["list"] = c.instances()
+            inst_cache["time"] = time.time()
+        return inst_cache["list"]
+
+
+def printer_info(inst, version, code_update, running):
+    """Stand eines Druckers: Klipper-Zustand, Firmware auf dem Board, Sperrgrund."""
+    info = {"id": inst["id"], "name": inst["name"], "serial": os.path.basename(inst["serial"]),
+            "klippy": None, "mcu_version": None, "update_available": code_update}
+    ok, data = c.moonraker("/printer/info", inst["port"])
+    if ok and data:
+        info["klippy"] = data["result"]["state"]
+    ok, data = c.moonraker("/printer/objects/query?mcu=mcu_version", inst["port"])
+    if ok and data:
+        mcu = data["result"]["status"]["mcu"].get("mcu_version")
+        # Das Board haengt z. B. "-dirty-<datum>-<hostname>" an seine Version an
+        if mcu and not (mcu == version or mcu.startswith(version + "-")):
+            info["update_available"] = True
+            info["mcu_version"] = mcu
+    info["block_reason"] = None if running else c.print_block_reason(inst["port"], inst["service"])
+    return info
+
+
+def versions(running):
     info = {"version": git("describe", "--always", "--tags") or "unbekannt", "update_available": None,
             "klippy": None}
     info["package_update"], info["package_url"] = check_release()
     local = git("rev-parse", "HEAD")
     upstream = remote_sha()
-    if upstream and local:
-        info["update_available"] = upstream != local
-    ok, data = c.moonraker("/printer/info")
-    if ok and data:
-        info["klippy"] = data["result"]["state"]
-    ok, data = c.moonraker("/printer/objects/query?mcu=mcu_version")
-    if ok and data:
-        mcu = data["result"]["status"]["mcu"].get("mcu_version")
-        # Das Board haengt z. B. "-dirty-<datum>-<hostname>" an seine Version an
-        if mcu and not (mcu == info["version"] or mcu.startswith(info["version"] + "-")):
-            info["update_available"] = True
-            info["mcu_version"] = mcu
+    code_update = (upstream != local) if upstream and local else None
+    info["printers"] = [printer_info(i, info["version"], code_update, running) for i in instances()]
+    # Felder fuer einen einzelnen Drucker wie bisher
+    if len(info["printers"]) == 1:
+        first = info["printers"][0]
+        info.update(klippy=first["klippy"], update_available=first["update_available"],
+                    block_reason=first["block_reason"])
+        if first["mcu_version"]:
+            info["mcu_version"] = first["mcu_version"]
+    else:
+        info["update_available"] = code_update
+        info["block_reason"] = None
     return info
 
 
@@ -103,8 +134,12 @@ def status_payload():
     status["state"] = state
     if running and state not in ("running", "rebooting"):
         status = {"state": "running", "percent": 0, "steps": [], "danger": False}
-    status.update(versions())
-    status["block_reason"] = None if running else c.print_block_reason()
+    status.update(versions(running))
+    if status.get("printer"):
+        # Nach dem Update den Zustand des aktualisierten Druckers zeigen
+        for item in status["printers"]:
+            if item["id"] == status["printer"]:
+                status["klippy"] = item["klippy"]
     return status
 
 
@@ -146,9 +181,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length") or 0)
+        body = {}
         if length:
-            self.rfile.read(min(length, 4096))
-        if urlparse(self.path).path != "/start":
+            try:
+                body = json.loads(self.rfile.read(min(length, 4096)) or b"{}")
+            except ValueError:
+                body = {}
+        if not isinstance(body, dict):
+            body = {}
+        path = urlparse(self.path).path
+        if path not in ("/start", "/identify"):
             self.respond(404, '{"error":"not found"}')
             return
         # Schutz davor, dass fremde Webseiten das Update im Browser ausloesen
@@ -157,12 +199,42 @@ class Handler(BaseHTTPRequestHandler):
         if self.headers.get("X-Skipr-Update") != "1" or not same_origin:
             self.respond(403, json.dumps({"error": "Anfrage abgelehnt."}))
             return
+        inst_cache["time"] = 0
+        found = instances()
+        inst = None
+        if body.get("printer"):
+            inst = next((i for i in found if i["id"] == body["printer"]), None)
+        elif len(found) == 1:
+            inst = found[0]
+        if path == "/identify":
+            if not inst or c.service_active(c.UNIT):
+                self.respond(409, json.dumps({"error": "Drucker nicht verfügbar."}))
+                return
+            # Andere Drucker hoeren auf zu blinken, der gewaehlte blinkt 30 Sekunden rot
+            for other in found:
+                if other["id"] != inst["id"]:
+                    c.led_signal(other["port"], "OFF")
+            if body.get("off"):
+                ok = c.led_signal(inst["port"], "OFF")
+            else:
+                ok = c.led_signal(inst["port"], "BLINK", "RED", 30)
+            self.respond(200, json.dumps({"ok": ok}))
+            return
         if c.service_active(c.UNIT):
             self.respond(202, '{"ok":true}')
             return
-        reason = c.print_block_reason()
+        if not inst:
+            self.respond(409, json.dumps({"error": "Bitte zuerst den Drucker auswählen."}))
+            return
+        reason = c.print_block_reason(inst["port"], inst["service"])
         if reason:
             self.respond(409, json.dumps({"error": reason}))
+            return
+        try:
+            with open(c.REQUEST_FILE, "w") as f:
+                json.dump({"printer": inst["id"], "time": time.time()}, f)
+        except OSError:
+            self.respond(500, json.dumps({"error": "Die Auswahl des Druckers konnte nicht gespeichert werden."}))
             return
         r = subprocess.run(["sudo", "-n", shutil.which("systemctl"), "start", "--no-block", c.UNIT],
                            capture_output=True, text=True)

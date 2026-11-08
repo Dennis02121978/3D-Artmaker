@@ -6,6 +6,10 @@ set -e
 
 mkdir -p /var/lib/rf-update
 chmod 755 /var/lib/rf-update
+# Hier traegt die Webseite den gewaehlten Drucker ein (mehrere Drucker an einem Rechner)
+[ -f /var/lib/rf-update/request.json ] || echo '{}' > /var/lib/rf-update/request.json
+chown "$KLIPPER_USER" /var/lib/rf-update/request.json
+chmod 644 /var/lib/rf-update/request.json
 
 # Die Webseite laeuft als Klipper-Benutzer und darf nur diesen einen Dienst starten
 mkdir -p /etc/systemd/system/rf-update-web.service.d

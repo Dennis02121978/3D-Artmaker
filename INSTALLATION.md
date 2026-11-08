@@ -14,6 +14,7 @@ Diese Anleitung führt dich Schritt für Schritt durch die Installation. Du brau
    - [3D-Artmaker 2in1 Hotend](#3d-artmaker-2in1-hotend)
    - [3D-Artmaker Firmware Updater](#3d-artmaker-firmware-updater)
    - [3D-Artmaker Firmware Updater ATmega](#3d-artmaker-firmware-updater-atmega)
+   - [Zwei Drucker an einem Raspberry Pi](#zwei-drucker-an-einem-raspberry-pi)
    - [3D-Artmaker BootScreen](#3d-artmaker-bootscreen)
    - [3D-Artmaker BootScreen Pi](#3d-artmaker-bootscreen-pi)
 5. [Updates installieren](#5-updates-installieren)
@@ -32,6 +33,7 @@ Du kannst dir aussuchen, was du haben möchtest. Jedes Paket funktioniert allein
 | **3D-Artmaker Firmware Updater ATmega** | Aktualisiert die Klipper-Firmware deines ATmega-Boards per Knopfdruck in Mainsail. | dein Board einen ATmega2560 mit 16 MHz hat und mit 250000 Baud läuft, zum Beispiel beim RF1000 oder RF2000. |
 | **3D-Artmaker BootScreen** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du Armbian, KlipperScreen und ein 480x320-Display mit dem Treiber `fb_st7796` hast. |
 | **3D-Artmaker BootScreen Pi** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du einen Raspberry Pi mit KlipperScreen und einem funktionierenden 480x320-SPI-Display hast, zum Beispiel einem 3,5-Zoll-RPi-LCD. |
+| **Zwei Drucker (rf-multi)** | Betreibt zwei oder mehr Drucker an einem Raspberry Pi, jeden mit eigenem Mainsail und mit Druckerauswahl in KlipperScreen. | du einen zweiten RF-Drucker per USB an denselben Raspberry Pi anschließen willst. |
 
 Für das 2in1-Hotend gibt es außerdem eine fertige [Klipper-Config](#2in1-config-für-klipper) mit den Makros für Werkzeugwechsel, Druckstart und Laden. Sie ist für den RF2000 mit 2in1-Umbau gemacht. Hast du schon eine passende Config, brauchst du sie nicht.
 
@@ -303,13 +305,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/rf-update_1.4.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.0/rf-update_1.5.0_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "89ba07d7812a56c153ee18680bb51ea58c2963bf21e8edf7e9b31fbc167ff229  rf-update_1.4.0_all.deb" | sha256sum -c
+echo "@SHA_RF_UPDATE@  rf-update_1.5.0_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -318,7 +320,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.4.0_all.deb
+sudo apt install ./rf-update_1.5.0_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -329,11 +331,71 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 1. Lade Mainsail mit **F5** neu.
 2. Klicke links auf **Firmware-Update**.
-3. Klicke auf **Update starten** und dann auf **Ja, jetzt starten**.
-4. Warte, bis **Update erfolgreich** erscheint. Das dauert meist nur wenige Minuten. Der Raspberry Pi startet dabei nicht neu.
+3. Hängen mehrere Drucker am Raspberry Pi, tippe den Drucker an, den du aktualisieren willst. Seine LED blinkt dann 30 Sekunden rot, so siehst du, welcher es ist.
+4. Klicke auf **Update starten** und dann auf **Ja, jetzt starten**. Während des Updates leuchtet die LED des Druckers rot. Beim Schreiben der Firmware ist sie kurz aus, weil das Board neu startet.
+5. Warte, bis **Update erfolgreich** erscheint. Die LED leuchtet dann 5 Sekunden grün. Das dauert meist nur wenige Minuten. Der Raspberry Pi startet dabei nicht neu.
+6. Bei zwei Druckern: Zeigt die Seite danach an, dass auch der andere Drucker die neue Firmware braucht, aktualisiere ihn gleich mit. Beide nutzen dasselbe Klipper.
+
+Die LED-Signale brauchen die `rf_led.cfg` aus der Config ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, kann die LED nicht blinken. Das Update schreibt die Klipper-Firmware trotzdem.
 
 > [!CAUTION]
 > **Schalte den Drucker während des Firmware-Updates nicht aus!** Bricht das Schreiben trotzdem ab, schalte den Drucker aus und wieder ein und starte das Update erneut.
+
+---
+
+### Zwei Drucker an einem Raspberry Pi
+
+Mit dem Paket **rf-multi** laufen zwei (oder mehr) Drucker an einem Raspberry Pi. Jeder Drucker bekommt eigenes Klipper, eigenes Moonraker und ein eigenes Mainsail. Der erste Drucker bleibt, wie er ist.
+
+> [!IMPORTANT]
+> Der erste Drucker muss schon laufen (Klipper, Moonraker, Mainsail), zum Beispiel mit dem Image für den RF2000 v2. Der zweite Drucker wird per USB angeschlossen und eingeschaltet, bevor du anfängst.
+
+**1. Paket herunterladen:**
+
+```bash
+cd ~
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.0/rf-multi_1.5.0_all.deb
+```
+
+**2. Datei prüfen:**
+
+```bash
+echo "@SHA_RF_MULTI@  rf-multi_1.5.0_all.deb" | sha256sum -c
+```
+
+Am Ende der Ausgabe muss `OK` stehen.
+
+**3. Installieren:**
+
+```bash
+sudo apt install ./rf-multi_1.5.0_all.deb
+```
+
+**4. Zweiten Drucker einrichten:**
+
+```bash
+sudo rf-multi
+```
+
+Der Assistent fragt nacheinander:
+
+1. **Anschluss:** Es erscheinen nur Anschlüsse, die noch keinem Drucker gehören. Hängt nur der neue Drucker zusätzlich am Pi, gibt es genau einen. Drücke Enter.
+2. **Config-Vorlage:** `RF2000 v2 Dual Extruder, Filament 1,75 mm` oder `RF2000 Dual Extruder, Filament 3 mm`. Zahl eingeben und Enter.
+3. **Name:** zum Beispiel `RF2000`. Nur Buchstaben, Ziffern, `-` und `_`, keine Leerzeichen.
+4. **Jetzt einrichten?** Enter.
+
+**Geklappt?** Am Ende steht `Fertig. Der Drucker RF2000 ist eingerichtet` mit der Adresse des neuen Mainsail.
+
+**5. Drucker benutzen:**
+
+- **Mainsail:** Den ersten Drucker erreichst du wie bisher unter `http://<IP>`, den zweiten unter `http://<IP>:81`. Außerdem steht in jedem Mainsail links ganz oben der Menüpunkt **Drucker**. Dort siehst du beide Drucker und wechselst mit einem Klick.
+- **KlipperScreen:** Beim Start erscheint eine Auswahl der Drucker. Später wechselst du über das Drucker-Symbol in der Leiste am linken Rand.
+- **Firmware-Update:** Der Menüpunkt **Firmware-Update** zeigt beide Drucker zur Auswahl (siehe oben).
+
+> [!WARNING]
+> Prüfe die Config des neuen Druckers vor dem ersten Druck: Endstops, Fahrwege, Temperaturen, PID und Bettnetz. Die Config für den RF2000 mit 3 mm ist noch an keinem echten RF2000 getestet. Was zu prüfen ist, steht in der README im Config-Ordner.
+
+Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Config und G-Codes bleibt dabei erhalten.
 
 ---
 
@@ -554,6 +616,13 @@ sudo apt purge skipr-update
 
 ```bash
 sudo apt purge rf-update
+```
+
+**Zwei Drucker (rf-multi):** Erst die weiteren Drucker entfernen, dann das Paket:
+
+```bash
+sudo rf-multi remove RF2000
+sudo apt remove rf-multi
 ```
 
 **3D-Artmaker BootScreen:**

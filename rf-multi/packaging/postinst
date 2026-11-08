@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+[ "$1" = "configure" ] || exit 0
+echo "rf-multi ist installiert. Weiteren Drucker einrichten mit: sudo rf-multi"
+exit 0

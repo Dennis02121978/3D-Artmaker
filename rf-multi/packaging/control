@@ -1,0 +1,12 @@
+Package: rf-multi
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Depends: python3, nginx, systemd
+Recommends: rf-update
+Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
+Description: Mehrere RF-Drucker an einem Raspberry Pi
+ Richtet fuer jeden weiteren Drucker eine eigene Klipper- und Moonraker-Instanz
+ ein, mit eigenem Mainsail-Port und Druckerauswahl in Mainsail und
+ KlipperScreen. Aufruf: sudo rf-multi

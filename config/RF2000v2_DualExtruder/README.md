@@ -14,6 +14,7 @@ Das ist die Config eines Renkforce RF2000 v2 mit zwei Extrudern und zwei Düsen,
 | `z_tasten.cfg` | Z-Achse mit den Tasten Z-UP und Z-DN fahren |
 | `rf_display.cfg` | Display und Menü wie in der RF-Firmware (Repetier) |
 | `offset_test.cfg` | Testdruck `OFFSET_TEST` und `NOZZLE_OFFSET_ADJUST` für den Düsenversatz |
+| `rf_led.cfg` | RGB-Licht wie in der RF-Firmware, LED-Signale für das Firmware-Update |
 | `crowsnest.conf` | Kamera, nur nötig, wenn du Crowsnest nutzt |
 | `OrcaSlicer_Einstellungen.md` | Was du in OrcaSlicer einstellen musst |
 
@@ -82,6 +83,7 @@ Prüfe ihn an deinem Drucker mit dem Testdruck `OFFSET_TEST`. Die Linie, bei der
 - **Sense Offset:** Drückt die Düse im ersten Layer zu stark aufs Bett (Kraft über `force_threshold`), hebt Klipper den Abstand schrittweise an, höchstens um `max_z_offset` (0,2 mm). Homing setzt ihn wieder auf 0. Im Terminal erscheint jeder Anstieg um 0,02 mm und nach dem ersten Layer das Ergebnis mit höchster und mittlerer Kraft. `Z_SENSE_OFFSET QUERY=1` zeigt den Stand jederzeit.
 - **Anzeige in Mainsail:** Unter „Sonstige“ stehen `Load Cell` (Kraft an der Düse) und `Sense Offset` (in Mikrometern, 120 = 0,120 mm). Mainsail schreibt dort fest „g“ dahinter, gemeint sind Digits bzw. Mikrometer.
 - **Startbild:** Beim Start zeigt das Display „3D-Artmaker“ mit Version und Stand, danach die Startseite.
+- **RGB-Licht wie in der RF-Firmware:** Heizen rot, Temperatur erreicht weiß, Abkühlen blau. In Ruhe erst weiß, nach 30 Sekunden Farbwechsel Rot, Gelb, Grün, Cyan, Blau, Magenta mit weichem Übergang. Während eines Drucks gelten die Farben aus `PRINT_START` und `PRINT_END`. „Licht“ im Menü schaltet LED und Automatik aus und an. Der Firmware Updater lässt die LED über `RF_LED_SIGNAL` blinken (Druckerauswahl), rot leuchten (Update läuft) und 5 Sekunden grün leuchten (fertig).
 - **Display wie in der RF-Firmware:** Startseiten und Menü sehen aus wie unter Repetier, mit deutschen Texten und Umlauten. Auf der Startanzeige blättern hoch und runter durch die Seiten, OK öffnet das Menü. Einstellungen aus dem Menü (DMS, Beschleunigung, Feedrate) werden in `rf_variables.cfg` gespeichert. Beschreibung in [DISPLAY_MENU.md](https://github.com/Dennis02121978/klipper/blob/master/DISPLAY_MENU.md).
 
 ## Stand der Tests

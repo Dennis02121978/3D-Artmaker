@@ -3,10 +3,14 @@
 
 Die Firmware wird gebaut, bevor Klipper gestoppt wird. Scheitert das, geht der
 Klipper-Code auf den alten Stand zurueck und das Board bleibt unberuehrt.
+
+Mit mehreren Druckern an einem Rechner waehlt die Webseite den Drucker aus
+(request.json). Angehalten und geflasht wird nur dieser Drucker. Seine LED
+leuchtet waehrend des Updates rot und danach 5 Sekunden gruen.
 """
 import hashlib
+import json
 import os
-import re
 import shutil
 import subprocess
 import time
@@ -40,6 +44,7 @@ MESSAGES = {
 status = {}
 simulate = False
 log = None
+inst = None  # Gewaehlter Drucker, siehe common.instances()
 
 
 class Fail(Exception):
@@ -95,29 +100,42 @@ def verify_files():
                     raise Fail("Datei beschädigt: " + name)
 
 
-def serial_device():
-    """Liest den Anschluss des Boards aus dem Abschnitt [mcu] der printer.cfg."""
-    in_mcu = False
-    with open(c.HOME + "/printer_data/config/printer.cfg") as f:
-        for line in f:
-            section = re.match(r"\[([^\]]+)\]", line)
-            if section:
-                in_mcu = section.group(1).strip() == "mcu"
-            elif in_mcu:
-                m = re.match(r"serial\s*[:=]\s*(\S+)", line)
-                if m:
-                    return m.group(1)
-    raise Fail("In der printer.cfg wurde bei [mcu] kein Anschluss (serial) gefunden.")
+def choose_instance():
+    """Drucker aus der Anfrage der Webseite, bei nur einem Drucker diesen."""
+    try:
+        with open(c.REQUEST_FILE) as f:
+            wanted = json.load(f).get("printer")
+    except (OSError, ValueError, AttributeError):
+        wanted = None
+    found = c.instances()
+    if wanted:
+        for item in found:
+            if item["id"] == wanted:
+                return item
+        raise Fail("Der gewählte Drucker wurde nicht gefunden.")
+    if len(found) == 1:
+        return found[0]
+    if not found:
+        raise Fail("Es wurde kein Klipper-Drucker gefunden.")
+    raise Fail("Es sind mehrere Drucker angeschlossen. Bitte auf der Update-Seite einen auswählen.")
+
+
+def led(mode, color="RED", duration=30):
+    if inst and not simulate or inst and c.test_cfg().get("SIMULATE_LED") == "1":
+        say("LED: %s %s" % (mode, color))
+        c.led_signal(inst["port"], mode, color, duration)
 
 
 def check():
-    reason = c.print_block_reason()
+    reason = c.print_block_reason(inst["port"], inst["service"])
     if reason:
         raise Fail(reason)
     verify_files()
     if simulate:
         return "/dev/null"
-    device = serial_device()
+    device = inst["serial"]
+    if not device:
+        raise Fail("In der printer.cfg von %s wurde bei [mcu] kein Anschluss (serial) gefunden." % inst["name"])
     if not os.path.exists(device):
         raise Fail("Das Board wurde nicht gefunden (%s). Bitte Kabel und Stromversorgung prüfen." % device)
     if shutil.disk_usage("/").free < 300 * 1024 * 1024:
@@ -155,7 +173,7 @@ def wait_ready():
     message = ""
     end = time.time() + READY_SECONDS
     while time.time() < end:
-        ok, data = c.moonraker("/printer/info")
+        ok, data = c.moonraker("/printer/info", inst["port"])
         if ok and data:
             result = data["result"]
             if result["state"] == "ready":
@@ -167,12 +185,18 @@ def wait_ready():
 
 
 def update():
+    global inst
     stopped = False
     flash_started = False
     old_commit = ""
     try:
         enter("check")
+        inst = choose_instance()
+        status.update(printer=inst["id"], printer_name=inst["name"])
+        save()
+        say("Drucker: %s (%s, %s)" % (inst["name"], inst["service"], inst["serial"]))
         device = check()
+        led("ON", "RED", 3600)
 
         enter("source")
         old_commit = "" if simulate else git_out("rev-parse", "HEAD")
@@ -188,7 +212,7 @@ def update():
         status["danger"] = True
         save()
         stopped = True
-        run(["systemctl", "stop", "klipper"], root=True, timeout=120)
+        run(["systemctl", "stop", inst["service"]], root=True, timeout=120)
         time.sleep(2)
 
         enter("flash")
@@ -196,11 +220,12 @@ def update():
         flash(device)
 
         enter("start")
-        run(["systemctl", "start", "klipper"], root=True, timeout=120)
+        run(["systemctl", "start", inst["service"]], root=True, timeout=120)
         stopped = False
         status["danger"] = False
         save()
         wait_ready()
+        led("ON", "GREEN", 5)
 
         enter("finish")
         status.update(state="done", percent=100, finished=time.time(), danger=False)
@@ -220,8 +245,10 @@ def update():
         # Noch nichts geschrieben: Der Code muss zur Firmware auf dem Board passen
         if old_commit and not flash_started:
             run(["git", "reset", "--hard", old_commit], check=False)
-        if stopped:
-            run(["systemctl", "start", "klipper"], root=True, check=False)
+        if stopped and inst:
+            run(["systemctl", "start", inst["service"]], root=True, check=False)
+        elif not stopped:
+            led("OFF")
 
 
 def main():
