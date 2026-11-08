@@ -124,11 +124,18 @@ function idle(s){
     const others = printers(s).filter(x => x.id !== s.printer && x.update_available === true);
     if (s.state === 'done' && others.length) nodes.push(el('div',{class:'note warn'},
       'Klipper ist jetzt für alle Drucker auf dem neuen Stand. Bitte auch ' + others.map(x => x.name).join(', ') + ' aktualisieren, sonst startet er beim nächsten Neustart eventuell nicht.'));
-    nodes.push(el('p',{class:'headline'},'Welcher Drucker soll aktualisiert werden?'),
-      el('p',{class:'muted'},'Tippe einen Drucker an. Seine LED blinkt dann rot, so siehst du, welcher es ist. Während des Updates leuchtet sie rot, danach 5 Sekunden grün.'),
-      chooser(s));
+    const all = printers(s), need = all.filter(x => x.update_available === true);
+    const allCurrent = all.every(x => x.update_available === false);
+    const head = allCurrent ? 'Alle Drucker sind auf dem neuesten Stand.'
+      : need.length && need.length < all.length ? 'Update verfügbar für ' + need.map(x => x.name).join(', ') + '.'
+      : need.length ? 'Für alle Drucker ist ein Update verfügbar.'
+      : 'Welcher Drucker soll aktualisiert werden?';
+    const sub = allCurrent
+      ? 'Du kannst die Firmware eines Druckers trotzdem neu aufspielen, falls etwas nicht stimmt. Tippe ihn an, seine LED blinkt dann rot.'
+      : 'Tippe einen Drucker an. Seine LED blinkt dann rot, so siehst du, welcher es ist. Während des Updates leuchtet sie rot, danach 5 Sekunden grün.';
+    nodes.push(el('p',{class:'headline'},head), el('p',{class:'muted'},sub), chooser(s));
     if (p && p.block_reason) nodes.push(el('div',{class:'note warn'},p.block_reason));
-    if (p && p.update_available === false) nodes.push(el('p',{class:'muted'},p.name + ' hat schon die aktuelle Firmware. Du kannst sie trotzdem neu aufspielen, falls etwas nicht stimmt.'));
+    if (p && p.update_available === false && !allCurrent) nodes.push(el('p',{class:'muted'},p.name + ' hat schon die aktuelle Firmware. Du kannst sie trotzdem neu aufspielen, falls etwas nicht stimmt.'));
     nodes.push(el('button',{class:'primary',disabled:!p||!!p.block_reason,onclick(){confirming=true;render();}},
       !p ? 'Erst einen Drucker auswählen' : (p.update_available === false ? 'Firmware für ' + p.name + ' neu aufspielen' : 'Update für ' + p.name + ' starten')),
       version(s));
@@ -193,7 +200,11 @@ function render(){
   const finished = last.state==='done'||last.state==='failed';
   // Mehrere Drucker: nach dem Update gleich wieder die Auswahl zeigen (mit Ergebnis oben)
   const st = finished && (dismissed || multi(last)) ? 'idle' : last.state;
-  if (finished && multi(last) && !selected && last.printer) selected = last.printer;
+  if (finished && multi(last) && !selected && last.printer) {
+    // Vorausgewaehlter Drucker blinkt gleich, damit man sieht, welcher es ist
+    selected = last.printer;
+    if (!confirming) { blinking = selected; identify(selected); }
+  }
   ({idle,running,rebooting:running,failed,done}[st]||idle)(last);
 }
 async function start(){
