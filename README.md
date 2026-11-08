@@ -21,6 +21,8 @@ Dazu gibt es [`config/2in1_hotend.cfg`](config/2in1_hotend.cfg), die Klipper-Mak
 
 Für den RF2000 v2 mit zwei Extrudern und zwei Düsen gibt es eine komplette Config mit OrcaSlicer-Einstellungen: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/releases/latest/download/RF2000v2_DualExtruder.zip) oder [Dateien ansehen](config/RF2000v2_DualExtruder/). Auch sie wird nicht über den Update-Manager aktualisiert.
 
+Für den RF1000 gibt es die Display-Datei mit 16 Spalten und den kurzen Menütexten der RF-Firmware: [`config/rf_display_rf1000.cfg`](config/rf_display_rf1000.cfg). Der Config Creator erzeugt die passende `printer.cfg` und bietet alle eingebundenen Dateien zum Download an.
+
 Für den RF2000 mit zwei Extrudern und 3-mm-Filament gibt es eine mit dem Renkforce Klipper Config Creator erzeugte Config, noch ungetestet: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/releases/latest/download/RF2000_DualExtruder_3mm.zip) oder [Dateien ansehen](config/RF2000_DualExtruder_3mm/).
 
 ## Mehrere Drucker an einem Raspberry Pi

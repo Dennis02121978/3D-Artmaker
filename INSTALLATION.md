@@ -305,13 +305,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.5/rf-update_1.5.5_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.6/rf-update_1.5.6_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "292b7baa7005a5e1b5a4e335b715bcd8b81225e24167ffc663bafeb0c1a21a15  rf-update_1.5.5_all.deb" | sha256sum -c
+echo "@SHA_RF_UPDATE@  rf-update_1.5.6_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -320,7 +320,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.5.5_all.deb
+sudo apt install ./rf-update_1.5.6_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -336,7 +336,7 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 5. Warte, bis **Update erfolgreich** erscheint. Bei mehreren Druckern bleibt die Auswahl darunter stehen, du kannst gleich den nächsten Drucker aktualisieren. Auch ein Drucker, der schon die aktuelle Firmware hat, lässt sich mit **Firmware neu aufspielen** noch einmal flashen. Die LED leuchtet dann 5 Sekunden grün. Das dauert meist nur wenige Minuten. Der Raspberry Pi startet dabei nicht neu.
 6. Bei zwei Druckern: Zeigt die Seite danach an, dass auch der andere Drucker die neue Firmware braucht, aktualisiere ihn gleich mit. Beide nutzen dasselbe Klipper.
 
-Ab v1.5.5 stellt das Paket außerdem die USB-Wandler (FTDI) der Drucker auf 1 ms Wartezeit. Klipper reagiert dadurch schneller, und die SD-Karte im Drucker lässt sich etwa dreimal so schnell lesen.
+Ab v1.5.6 stellt das Paket außerdem die USB-Wandler (FTDI) der Drucker auf 1 ms Wartezeit. Klipper reagiert dadurch schneller, und die SD-Karte im Drucker lässt sich etwa dreimal so schnell lesen.
 
 Die LED-Signale brauchen die `rf_led.cfg` aus der Config ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, kann die LED nicht blinken. Das Update schreibt die Klipper-Firmware trotzdem.
 
@@ -356,13 +356,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.5/rf-multi_1.5.5_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.6/rf-multi_1.5.6_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "3170d4861039fe51e45bdb4e66a1134b33137cf7454bf8ff3f25fb82f2a99dda  rf-multi_1.5.5_all.deb" | sha256sum -c
+echo "@SHA_RF_MULTI@  rf-multi_1.5.6_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -370,7 +370,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.5.5_all.deb
+sudo apt install ./rf-multi_1.5.6_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**

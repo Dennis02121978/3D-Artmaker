@@ -80,6 +80,7 @@ Prüfe ihn an deinem Drucker mit dem Testdruck `OFFSET_TEST`. Die Linie, bei der
 ## Funktionen
 
 - **Z-Tasten:** Kurz drücken fährt 0,03 mm. 2 Sekunden halten fährt mit 8 mm/s, bis du loslässt. Beim Drucken ändert ein Druck den Z-Offset um 0,005 mm. Mehr dazu in [Z_TASTEN.md](https://github.com/Dennis02121978/klipper/blob/master/Z_TASTEN.md).
+- **Extruder-Tasten:** F-FWD und F-REV am Drucker. Kurz drücken fördert 2 mm vor bzw. zurück. 1 Sekunde halten lässt den Extruder mit 5 mm/s weiterlaufen, bis du loslässt. Beim Drucken ändert ein Druck den Fluss um 1 %. Ist die Düse zu kalt, erscheint nur eine Meldung. Einstellbar im Makro `_E_KEY` in der `macros.cfg`.
 - **Werkzeugwechsel:** `T0` und `T1` wechseln den Extruder und setzen den Düsenversatz.
 - **Druckende und Pause:** Der Kopf parkt ohne Versatz und bleibt so im Fahrweg. Am Druckende werden alle Heizungen ausgeschaltet.
 - **Filamentwechsel:** `M600` parkt den Kopf und wartet. Danach geht es mit `RESUME` weiter.
