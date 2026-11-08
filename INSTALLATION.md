@@ -397,7 +397,7 @@ Der Assistent fragt nacheinander:
 
 Für den dritten und vierten Drucker wiederholst du Schritt 4. Ein Raspberry Pi 3 schafft zwei Drucker gut. Sollen drei oder vier gleichzeitig drucken, nimm einen Raspberry Pi 4 oder 5.
 
-**Eigene Config aus dem Config Creator:** Wähle im Creator auf der Seite **Anschlüsse** unter **Mehrere Drucker** die Nummer des Druckers und denselben Namen wie in `sudo rf-multi`. Lade die erzeugten Dateien dann im Mainsail dieses Druckers (zum Beispiel `http://<IP>:81`) unter **Maschine** hoch und klicke auf **Speichern & Neustart**.
+**Eigene Config aus dem Config Creator:** Stelle im Creator auf der ersten Seite ein, wie viele Drucker am Raspberry Pi hängen, trage Modell und Namen ein (dieselben Namen wie in `sudo rf-multi`) und wähle unter **Config erstellen für** den Drucker. Die Config erstellst du für jeden Drucker einzeln. Lade die erzeugten Dateien dann im Mainsail dieses Druckers (zum Beispiel `http://<IP>:81`) unter **Maschine** hoch und klicke auf **Speichern & Neustart**.
 
 Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Config und G-Codes bleibt dabei erhalten.
 
