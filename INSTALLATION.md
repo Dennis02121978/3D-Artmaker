@@ -14,7 +14,7 @@ Diese Anleitung führt dich Schritt für Schritt durch die Installation. Du brau
    - [3D-Artmaker 2in1 Hotend](#3d-artmaker-2in1-hotend)
    - [3D-Artmaker Firmware Updater](#3d-artmaker-firmware-updater)
    - [3D-Artmaker Firmware Updater ATmega](#3d-artmaker-firmware-updater-atmega)
-   - [Zwei Drucker an einem Raspberry Pi](#zwei-drucker-an-einem-raspberry-pi)
+   - [Mehrere Drucker an einem Raspberry Pi](#mehrere-drucker-an-einem-raspberry-pi)
    - [3D-Artmaker BootScreen](#3d-artmaker-bootscreen)
    - [3D-Artmaker BootScreen Pi](#3d-artmaker-bootscreen-pi)
 5. [Updates installieren](#5-updates-installieren)
@@ -33,7 +33,7 @@ Du kannst dir aussuchen, was du haben möchtest. Jedes Paket funktioniert allein
 | **3D-Artmaker Firmware Updater ATmega** | Aktualisiert die Klipper-Firmware deines ATmega-Boards per Knopfdruck in Mainsail. | dein Board einen ATmega2560 mit 16 MHz hat und mit 250000 Baud läuft, zum Beispiel beim RF1000 oder RF2000. |
 | **3D-Artmaker BootScreen** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du Armbian, KlipperScreen und ein 480x320-Display mit dem Treiber `fb_st7796` hast. |
 | **3D-Artmaker BootScreen Pi** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du einen Raspberry Pi mit KlipperScreen und einem funktionierenden 480x320-SPI-Display hast, zum Beispiel einem 3,5-Zoll-RPi-LCD. |
-| **Zwei Drucker (rf-multi)** | Betreibt zwei oder mehr Drucker an einem Raspberry Pi, jeden mit eigenem Mainsail und mit Druckerauswahl in KlipperScreen. | du einen zweiten RF-Drucker per USB an denselben Raspberry Pi anschließen willst. |
+| **Mehrere Drucker (rf-multi)** | Betreibt bis zu 4 Drucker an einem Raspberry Pi, jeden mit eigenem Mainsail und mit Druckerauswahl in KlipperScreen. | du weitere RF-Drucker per USB an denselben Raspberry Pi anschließen willst. |
 
 Für das 2in1-Hotend gibt es außerdem eine fertige [Klipper-Config](#2in1-config-für-klipper) mit den Makros für Werkzeugwechsel, Druckstart und Laden. Sie ist für den RF2000 mit 2in1-Umbau gemacht. Hast du schon eine passende Config, brauchst du sie nicht.
 
@@ -305,13 +305,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.0/rf-update_1.5.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.1/rf-update_1.5.1_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "a8c3b38219b16fc946ddafe50b932bcdd205a4bf111e3fd47ab6f2a0e8d25b4a  rf-update_1.5.0_all.deb" | sha256sum -c
+echo "@SHA_RF_UPDATE@  rf-update_1.5.1_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -320,7 +320,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.5.0_all.deb
+sudo apt install ./rf-update_1.5.1_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -343,9 +343,9 @@ Die LED-Signale brauchen die `rf_led.cfg` aus der Config ab v1.5.0. Ohne sie sch
 
 ---
 
-### Zwei Drucker an einem Raspberry Pi
+### Mehrere Drucker an einem Raspberry Pi
 
-Mit dem Paket **rf-multi** laufen zwei (oder mehr) Drucker an einem Raspberry Pi. Jeder Drucker bekommt eigenes Klipper, eigenes Moonraker und ein eigenes Mainsail. Der erste Drucker bleibt, wie er ist.
+Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder Drucker bekommt eigenes Klipper, eigenes Moonraker und ein eigenes Mainsail. Der erste Drucker bleibt, wie er ist.
 
 > [!IMPORTANT]
 > Der erste Drucker muss schon laufen (Klipper, Moonraker, Mainsail), zum Beispiel mit dem Image für den RF2000 v2. Der zweite Drucker wird per USB angeschlossen und eingeschaltet, bevor du anfängst.
@@ -354,13 +354,13 @@ Mit dem Paket **rf-multi** laufen zwei (oder mehr) Drucker an einem Raspberry Pi
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.0/rf-multi_1.5.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.1/rf-multi_1.5.1_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "748dcbc137e78e7af3103c83bc6718677f717366e90671458e66f47cc51a4f4b  rf-multi_1.5.0_all.deb" | sha256sum -c
+echo "@SHA_RF_MULTI@  rf-multi_1.5.1_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -368,10 +368,10 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.5.0_all.deb
+sudo apt install ./rf-multi_1.5.1_all.deb
 ```
 
-**4. Zweiten Drucker einrichten:**
+**4. Weiteren Drucker einrichten:**
 
 ```bash
 sudo rf-multi
@@ -388,12 +388,16 @@ Der Assistent fragt nacheinander:
 
 **5. Drucker benutzen:**
 
-- **Mainsail:** Den ersten Drucker erreichst du wie bisher unter `http://<IP>`, den zweiten unter `http://<IP>:81`. Außerdem steht in jedem Mainsail links ganz oben der Menüpunkt **Drucker**. Dort siehst du beide Drucker und wechselst mit einem Klick.
+- **Mainsail:** Den ersten Drucker erreichst du wie bisher unter `http://<IP>`, den zweiten unter `http://<IP>:81`, den dritten unter `:82` und den vierten unter `:83`. Außerdem steht in jedem Mainsail links ganz oben der Menüpunkt **Drucker**. Dort siehst du beide Drucker und wechselst mit einem Klick.
 - **KlipperScreen:** Beim Start erscheint eine Auswahl der Drucker. Später wechselst du über das Drucker-Symbol in der Leiste am linken Rand.
 - **Firmware-Update:** Der Menüpunkt **Firmware-Update** zeigt beide Drucker zur Auswahl (siehe oben).
 
 > [!WARNING]
 > Prüfe die Config des neuen Druckers vor dem ersten Druck: Endstops, Fahrwege, Temperaturen, PID und Bettnetz. Die Config für den RF2000 mit 3 mm ist noch an keinem echten RF2000 getestet. Was zu prüfen ist, steht in der README im Config-Ordner.
+
+Für den dritten und vierten Drucker wiederholst du Schritt 4. Ein Raspberry Pi 3 schafft zwei Drucker gut. Sollen drei oder vier gleichzeitig drucken, nimm einen Raspberry Pi 4 oder 5.
+
+**Eigene Config aus dem Config Creator:** Wähle im Creator auf der Seite **Anschlüsse** unter **Mehrere Drucker** die Nummer des Druckers und denselben Namen wie in `sudo rf-multi`. Lade die erzeugten Dateien dann im Mainsail dieses Druckers (zum Beispiel `http://<IP>:81`) unter **Maschine** hoch und klicke auf **Speichern & Neustart**.
 
 Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Config und G-Codes bleibt dabei erhalten.
 
@@ -618,7 +622,7 @@ sudo apt purge skipr-update
 sudo apt purge rf-update
 ```
 
-**Zwei Drucker (rf-multi):** Erst die weiteren Drucker entfernen, dann das Paket:
+**Mehrere Drucker (rf-multi):** Erst die weiteren Drucker entfernen, dann das Paket:
 
 ```bash
 sudo rf-multi remove RF2000

@@ -12,6 +12,9 @@ Jeder weitere Drucker bekommt
 Der erste Drucker (klipper.service, ~/printer_data, Port 7125, Mainsail auf
 Port 80) bleibt unveraendert.
 
+Bis zu 4 Drucker an einem Raspberry Pi (MAX_PRINTERS). Ein Pi 3 schafft zwei
+Drucker gut, fuer drei oder vier gleichzeitig druckende ist ein Pi 4 oder 5 besser.
+
 Aufruf: sudo rf-multi            Assistent
         sudo rf-multi list       Drucker und Anschluesse anzeigen
         sudo rf-multi add --name RF2000 --serial /dev/serial/by-id/... --config RF2000_DualExtruder_3mm
@@ -40,6 +43,7 @@ NGINX_ENABLED = "/etc/nginx/sites-enabled"
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,30}$")
 FIRST_PORT = 7126
 FIRST_WEB_PORT = 81
+MAX_PRINTERS = 4
 CONFIG_TITLES = {
     "RF2000v2_DualExtruder": "RF2000 v2 Dual Extruder, Filament 1,75 mm",
     "RF2000_DualExtruder_3mm": "RF2000 Dual Extruder, Filament 3 mm (2,85 mm)",
@@ -221,7 +225,8 @@ def make_config(home, user, name, data, template, serial, port):
             text = f.read()
         # Pfade auf den neuen Datenordner und den echten Benutzer umstellen
         text = text.replace("/home/pi/", home + "/")
-        text = text.replace("printer_data/", os.path.basename(data) + "/")
+        # printer_data/ oder printer_<Name>_data/ (Config aus dem Config Creator) auf diesen Drucker
+        text = re.sub(r"printer(?:_[A-Za-z0-9_-]+?)?_data/", os.path.basename(data) + "/", text)
         if fname == "printer.cfg":
             text, n = re.subn(r"(?m)^(\[mcu\]\s*\nserial:\s*)\S+", r"\g<1>" + serial, text)
             if n != 1:
@@ -407,6 +412,10 @@ def add(home, user, name, serial, template):
     if not os.path.exists(serial):
         raise Abort("Anschluss nicht gefunden: %s" % serial)
     insts = instances(home)
+    active = [i for i in insts if i["name"] is None or i["unit_exists"]]
+    if len(active) >= MAX_PRINTERS:
+        raise Abort("An diesem Raspberry Pi laufen schon %d Drucker, mehr als %d werden nicht unterstuetzt."
+                    % (len(active), MAX_PRINTERS))
     for inst in insts:
         if inst["serial"] and os.path.realpath(inst["serial"]) == os.path.realpath(serial):
             raise Abort("Dieser Anschluss gehoert schon zum Drucker %s." % (inst["name"] or "1 (printer_data)"))
@@ -495,9 +504,12 @@ def wizard(home, user):
     say("Weiteren Drucker an diesem Raspberry Pi einrichten")
     say("==================================================")
     insts = instances(home)
+    active = [i for i in insts if i["name"] is None or i["unit_exists"]]
+    if len(active) >= MAX_PRINTERS:
+        raise Abort("An diesem Raspberry Pi laufen schon %d Drucker (hoechstens %d)." % (len(active), MAX_PRINTERS))
     used = {os.path.realpath(i["serial"]) for i in insts if i["serial"]}
     free = [d for d in serial_devices() if os.path.realpath(d) not in used]
-    say("Vorhandene Drucker:")
+    say("Bis zu %d Drucker koennen an diesem Raspberry Pi laufen. Vorhanden:" % MAX_PRINTERS)
     for inst in insts:
         if inst["name"] is None or inst["unit_exists"]:
             say("  %s  (%s)" % (printer_name(inst), os.path.basename(inst["serial"]) or "kein Anschluss"))
@@ -511,7 +523,8 @@ def wizard(home, user):
     templates = sorted(os.listdir(CONFIGS))
     template = pick("Nummer", [(t, CONFIG_TITLES.get(t, t)) for t in templates])
     say("")
-    say("3. Name des Druckers (Buchstaben, Ziffern, - und _), z. B. RF2000:")
+    say("3. Name des Druckers (Buchstaben, Ziffern, - und _), z. B. RF2000.")
+    say("   Erzeugst du die Config im Config Creator, dort denselben Namen eintragen.")
     while True:
         name = ask("Name")
         if name and NAME_RE.match(name):

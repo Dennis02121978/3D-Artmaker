@@ -13,7 +13,7 @@ Jedes Paket lässt sich allein installieren und erscheint dann als eigener Eintr
 | 3D-Artmaker Firmware Updater ATmega | `rf-update` | Firmware-Update für ATmega2560-Boards | Nur die Webseite |
 | 3D-Artmaker BootScreen | `skipr-bootlogo` | Logo beim Start auf dem Display (Armbian) | Nur das Logo |
 | 3D-Artmaker BootScreen Pi | `rf-bootlogo` | Logo beim Start auf dem Display (Raspberry Pi) | Nur das Logo |
-| (kein Eintrag) | `rf-multi` | Zwei oder mehr Drucker an einem Raspberry Pi | Nein, nur per `.deb` |
+| (kein Eintrag) | `rf-multi` | Bis zu 4 Drucker an einem Raspberry Pi | Nein, nur per `.deb` |
 
 Die Pakete und ihre Prüfsummen liegen unter [Releases](https://github.com/Dennis02121978/3D-Artmaker/releases/latest).
 
@@ -21,11 +21,11 @@ Dazu gibt es [`config/2in1_hotend.cfg`](config/2in1_hotend.cfg), die Klipper-Mak
 
 Für den RF2000 v2 mit zwei Extrudern und zwei Düsen gibt es eine komplette Config mit OrcaSlicer-Einstellungen: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/releases/latest/download/RF2000v2_DualExtruder.zip) oder [Dateien ansehen](config/RF2000v2_DualExtruder/). Auch sie wird nicht über den Update-Manager aktualisiert.
 
-Für den RF2000 der ersten Version mit zwei Extrudern und 3-mm-Filament gibt es eine daraus abgeleitete Config, noch ungetestet: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/releases/latest/download/RF2000_DualExtruder_3mm.zip) oder [Dateien ansehen](config/RF2000_DualExtruder_3mm/).
+Für den RF2000 mit zwei Extrudern und 3-mm-Filament gibt es eine mit dem Renkforce Klipper Config Creator erzeugte Config, noch ungetestet: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/releases/latest/download/RF2000_DualExtruder_3mm.zip) oder [Dateien ansehen](config/RF2000_DualExtruder_3mm/).
 
-## Zwei Drucker an einem Raspberry Pi
+## Mehrere Drucker an einem Raspberry Pi
 
-Mit dem Paket [`rf-multi`](rf-multi/README.md) laufen zwei (oder mehr) Drucker an einem Raspberry Pi: jeder mit eigener Klipper- und Moonraker-Instanz, eigenem Mainsail (`http://<IP>:81`) und Druckerauswahl in Mainsail und KlipperScreen. Der Firmware Updater ATmega (`rf-update` ab v1.5.0) fragt dann, welcher Drucker aktualisiert werden soll, und lässt dessen LED rot blinken. Während des Updates leuchtet sie rot, danach 5 Sekunden grün. Anleitung: [INSTALLATION.md](INSTALLATION.md#zwei-drucker-an-einem-raspberry-pi).
+Mit dem Paket [`rf-multi`](rf-multi/README.md) laufen bis zu 4 Drucker an einem Raspberry Pi: jeder mit eigener Klipper- und Moonraker-Instanz, eigenem Mainsail (`http://<IP>:81` bis `:83`) und Druckerauswahl in Mainsail und KlipperScreen. Der Firmware Updater ATmega (`rf-update` ab v1.5.0) fragt dann, welcher Drucker aktualisiert werden soll, und lässt dessen LED rot blinken. Während des Updates leuchtet sie rot, danach 5 Sekunden grün. Im Renkforce Klipper Config Creator wählst du die Nummer und den Namen des Druckers, dann passen die erzeugten Pfade. Anleitung: [INSTALLATION.md](INSTALLATION.md#mehrere-drucker-an-einem-raspberry-pi).
 
 Fertige Images liegen wegen ihrer Größe bei Google Drive: [RF2000 v2 mit zwei Extrudern und ATmega2560](https://drive.google.com/file/d/1lhX58YXYUb97EdHdkSFAutRhuTZfrxYp/view?usp=share_link) (Raspberry Pi 3, 3,4 GB) und [RF2000 mit 2in1-Hotend und MKS SKIPR](https://drive.google.com/file/d/1tOGc1TmRw5Qx8h91m4WREEqGrIiXHiVt/view?usp=sharing) (1,7 GB). Das Zurückspielen und der erste Start sind noch nicht getestet. Mehr dazu steht im [Release v1.4.0](https://github.com/Dennis02121978/3D-Artmaker/releases/tag/v1.4.0).
 
