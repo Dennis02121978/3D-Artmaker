@@ -19,6 +19,7 @@ install -m 644 common.py ../shared/artmaker_updates.py "$LIB/"
 ../shared/make_web_files.sh rf-update "$VERSION" "$ROOT/usr/share/rf-update" index.html
 install -m 644 files/* "$LIB/files/"
 install -m 644 packaging/rf-update.service packaging/rf-update-web.service "$UNITS/"
+install -D -m 644 packaging/99-rf-ftdi-latency.rules "$ROOT/lib/udev/rules.d/99-rf-ftdi-latency.rules"
 install -m 755 packaging/preinst packaging/postinst packaging/prerm packaging/postrm "$ROOT/DEBIAN/"
 sed "s/@VERSION@/$VERSION/" packaging/control > "$ROOT/DEBIAN/control"
 

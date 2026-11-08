@@ -22,6 +22,11 @@ install -o root -g root -m 440 "$TMP" /etc/sudoers.d/rf-update
 rm -f "$TMP"
 
 systemctl daemon-reload
+# FTDI-Wandler ohne Wartezeit (Regel in /lib/udev/rules.d), angeschlossene sofort umstellen
+udevadm control --reload-rules 2>/dev/null || true
+for f in /sys/bus/usb-serial/drivers/ftdi_sio/*/latency_timer; do
+    [ -w "$f" ] && echo 1 > "$f" || true
+done
 systemctl enable rf-update-web.service >/dev/null 2>&1
 systemctl restart rf-update-web.service
 /usr/bin/python3 /usr/lib/rf-update/setup_host.py install "$KLIPPER_USER"

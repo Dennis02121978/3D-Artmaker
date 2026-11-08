@@ -10,7 +10,7 @@ Das ist die Config für einen Renkforce RF2000 mit zwei Extrudern, 3-mm-Filament
 - Heißmessung vor dem Druck an, Notfall-Pause ±6000, Flow-Kompensation 400 bis 800, ohne Digits-Kurve
 - Drucker 1 an diesem Raspberry Pi. Als zweiter, dritter oder vierter Drucker passt `rf-multi` die Pfade selbst an.
 
-`rf_display.cfg` und `z_tasten.cfg` sind dieselben Dateien wie beim RF2000 v2.
+`rf_display.cfg` und `z_tasten.cfg` sind dieselben Dateien wie beim RF2000 v2. Auch die SD-Karte im Kartenleser des Druckers funktioniert wie dort beschrieben ([Funktionen](../RF2000v2_DualExtruder/README.md#funktionen)).
 
 > [!WARNING]
 > Diese Config ist **noch an keinem echten RF2000 getestet**. Die Pins sind laut RF-Firmware bei RF2000 und RF2000 v2 gleich. Prüfe trotzdem alles und bleib bei den ersten Bewegungen mit der Hand am Not-Halt.
