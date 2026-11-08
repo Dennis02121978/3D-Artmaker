@@ -15,15 +15,14 @@ Das ist die Config eines Renkforce RF2000 v2 mit zwei Extrudern und zwei Düsen,
 | `rf_display.cfg` | Display und Menü wie in der RF-Firmware (Repetier) |
 | `offset_test.cfg` | Testdruck `OFFSET_TEST` und `NOZZLE_OFFSET_ADJUST` für den Düsenversatz |
 | `rf_led.cfg` | RGB-Licht wie in der RF-Firmware, LED-Signale für das Firmware-Update |
-| `crowsnest.conf` | Kamera, nur nötig, wenn du Crowsnest nutzt |
 | `OrcaSlicer_Einstellungen.md` | Was du in OrcaSlicer einstellen musst |
 
-Nicht enthalten sind die Dateien von Mainsail, Moonraker, KlipperScreen, Sonar und Timelapse. Sie gehören zu deiner eigenen Installation und bleiben, wie sie sind.
+Nicht enthalten sind die Dateien von Mainsail, Moonraker, KlipperScreen, Crowsnest, Sonar und Timelapse. Sie gehören zu deiner eigenen Installation und bleiben, wie sie sind.
 
 ## Das brauchst du vorher
 
 - [ ] Einen RF2000 v2 mit zwei Extrudern und ATmega2560-Board. Bei anderen Druckern passen die Pins nicht.
-- [ ] Klipper aus [Dennis02121978/klipper](https://github.com/Dennis02121978/klipper). Das offizielle Klipper kennt die Module für die Treiber, die Wägezelle und die Z-Tasten nicht. Wie du umstellst, steht in [KLIPPER_WECHSELN.md](https://github.com/Dennis02121978/klipper/blob/master/KLIPPER_WECHSELN.md).
+- [ ] Klipper aus [Dennis02121978/klipper](https://github.com/Dennis02121978/klipper). Das offizielle Klipper kennt die Module für die Treiber, die Wägezelle und die Z-Tasten nicht. Wie du umstellst, steht in [KLIPPER_WECHSELN.md](https://github.com/Dennis02121978/klipper/blob/master/KLIPPER_WECHSELN.md). Die `rf_display.cfg` ab v1.5.4 braucht den Fork-Stand vom 08.11.2026 oder neuer (Menü „Drucke Datei“). Aktualisiere Klipper vorher in Mainsail unter **Maschine → Update Manager**.
 - [ ] Mainsail, denn die `printer.cfg` bindet `mainsail.cfg` ein.
 - [ ] Es läuft **kein Druck**.
 
@@ -31,7 +30,7 @@ Nicht enthalten sind die Dateien von Mainsail, Moonraker, KlipperScreen, Sonar u
 
 **1. Eigene Config sichern.** Lade in Mainsail unter **Maschine** deine Config-Dateien herunter.
 
-**2. Dateien hochladen.** Entpacke das ZIP und lade die Dateien in Mainsail unter **Maschine** hoch. Vorhandene Dateien mit gleichem Namen werden dabei ersetzt. `crowsnest.conf` lässt du weg, wenn deine Kamera schon läuft.
+**2. Dateien hochladen.** Entpacke das ZIP und lade die Dateien in Mainsail unter **Maschine** hoch. Vorhandene Dateien mit gleichem Namen werden dabei ersetzt.
 
 **3. Anschluss des Boards eintragen.** Der Eintrag in der `printer.cfg` gehört zum USB-Adapter dieses Druckers und passt bei dir nicht. Verbinde dich per SSH mit dem Drucker und gib ein:
 
