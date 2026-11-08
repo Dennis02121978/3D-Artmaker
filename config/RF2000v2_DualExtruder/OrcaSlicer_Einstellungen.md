@@ -11,7 +11,7 @@ Drucker gemessen. Diese bitte kalibrieren.
 
 | Einstellung | Wert | Woher |
 |---|---|---|
-| Printable area | 200 x 285 mm | Maximaler Fahrweg X 200 mm und Y 285 mm |
+| Printable area | 200 x 280 mm | Maximaler Fahrweg X 200 mm und Y 280 mm (`position_max`) |
 | Printable height | 185 mm | `position_max` Z ist 190 mm, 5 mm Reserve für Z-Hop und Parken |
 | G-code flavor | Klipper | |
 | Use relative E distances | an | |

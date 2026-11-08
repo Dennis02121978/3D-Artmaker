@@ -52,7 +52,9 @@ serial: /dev/serial/by-id/DEIN-NAME
 
 ## Z-Höhe
 
-Z max ist 190 mm, nicht 200 mm. Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), damit nichts kaputtgeht. Dafür bleiben 10 mm Reserve unter dem Fahrweg. `PRINT_END` parkt deshalb bei 185 mm. Die Druckhöhe in OrcaSlicer (185 mm, siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)) liegt darunter.
+Z max ist 190 mm, nicht 200 mm. Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), damit nichts kaputtgeht. Dafür bleiben 10 mm Reserve unter dem Fahrweg. `PRINT_END` und „Objekt ausgeben“ fahren deshalb nur bis 185 mm. Die Druckhöhe in OrcaSlicer (185 mm, siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)) liegt darunter.
+
+Y max ist 280 mm: Die RF-Firmware erlaubt 290 mm ab dem Home-Schalter (`Y_MAX_LENGTH`), der Schalter liegt 10 mm vor dem Bett (Y = −10). Mit 300 mm fuhr das Bett 20 mm zu weit nach vorne.
 
 ## Kalibrieren
 
