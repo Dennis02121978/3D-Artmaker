@@ -45,9 +45,6 @@ def installed_package_version():
     return r.stdout.strip() if r.returncode == 0 else ""
 
 
-PACKAGE_VERSION = installed_package_version()
-
-
 def check_release():
     """Meldet eine neuere Version dieses Pakets. Installiert wird sie bewusst von Hand."""
     with release_lock:
@@ -58,8 +55,10 @@ def check_release():
                 with urllib.request.urlopen(req, timeout=5) as r:
                     data = json.load(r)
                 tag = data["tag_name"]
-                newer = PACKAGE_VERSION and subprocess.run(
-                    ["dpkg", "--compare-versions", tag.lstrip("v"), "gt", PACKAGE_VERSION]).returncode == 0
+                # Jedes Mal neu lesen: postinst startet die Seite, bevor dpkg die neue Version eintraegt
+                installed = installed_package_version()
+                newer = installed and subprocess.run(
+                    ["dpkg", "--compare-versions", tag.lstrip("v"), "gt", installed]).returncode == 0
                 release["newer"] = tag if newer else None
                 release["url"] = data.get("html_url")
             except (OSError, ValueError, KeyError):

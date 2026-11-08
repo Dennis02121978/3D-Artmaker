@@ -50,6 +50,10 @@ serial: /dev/serial/by-id/DEIN-NAME
 
 **5. Speichern.** Klicke auf **Speichern & Neustart**.
 
+## Z-Höhe
+
+Z max ist 190 mm, nicht 200 mm. Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), damit nichts kaputtgeht. Dafür bleiben 10 mm Reserve unter dem Fahrweg. `PRINT_END` parkt deshalb bei 185 mm. Die Druckhöhe in OrcaSlicer (185 mm, siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)) liegt darunter.
+
 ## Kalibrieren
 
 Ganz unten in der `printer.cfg` steht im Bereich `SAVE_CONFIG` das Bettnetz **dieses** Druckers. Die PID-Werte stehen weiter oben bei den Heizungen. Beides passt nicht zu deinem Drucker.

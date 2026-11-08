@@ -19,12 +19,14 @@ Das ist die Config für einen Renkforce RF2000 mit zwei Extrudern, 3-mm-Filament
 
 | Wert | RF2000 (diese Config) | RF2000 v2 |
 |---|---|---|
-| Fahrweg X / Y / Z | 200 / 245 / 200 mm | 200 / 300 / 200 mm |
+| Fahrweg X / Y / Z | 200 / 245 / 190 mm | 200 / 300 / 190 mm |
 | Y-Home-Schalter vor dem Bett | 20 mm (Y = −20 bis 245) | 10 mm |
 | Bettnetz | 10,50 bis 200,220, 5 × 5, lagrange | 10,50 bis 200,275, 6 × 9, bicubic |
 | Filament | 2,85 mm | 1,75 mm |
 | Prime Line | E4,9 / E9,4 | E13 / E25 |
 | Sense Offset Schwelle | 4000 (Vorgabe) | 500 (am Drucker eingestellt) |
+
+Z max ist bei allen Modellen 190 mm: Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), dafür bleiben 10 mm Reserve unter dem Fahrweg von 200 mm. `PRINT_END` parkt deshalb bei 185 mm.
 
 PID-Werte und Bettnetz sind nicht für deinen Drucker. Die eingetragenen PID-Werte sind die Vorgabe des Creators.
 
