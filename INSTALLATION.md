@@ -311,7 +311,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.5/rf-u
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_UPDATE@  rf-update_1.5.5_all.deb" | sha256sum -c
+echo "292b7baa7005a5e1b5a4e335b715bcd8b81225e24167ffc663bafeb0c1a21a15  rf-update_1.5.5_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -362,7 +362,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.5/rf-m
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_MULTI@  rf-multi_1.5.5_all.deb" | sha256sum -c
+echo "3170d4861039fe51e45bdb4e66a1134b33137cf7454bf8ff3f25fb82f2a99dda  rf-multi_1.5.5_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
