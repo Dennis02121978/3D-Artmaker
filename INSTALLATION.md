@@ -331,14 +331,14 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 1. Lade Mainsail mit **F5** neu.
 2. Klicke links auf **Firmware-Update**.
-3. Hängen mehrere Drucker am Raspberry Pi, tippe den Drucker an, den du aktualisieren willst. Seine LED blinkt dann 30 Sekunden rot, so siehst du, welcher es ist. Ist schon ein Drucker gewählt (zum Beispiel nach einem Update), blinkt er gleich beim Öffnen der Seite. Sind alle Drucker aktuell, steht dort **Alle Drucker sind auf dem neuesten Stand**.
-4. Klicke auf **Update starten** und dann auf **Ja, jetzt starten**. Während des Updates leuchtet die LED des Druckers rot. Beim Schreiben der Firmware ist sie kurz aus, weil das Board neu startet.
-5. Warte, bis **Update erfolgreich** erscheint. Bei mehreren Druckern bleibt die Auswahl darunter stehen, du kannst gleich den nächsten Drucker aktualisieren. Auch ein Drucker, der schon die aktuelle Firmware hat, lässt sich mit **Firmware neu aufspielen** noch einmal flashen. Die LED leuchtet dann 5 Sekunden grün. Das dauert meist nur wenige Minuten. Der Raspberry Pi startet dabei nicht neu.
+3. Hängen mehrere Drucker am Raspberry Pi, tippe den Drucker an, den du aktualisieren willst. Auf seinem Display blinkt dann 30 Sekunden ein Rahmen mit **FIRMWARE-UPDATE – DIESER DRUCKER**, dazu blinkt die LED rot. Der RF1000 hat keine LED, dort zeigt nur das Display die Meldung. So siehst du, welcher es ist. Ist schon ein Drucker gewählt (zum Beispiel nach einem Update), blinkt er gleich beim Öffnen der Seite. Sind alle Drucker aktuell, steht dort **Alle Drucker sind auf dem neuesten Stand**.
+4. Klicke auf **Update starten** und dann auf **Ja, jetzt starten**. Während des Updates steht **UPDATE LAEUFT – NICHT AUSSCHALTEN** auf dem Display und die LED leuchtet rot. Beim Schreiben der Firmware sind beide kurz aus, weil das Board neu startet.
+5. Warte, bis **Update erfolgreich** erscheint. Bei mehreren Druckern bleibt die Auswahl darunter stehen, du kannst gleich den nächsten Drucker aktualisieren. Auch ein Drucker, der schon die aktuelle Firmware hat, lässt sich mit **Firmware neu aufspielen** noch einmal flashen. Das Display zeigt dann kurz **ERFOLGREICH**, die LED leuchtet 5 Sekunden grün. Das dauert meist nur wenige Minuten. Der Raspberry Pi startet dabei nicht neu.
 6. Bei zwei Druckern: Zeigt die Seite danach an, dass auch der andere Drucker die neue Firmware braucht, aktualisiere ihn gleich mit. Beide nutzen dasselbe Klipper.
 
 Ab v1.5.6 stellt das Paket außerdem die USB-Wandler (FTDI) der Drucker auf 1 ms Wartezeit. Klipper reagiert dadurch schneller, und die SD-Karte im Drucker lässt sich etwa dreimal so schnell lesen.
 
-Die LED-Signale brauchen die `rf_led.cfg` aus der Config ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, kann die LED nicht blinken. Das Update schreibt die Klipper-Firmware trotzdem.
+Die Display-Meldung braucht die `rf_display.cfg` (RF1000: `rf_display_rf1000.cfg`) ab v1.5.8, die LED-Signale die `rf_led.cfg` ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, gibt es weder Meldung noch LED-Signal. Das Update schreibt die Klipper-Firmware trotzdem.
 
 > [!CAUTION]
 > **Schalte den Drucker während des Firmware-Updates nicht aus!** Bricht das Schreiben trotzdem ab, schalte den Drucker aus und wieder ein und starte das Update erneut.

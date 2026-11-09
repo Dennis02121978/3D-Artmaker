@@ -122,8 +122,8 @@ def choose_instance():
 
 def led(mode, color="RED", duration=30):
     if inst and not simulate or inst and c.test_cfg().get("SIMULATE_LED") == "1":
-        say("LED: %s %s" % (mode, color))
-        c.led_signal(inst["port"], mode, color, duration)
+        say("Signal (Display/LED): %s %s" % (mode, color))
+        c.signal(inst["port"], mode, color, duration)
 
 
 def check():

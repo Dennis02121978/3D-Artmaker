@@ -182,6 +182,24 @@ def led_signal(port, mode, color="RED", duration=30):
     return gcode(port, "SET_LED LED=led RED=%d GREEN=%d BLUE=%d SYNC=0" % rgb)
 
 
+def display_signal(port, mode, duration=30):
+    """Meldung auf dem Druckerdisplay (RF_DISPLAY_SIGNAL aus rf_display.cfg), auch ohne LED wie beim RF1000."""
+    return gcode(port, "RF_DISPLAY_SIGNAL MODE=%s DURATION=%d" % (mode, duration))
+
+
+def signal(port, mode, color="RED", duration=30):
+    """Drucker erkennen bzw. Update-Zustand zeigen: Display-Meldung und LED, soweit vorhanden."""
+    if mode == "OFF":
+        disp = "OFF"
+    elif mode == "BLINK":
+        disp = "SELECT"
+    else:
+        disp = "DONE" if color == "GREEN" else "UPDATE"
+    shown = display_signal(port, disp, max(duration, 15) if disp == "DONE" else duration)
+    lit = led_signal(port, mode, color, duration)
+    return {"ok": shown or lit, "display": shown, "led": lit}
+
+
 def service_active(name):
     r = subprocess.run(["systemctl", "show", "-p", "ActiveState", "--value", name],
                        capture_output=True, text=True)

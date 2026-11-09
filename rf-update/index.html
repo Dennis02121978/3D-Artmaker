@@ -53,7 +53,7 @@ details{margin-top:16px;font-size:.875rem}pre{max-height:300px;overflow:auto;bac
 <script>
 const card = document.getElementById('card'), logbox = document.getElementById('logbox');
 let last = null, confirming = false, starting = false, offlineSince = 0, seenRunning = false, renderKey = '';
-let selected = null, blinking = null, dismissed = false, ledFailed = {};
+let selected = null, blinking = null, dismissed = false, sig = {};
 
 function el(tag, attrs, ...kids){
   const n = document.createElement(tag);
@@ -74,12 +74,12 @@ function printers(s){ return s.printers || []; }
 function multi(s){ return printers(s).length > 1; }
 function current(s){ return printers(s).find(p => p.id === selected) || (multi(s) ? null : printers(s)[0]); }
 async function identify(id, off){
-  let ok = false;
+  let res = {ok:false};
   try {
     const r = await fetch('identify',{method:'POST',headers:{'X-Skipr-Update':'1','Content-Type':'application/json'},body:JSON.stringify({printer:id,off:!!off})});
-    ok = r.ok && (await r.json()).ok;
+    if (r.ok) res = await r.json();
   } catch(e) {}
-  if (!off) { ledFailed[id] = !ok; render(); }
+  if (!off) { sig[id] = res; render(); }
 }
 function choose(id){
   selected = id; blinking = id; identify(id); render();
@@ -96,9 +96,16 @@ function chooser(s){
       onclick(){ choose(p.id); }},
     el('span',{class:'dot'}),
     el('span',{}, el('b',{},p.name), el('small',{},p.serial), el('small',{},printerState(p)),
-      p.id === blinking ? (ledFailed[p.id]
-        ? el('small',{class:'blink'},'Die LED lässt sich nicht ansteuern, weil Klipper nicht mit diesem Drucker verbunden ist (zum Beispiel noch Repetier-Firmware). Prüfe den Drucker am Anschluss ' + p.serial + '.')
-        : el('small',{class:'blink'},'Die LED dieses Druckers blinkt jetzt 30 Sekunden rot.')) : ''))));
+      p.id === blinking ? el('small',{class:'blink'},signalText(p)) : ''))));
+}
+function signalText(p){
+  const r = sig[p.id];
+  if (!r) return 'Signal wird gesendet …';
+  if (!r.ok) return 'Display und LED lassen sich nicht ansteuern, weil Klipper nicht mit diesem Drucker verbunden ist (zum Beispiel noch Repetier-Firmware). Prüfe den Drucker am Anschluss ' + p.serial + '.';
+  const msg = 'Auf dem Display dieses Druckers blinkt jetzt 30 Sekunden „FIRMWARE-UPDATE – DIESER DRUCKER“';
+  if (r.display && r.led) return msg + ', dazu blinkt die LED rot.';
+  if (r.display) return msg + '.';
+  return 'Die LED dieses Druckers blinkt jetzt 30 Sekunden rot. Für die Meldung auf dem Display fehlt die aktuelle rf_display.cfg.';
 }
 function idle(s){
   const p = current(s);
@@ -119,7 +126,7 @@ function idle(s){
     if (s.state === 'done') nodes.push(el('div',{class:'note okn'},
       last_p && last_p.klippy && last_p.klippy !== 'ready'
         ? 'Update für ' + lname + ' fertig. Die Drucker-Software wird gerade geladen (' + last_p.klippy + ').'
-        : 'Update für ' + lname + ' erfolgreich. Die LED leuchtet 5 Sekunden grün.'));
+        : 'Update für ' + lname + ' erfolgreich. Das Display zeigt kurz „ERFOLGREICH“, die LED leuchtet 5 Sekunden grün.'));
     if (s.state === 'failed') nodes.push(el('div',{class:'note err'},'Update für ' + lname + ' hat nicht geklappt: ' + (s.message || 'Unbekannter Fehler.') + ' Details unten unter „Technische Details“.'));
     const others = printers(s).filter(x => x.id !== s.printer && x.update_available === true);
     if (s.state === 'done' && others.length) nodes.push(el('div',{class:'note warn'},
@@ -131,8 +138,8 @@ function idle(s){
       : need.length ? 'Für alle Drucker ist ein Update verfügbar.'
       : 'Welcher Drucker soll aktualisiert werden?';
     const sub = allCurrent
-      ? 'Du kannst die Firmware eines Druckers trotzdem neu aufspielen, falls etwas nicht stimmt. Tippe ihn an, seine LED blinkt dann rot.'
-      : 'Tippe einen Drucker an. Seine LED blinkt dann rot, so siehst du, welcher es ist. Während des Updates leuchtet sie rot, danach 5 Sekunden grün.';
+      ? 'Du kannst die Firmware eines Druckers trotzdem neu aufspielen, falls etwas nicht stimmt. Tippe ihn an, dann blinkt auf seinem Display eine Meldung und seine LED rot.'
+      : 'Tippe einen Drucker an. Auf seinem Display blinkt dann „FIRMWARE-UPDATE – DIESER DRUCKER“ und seine LED rot (RF1000: nur Display), so siehst du, welcher es ist. Während des Updates steht „UPDATE LAEUFT“ auf dem Display, danach kurz „ERFOLGREICH“.';
     nodes.push(el('p',{class:'headline'},head), el('p',{class:'muted'},sub), chooser(s));
     if (p && p.block_reason) nodes.push(el('div',{class:'note warn'},p.block_reason));
     if (p && p.update_available === false && !allCurrent) nodes.push(el('p',{class:'muted'},p.name + ' hat schon die aktuelle Firmware. Du kannst sie trotzdem neu aufspielen, falls etwas nicht stimmt.'));
@@ -155,7 +162,7 @@ function bar(p){ const i = el('i'); i.style.width = (p||0)+'%'; return el('div',
 function running(s){
   show(
     el('p',{class:'headline'},s.state==='rebooting'?'Fast fertig: Der Drucker startet neu':'Update läuft …'),
-    s.printer_name && multi(s) ? el('p',{class:'muted'},'Drucker: ' + s.printer_name + ' (LED leuchtet rot)') : '',
+    s.printer_name && multi(s) ? el('p',{class:'muted'},'Drucker: ' + s.printer_name + ' (Display: „UPDATE LAEUFT“, LED rot)') : '',
     el('p',{class:'muted'},'Du kannst diese Seite schließen, das Update läuft weiter.'),
     bar(s.percent), steps(s),
     el('div',{class:'note warn'},'Den Drucker jetzt nicht ausschalten.')
@@ -174,7 +181,7 @@ function failed(s){
 function done(s){
   const ready = s.klippy === 'ready';
   const nodes = ready
-    ? [el('p',{class:'headline big-ok'},'Update erfolgreich'), el('p',{class:'muted'},(s.printer_name && multi(s) ? s.printer_name : 'Dein Drucker') + ' ist bereit. Die LED leuchtet 5 Sekunden grün.'), version(s)]
+    ? [el('p',{class:'headline big-ok'},'Update erfolgreich'), el('p',{class:'muted'},(s.printer_name && multi(s) ? s.printer_name : 'Dein Drucker') + ' ist bereit. Das Display zeigt kurz „ERFOLGREICH“, die LED leuchtet 5 Sekunden grün.'), version(s)]
     : [el('p',{class:'headline'},'Der Drucker startet …'), el('p',{class:'muted'},'Das Update ist fertig, die Drucker-Software wird gerade geladen.')];
   if (!ready && s.klippy) nodes.push(el('div',{class:'note warn'},'Die Drucker-Software meldet: ' + s.klippy + '. Falls das so bleibt, Details in Mainsail ansehen.'), version(s));
   const others = printers(s).filter(p => p.id !== s.printer && p.update_available === true);

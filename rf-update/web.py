@@ -209,15 +209,16 @@ class Handler(BaseHTTPRequestHandler):
             if not inst or c.service_active(c.UNIT):
                 self.respond(409, json.dumps({"error": "Drucker nicht verfügbar."}))
                 return
-            # Andere Drucker hoeren auf zu blinken, der gewaehlte blinkt 30 Sekunden rot
+            # Andere Drucker hoeren auf, der gewaehlte zeigt 30 Sekunden die Meldung
+            # auf dem Display und blinkt rot (LED nur RF2000/RF2000 v2)
             for other in found:
                 if other["id"] != inst["id"]:
-                    c.led_signal(other["port"], "OFF")
+                    c.signal(other["port"], "OFF")
             if body.get("off"):
-                ok = c.led_signal(inst["port"], "OFF")
+                result = c.signal(inst["port"], "OFF")
             else:
-                ok = c.led_signal(inst["port"], "BLINK", "RED", 30)
-            self.respond(200, json.dumps({"ok": ok}))
+                result = c.signal(inst["port"], "BLINK", "RED", 30)
+            self.respond(200, json.dumps(result))
             return
         if c.service_active(c.UNIT):
             self.respond(202, '{"ok":true}')

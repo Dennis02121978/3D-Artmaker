@@ -33,6 +33,8 @@ REPL = [
      'text: { "{:^16}".format("Version " ~ printer["gcode_macro _RF_INFO"].version) }'),
     ('  {% if s < 18 %}[{ "~rf_full~" * s }{ "~rf_shade~" }{ " " * (17 - s) }]{% else %}{ "{:^20}".format("Stand " ~ printer["gcode_macro _RF_INFO"].stand) }{% endif %}',
      '  {% if s < 14 %}[{ "~rf_full~" * s }{ "~rf_shade~" }{ " " * (13 - s) }]{% else %}{ "{:^16}".format("Stand " ~ printer["gcode_macro _RF_INFO"].stand) }{% endif %}'),
+    # Meldung fuer den Firmware Updater: 16 Spalten
+    ("variable_cols: 20", "variable_cols: 16"),
     # Seiten wie ui_page1 usw. mit UI_COLS<=16
     ('  { "Z%s%6.2f %6.2f%s" % (":" if "z" in th.homed_axes else "?", gz, th.position.z - gz, " Kmp" if printer.bed_mesh.profile_name else "") }',
      '  { "Z%s%6.2f %6.2f%s" % (":" if "z" in th.homed_axes else "?", gz, th.position.z - gz, "K" if printer.bed_mesh.profile_name else "") }'),
