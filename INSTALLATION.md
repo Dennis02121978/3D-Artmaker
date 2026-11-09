@@ -305,13 +305,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.6/rf-update_1.5.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/rf-update_1.5.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "23c08d9bdf497306c9b649dc6ddfb10062f41b73fcb056d216aa069e3e7a1a43  rf-update_1.5.6_all.deb" | sha256sum -c
+echo "@SHA_RF_UPDATE@  rf-update_1.5.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -320,7 +320,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.5.6_all.deb
+sudo apt install ./rf-update_1.5.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -356,13 +356,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.6/rf-multi_1.5.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/rf-multi_1.5.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "bc46aa7f3a0f31ce4c6e95fc10f2ab54eba2de57b2f52f55c08334ae1dce5c7c  rf-multi_1.5.6_all.deb" | sha256sum -c
+echo "@SHA_RF_MULTI@  rf-multi_1.5.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -370,7 +370,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.5.6_all.deb
+sudo apt install ./rf-multi_1.5.7_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**
