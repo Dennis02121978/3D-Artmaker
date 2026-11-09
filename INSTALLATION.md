@@ -225,13 +225,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/skipr-filament_1.4.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/skipr-filament_1.5.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "1615045400b1fd6f5c3b1a76341052d843e04b41690cbc63595c57b89f4f7ded  skipr-filament_1.4.0_all.deb" | sha256sum -c
+echo "0bbdbb660be97fd2fd5f5c396812de68d174fffab192b2c48f277404fe9a84d0  skipr-filament_1.5.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -240,7 +240,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.4.0_all.deb
+sudo apt install ./skipr-filament_1.5.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -260,13 +260,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/skipr-update_1.4.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/skipr-update_1.5.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "e7a4b6bc40bb31268fc944980483ca1b45022747329caa56884628ff1dcc1864  skipr-update_1.4.0_all.deb" | sha256sum -c
+echo "cf604664faf164b48baa2597c6a628d4ea2dfb144c6bd07f19fad1740bd990a4  skipr-update_1.5.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -275,7 +275,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.4.0_all.deb
+sudo apt install ./skipr-update_1.5.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -411,13 +411,13 @@ Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Co
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/skipr-bootlogo_1.4.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/skipr-bootlogo_1.5.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "66e3e59670f83f411fe5dbb96fa0fd7d9218cef041ae27894b10f9ec57512dfe  skipr-bootlogo_1.4.0_all.deb" | sha256sum -c
+echo "e51e947717c4261dd3e41c7d778bbe282d99ff482988b31b70e418f1073c688c  skipr-bootlogo_1.5.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -426,7 +426,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.4.0_all.deb
+sudo apt install ./skipr-bootlogo_1.5.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -451,13 +451,13 @@ Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, da
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.4.0/rf-bootlogo_1.4.0_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/rf-bootlogo_1.5.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "f2dbf736d959d7c37c317a485144a48bfc5b76077f2612ab2771aaad0da022c1  rf-bootlogo_1.4.0_all.deb" | sha256sum -c
+echo "f476b3495a4ffe819eea45759b21abddbc506a1bb92d058e711b9f4b1005e548  rf-bootlogo_1.5.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -466,7 +466,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-bootlogo_1.4.0_all.deb
+sudo apt install ./rf-bootlogo_1.5.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
