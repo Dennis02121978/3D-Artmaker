@@ -11,7 +11,7 @@ Drucker gemessen. Diese bitte kalibrieren.
 
 | Einstellung | Wert | Woher |
 |---|---|---|
-| Printable area | 200 x 280 mm | Maximaler Fahrweg X 200 mm und Y 280 mm (`position_max`) |
+| Printable area | 200 x 290 mm | Maximaler Fahrweg X 200 mm und Y 290 mm (`position_max`) |
 | Printable height | 185 mm | `position_max` Z ist 190 mm, 5 mm Reserve für Z-Hop und Parken |
 | G-code flavor | Klipper | |
 | Use relative E distances | an | |
@@ -62,17 +62,17 @@ Beide Düsen müssen außerdem gleich hoch stehen. Die Makros gleichen nur X und
 
 ### Nutzbare Fläche mit T1
 
-Der Kopf kann nur X 0 bis 200 mm und Y 0 bis 285 mm fahren. Der Versatz verschiebt den Bereich,
+Der Kopf kann nur X 0 bis 200 mm und Y 0 bis 290 mm fahren. Der Versatz verschiebt den Bereich,
 den T1 erreicht. Teile, die T1 druckt, müssen deshalb hier liegen:
 
 | Achse | `offset` negativ | `offset` positiv |
 |---|---|---|
 | X | von `-offset_x` bis `200` | von `0` bis `200 - offset_x` |
-| Y | von `-offset_y` bis `285` | von `0` bis `285 - offset_y` |
+| Y | von `-offset_y` bis `290` | von `0` bis `290 - offset_y` |
 
-Beispiel mit `offset_x: -30` und `offset_y: 5`: T1 erreicht X 30 bis 200 und Y 0 bis 280.
+Beispiel mit `offset_x: -30` und `offset_y: 5`: T1 erreicht X 30 bis 200 und Y 0 bis 285.
 
-Die Druckplatte in OrcaSlicer bleibt 200 x 285 mm groß und zeigt diese Grenze nicht an. Liegt
+Die Druckplatte in OrcaSlicer bleibt 200 x 290 mm groß und zeigt diese Grenze nicht an. Liegt
 ein Teil oder der Prime Tower außerhalb, bricht Klipper den Druck mit `Move out of range` ab.
 Stelle Teile und Prime Tower deshalb selbst in diesen Bereich.
 

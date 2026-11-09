@@ -19,8 +19,8 @@ Das ist die Config für einen Renkforce RF2000 mit zwei Extrudern, 3-mm-Filament
 
 | Wert | RF2000 (diese Config) | RF2000 v2 |
 |---|---|---|
-| Fahrweg X / Y / Z | 200 / 225 / 190 mm | 200 / 280 / 190 mm |
-| Y-Home-Schalter vor dem Bett | 20 mm (Y = −20 bis 225) | 10 mm (Y = −10 bis 280) |
+| Fahrweg ab Schalter X / Y / Z | 200 / 245 / 190 mm | 200 / 295 / 190 mm |
+| Düse am Y-Home-Schalter vor dem Bett | 18 mm (Y = −18 bis 227) | 5 mm (Y = −5 bis 290) |
 | Bettnetz | 10,50 bis 200,220, 5 × 5, lagrange | 10,50 bis 200,275, 6 × 9, bicubic |
 | Filament | 2,85 mm | 1,75 mm |
 | Prime Line | E4,9 / E9,4 | E13 / E25 |
@@ -28,7 +28,7 @@ Das ist die Config für einen Renkforce RF2000 mit zwei Extrudern, 3-mm-Filament
 
 Z max ist bei allen Modellen 190 mm: Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), dafür bleiben 10 mm Reserve unter dem Fahrweg von 200 mm. `PRINT_END` und „Objekt ausgeben“ fahren deshalb nur bis 185 mm.
 
-Y max ist der Fahrweg der RF-Firmware ab dem Home-Schalter (`Y_MAX_LENGTH`: RF1000 und RF2000 245 mm, RF2000 v2 290 mm) minus dem Abstand des Schalters vor dem Bett. Weiter darf das Bett nicht nach vorne fahren.
+Y max (`position_max`) ist der am Drucker gemessene Fahrweg ab dem Home-Schalter minus dem Abstand der Düse vor dem Bett am Schalter: RF1000 245 − 22 = 223 mm, RF2000 245 − 18 = 227 mm, RF2000 v2 295 − 5 = 290 mm. Weiter darf das Bett nicht nach vorne fahren. X max ist beim RF2000 und RF2000 v2 200 mm (Single und Dual).
 
 PID-Werte und Bettnetz sind nicht für deinen Drucker. Die eingetragenen PID-Werte sind die Vorgabe des Creators.
 

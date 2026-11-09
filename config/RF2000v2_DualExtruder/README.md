@@ -54,7 +54,7 @@ serial: /dev/serial/by-id/DEIN-NAME
 
 Z max ist 190 mm, nicht 200 mm. Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), damit nichts kaputtgeht. Dafür bleiben 10 mm Reserve unter dem Fahrweg. `PRINT_END` und „Objekt ausgeben“ fahren deshalb nur bis 185 mm. Die Druckhöhe in OrcaSlicer (185 mm, siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)) liegt darunter.
 
-Y max ist 280 mm: Die RF-Firmware erlaubt 290 mm ab dem Home-Schalter (`Y_MAX_LENGTH`), der Schalter liegt 10 mm vor dem Bett (Y = −10). Mit 300 mm fuhr das Bett 20 mm zu weit nach vorne.
+Y max ist 290 mm: Der Fahrweg ab dem Home-Schalter ist 295 mm, am Schalter steht die Düse 5 mm vor dem Bett (Y = −5). Mit 300 mm fuhr das Bett zu weit nach vorne. Wer von einer älteren Config mit Y = −10 kommt, muss das Bettnetz neu aufnehmen, weil sich Y=0 um 5 mm verschoben hat.
 
 ## Kalibrieren
 
@@ -62,7 +62,7 @@ Ganz unten in der `printer.cfg` steht im Bereich `SAVE_CONFIG` das Bettnetz **di
 
 Fahre die Schritte der Reihe nach, die Hand am Not-Halt:
 
-1. Fahre mit `G28 X` und `G28 Y` X und Y an, danach mit `G28 Z` die Z-Achse. Beobachte Z genau. Y=0 ist die Vorderkante des Betts, der Y-Schalter liegt 10 mm davor.
+1. Fahre mit `G28 X` und `G28 Y` X und Y an, danach mit `G28 Z` die Z-Achse. Beobachte Z genau. Y=0 ist die Vorderkante des Betts, am Y-Schalter steht die Düse 5 mm davor.
 2. Starte `PID_TUNING_HOTEND_1`, danach `PID_TUNING_HOTEND_2` und `PID_TUNING_BED`. Jedes dieser Makros speichert die Werte und startet Klipper neu.
 3. Fahre wieder mit `G28` an und starte `BED_CALIBRATE`. Das Makro misst Z mit der Wägezelle, erstellt das Bettnetz und speichert es.
 
