@@ -23,7 +23,8 @@ Das ist die Config für einen Renkforce RF2000 mit zwei Extrudern, 3-mm-Filament
 | Düse am Y-Home-Schalter vor dem Bett | 18 mm (Y = −18 bis 227) | 5 mm (Y = −5 bis 290) |
 | Bettnetz | 10,50 bis 200,220, 5 × 5, lagrange | 10,50 bis 200,275, 6 × 9, bicubic |
 | Filament | 2,85 mm | 1,75 mm |
-| Prime Line | E4,9 / E9,4 | E13 / E25 |
+| Prime Line (Y3 nach links, Y4 zurück) | E4,9 / E9,4 / E14 | E13 / E25 / E37 |
+| Sperrbereich vorne im Slicer | 15 mm (`0x0,200x0,200x15,0x15`) | 15 mm |
 | Sense Offset Schwelle | 4000 (Vorgabe) | 500 (am Drucker eingestellt) |
 
 Z max ist bei allen Modellen 190 mm: Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), dafür bleiben 10 mm Reserve unter dem Fahrweg von 200 mm. `PRINT_END` und „Objekt ausgeben“ fahren deshalb nur bis 185 mm.

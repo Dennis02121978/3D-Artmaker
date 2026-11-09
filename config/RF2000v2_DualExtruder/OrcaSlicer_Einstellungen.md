@@ -11,7 +11,8 @@ Drucker gemessen. Diese bitte kalibrieren.
 
 | Einstellung | Wert | Woher |
 |---|---|---|
-| Printable area | 200 x 290 mm | Maximaler Fahrweg X 200 mm und Y 290 mm (`position_max`) |
+| Printable area | 200 x 290 mm | Maximaler Fahrweg X 200 mm und Y 290 mm (`position_max`), Ursprung 0 / 0 = vordere linke Ecke des Betts |
+| Bed exclude area | `0x0,200x0,200x15,0x15` | Vorderer Streifen 15 mm für die Prime Line, bedruckbar bleiben 200 x 275 mm |
 | Printable height | 185 mm | `position_max` Z ist 190 mm, 5 mm Reserve für Z-Hop und Parken |
 | G-code flavor | Klipper | |
 | Use relative E distances | an | |
@@ -102,7 +103,7 @@ PRINT_START BED_TEMP=[bed_temperature_initial_layer_single] EXTRUDER_TEMP={nozzl
 
 Was das macht:
 
-- Das erste Werkzeug wird aktiviert, und `PRINT_START` heizt es und zieht damit die Prime Line.
+- Das erste Werkzeug wird aktiviert, und `PRINT_START` heizt es und zieht damit die Prime Line: bei Y3 von rechts nach links, 1 mm versetzt bei Y4 wieder zurück.
 - Wird die zweite Düse auch gebraucht, heizt sie gleich mit. Der Druck beginnt erst, wenn sie heiß ist.
 - Wird sie nicht gebraucht, bleibt sie kalt.
 
