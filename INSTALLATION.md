@@ -225,13 +225,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/skipr-filament_1.5.7_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skipr-filament_1.5.8_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "0bbdbb660be97fd2fd5f5c396812de68d174fffab192b2c48f277404fe9a84d0  skipr-filament_1.5.7_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_FILAMENT@  skipr-filament_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -240,7 +240,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.5.7_all.deb
+sudo apt install ./skipr-filament_1.5.8_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -260,13 +260,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/skipr-update_1.5.7_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skipr-update_1.5.8_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "cf604664faf164b48baa2597c6a628d4ea2dfb144c6bd07f19fad1740bd990a4  skipr-update_1.5.7_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_UPDATE@  skipr-update_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -275,7 +275,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.5.7_all.deb
+sudo apt install ./skipr-update_1.5.8_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -305,13 +305,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/rf-update_1.5.7_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-update_1.5.8_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "cfd4b892b81223bbedf0a0c3d04d06eab7ffb494b109828e76fddf94ecfb22fd  rf-update_1.5.7_all.deb" | sha256sum -c
+echo "@SHA_RF_UPDATE@  rf-update_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -320,7 +320,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.5.7_all.deb
+sudo apt install ./rf-update_1.5.8_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -356,13 +356,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/rf-multi_1.5.7_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-multi_1.5.8_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "da4ebbb6959ef4f72992531957e24704fae4e8ef2bab8468ed4e2cce41b3992c  rf-multi_1.5.7_all.deb" | sha256sum -c
+echo "@SHA_RF_MULTI@  rf-multi_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -370,7 +370,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.5.7_all.deb
+sudo apt install ./rf-multi_1.5.8_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**
@@ -411,13 +411,13 @@ Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Co
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/skipr-bootlogo_1.5.7_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skipr-bootlogo_1.5.8_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "e51e947717c4261dd3e41c7d778bbe282d99ff482988b31b70e418f1073c688c  skipr-bootlogo_1.5.7_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_BOOTLOGO@  skipr-bootlogo_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -426,7 +426,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.5.7_all.deb
+sudo apt install ./skipr-bootlogo_1.5.8_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -451,13 +451,13 @@ Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, da
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.7/rf-bootlogo_1.5.7_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-bootlogo_1.5.8_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "f476b3495a4ffe819eea45759b21abddbc506a1bb92d058e711b9f4b1005e548  rf-bootlogo_1.5.7_all.deb" | sha256sum -c
+echo "@SHA_RF_BOOTLOGO@  rf-bootlogo_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -466,7 +466,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-bootlogo_1.5.7_all.deb
+sudo apt install ./rf-bootlogo_1.5.8_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
