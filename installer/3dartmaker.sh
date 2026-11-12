@@ -40,7 +40,11 @@ case "${LC_ALL:-}${LANG:-}" in *UTF-8*|*utf8*|*UTF8*) ;; *) export LC_ALL=C.UTF-
 
 WORK=$(mktemp -d /tmp/3dartmaker.XXXXXX)
 trap 'rm -rf "$WORK"' EXIT
-LOG="$HOME/3dartmaker-install.log"
+# Wird der Installer mit sudo gestartet, gehoeren Protokoll und Sicherungen trotzdem dem Benutzer
+RUSER=${SUDO_USER:-$(id -un)}
+RHOME=$(getent passwd "$RUSER" | cut -d: -f6); RHOME=${RHOME:-$HOME}
+LOG="$RHOME/3dartmaker-install.log"
+touch "$LOG" 2>/dev/null && [ "$(id -u)" = 0 ] && chown "$RUSER": "$LOG" 2>/dev/null
 STAMP=$(date +%Y%m%d_%H%M%S)
 
 # ---------------------------------------------------------------- Ausgabe
@@ -62,6 +66,9 @@ run() {
     return "${PIPESTATUS[0]}"
 }
 srun() { run sudo "$@"; }
+# Arbeiten an Dateien des Klipper-Benutzers (git, pip, Config, Sicherungen) als dieser Benutzer
+as_user() { if [ "$(id -u)" = 0 ] && [ -n "$KUSER" ] && [ "$KUSER" != root ]; then sudo -u "$KUSER" -H "$@"; else "$@"; fi; }
+urun() { run as_user "$@"; }
 
 # ---------------------------------------------------------------- Dialoge
 # Dialogfenster mit whiptail, sonst einfache Textfragen.
@@ -189,7 +196,7 @@ detect() {
     KUSER=$(systemctl show -p User --value klipper.service 2>/dev/null || true)
     [ -n "$KUSER" ] || KUSER=$(id -un)
     KHOME=$(getent passwd "$KUSER" | cut -d: -f6)
-    [[ "$(git -C "$KHOME/klipper" remote get-url origin 2>/dev/null)" == *Dennis02121978/klipper* ]] && FORK=1
+    [[ "$(as_user git -C "$KHOME/klipper" remote get-url origin 2>/dev/null)" == *Dennis02121978/klipper* ]] && FORK=1
 
     local p
     for p in /dev/serial/by-id/*; do
@@ -352,8 +359,10 @@ ensure_klipper_base() {
     if [ "$HAS_KLIPPER" = 1 ] && [ "$HAS_MOONRAKER" = 1 ] && [ "$HAS_MAINSAIL" = 1 ]; then return 0; fi
     local miss=""; [ "$HAS_KLIPPER" = 1 ] || miss+=" Klipper"; [ "$HAS_MOONRAKER" = 1 ] || miss+=" Moonraker"; [ "$HAS_MAINSAIL" = 1 ] || miss+=" Mainsail"
     if ui_yesno "Grundinstallation fehlt" "Es fehlen:$miss\n\nDiese installierst du am einfachsten mit KIAUH (Klipper Installation And Update Helper).\nSoll KIAUH jetzt heruntergeladen und gestartet werden?\n\nIn KIAUH: 1) Install → Klipper, Moonraker, Mainsail.\nDanach den 3D-Artmaker Installer noch einmal starten."; then
-        [ -d "$HOME/kiauh" ] || run git clone https://github.com/dw-0/kiauh.git "$HOME/kiauh"
-        [ "$PROBE" = 1 ] || "$HOME/kiauh/kiauh.sh"
+        [ "$RUSER" = root ] && fail "KIAUH darf nicht als root laufen. Starte den Installer als normaler Benutzer (z. B. pi)."
+        local ru=(); [ "$(id -u)" = 0 ] && ru=(sudo -u "$RUSER" -H)
+        [ -d "$RHOME/kiauh" ] || run "${ru[@]}" git clone https://github.com/dw-0/kiauh.git "$RHOME/kiauh"
+        [ "$PROBE" = 1 ] || "${ru[@]}" "$RHOME/kiauh/kiauh.sh"
         say "Starte danach den Installer erneut: bash $0"
         exit 0
     fi
@@ -364,16 +373,16 @@ switch_fork() {
     [ "$BOARD" = atmega ] && [ "$FORK" = 0 ] || return 0
     head1 "Klipper auf den RF-Fork umstellen"
     local k="$KHOME/klipper"
-    if [ -n "$(git -C "$k" status --porcelain 2>/dev/null)" ]; then
-        warn "Im Klipper-Ordner gibt es eigene Änderungen:"; git -C "$k" status --short | head -10
+    if [ -n "$(as_user git -C "$k" status --porcelain 2>/dev/null)" ]; then
+        warn "Im Klipper-Ordner gibt es eigene Änderungen:"; as_user git -C "$k" status --short | head -10
         ui_yesno "Klipper-Ordner" "Im Ordner $k gibt es eigene Änderungen.\nSie bleiben in der Sicherung erhalten, gehen im neuen Stand aber verloren.\n\nTrotzdem umstellen?" nein || { warn "Klipper bleibt unverändert."; return 0; }
     fi
     ui_yesno "Klipper umstellen" "Der RF1000/RF2000 braucht das Klipper aus\n$KLIPPER_FORK\n(RF-Module für DMS, Display, Z-Tasten …).\n\nVorher wird $k nach $k-backup-$STAMP gesichert.\nJetzt umstellen?" || return 0
-    run cp -a "$k" "$k-backup-$STAMP" || fail "Sicherung von $k fehlgeschlagen"
-    run git -C "$k" remote set-url origin "$KLIPPER_FORK"
-    run git -C "$k" fetch origin --tags || fail "git fetch fehlgeschlagen"
-    run git -C "$k" checkout -B master origin/master || fail "Umstellen fehlgeschlagen. Sicherung: $k-backup-$STAMP"
-    run "$KHOME/klippy-env/bin/pip" install -q -r "$k/scripts/klippy-requirements.txt" || warn "Python-Pakete für Klipper prüfen"
+    urun cp -a "$k" "$k-backup-$STAMP" || fail "Sicherung von $k fehlgeschlagen"
+    urun git -C "$k" remote set-url origin "$KLIPPER_FORK"
+    urun git -C "$k" fetch origin --tags || fail "git fetch fehlgeschlagen"
+    urun git -C "$k" checkout -B master origin/master || fail "Umstellen fehlgeschlagen. Sicherung: $k-backup-$STAMP"
+    urun "$KHOME/klippy-env/bin/pip" install -q -r "$k/scripts/klippy-requirements.txt" || warn "Python-Pakete für Klipper prüfen"
     FORK=1; ok "Klipper nutzt jetzt den RF-Fork. Die Firmware schreibst du danach in Mainsail mit Firmware-Update."
 }
 
@@ -406,8 +415,8 @@ install_packages() {   # Paketnamen …
 
 backup_config() {
     local c="$KHOME/printer_data/config"
-    run mkdir -p "$KHOME/3dartmaker-backup"
-    run tar czf "$KHOME/3dartmaker-backup/config-$STAMP.tar.gz" -C "$KHOME/printer_data" config
+    urun mkdir -p "$KHOME/3dartmaker-backup"
+    urun tar czf "$KHOME/3dartmaker-backup/config-$STAMP.tar.gz" -C "$KHOME/printer_data" config
     ok "Config gesichert: ~/3dartmaker-backup/config-$STAMP.tar.gz"
 }
 
@@ -426,8 +435,9 @@ unpack_into_config() {   # ZIP [Unterordner]
     else src="$WORK/cfg/$sub"; fi
     [ -f "$src/printer.cfg" ] || fail "In der ZIP fehlt printer.cfg"
     say "Dateien: $(cd "$src" && ls | tr '\n' ' ')"
-    run cp -f "$src"/*.cfg "$c/"
-    [ -f "$src/LIESMICH.txt" ] && run cp -f "$src/LIESMICH.txt" "$c/"
+    chmod -R a+rX "$WORK"
+    urun cp -f "$src"/*.cfg "$c/"
+    [ -f "$src/LIESMICH.txt" ] && urun cp -f "$src/LIESMICH.txt" "$c/"
     fix_mcu_serial "$c/printer.cfg"
 }
 
@@ -479,10 +489,11 @@ apply_config() {
             local c="$KHOME/printer_data/config" url="https://raw.githubusercontent.com/$REPO/main/config/2in1_hotend.cfg"
             backup_config
             fetch "$url" "$WORK/2in1_hotend.cfg" || fail "2in1_hotend.cfg nicht geladen"
-            run cp -f "$WORK/2in1_hotend.cfg" "$c/2in1_hotend.cfg"
+            chmod a+rX "$WORK" "$WORK/2in1_hotend.cfg"
+            urun cp -f "$WORK/2in1_hotend.cfg" "$c/2in1_hotend.cfg"
             if ! grep -qs '^\[include 2in1_hotend.cfg\]' "$c/printer.cfg"; then
                 if ui_yesno "printer.cfg" "Soll die Zeile\n  [include 2in1_hotend.cfg]\nin printer.cfg eingetragen werden?\n\nVorher die Pins und Strecken in 2in1_hotend.cfg prüfen (siehe INSTALLATION.md)." nein; then
-                    run sed -i '0,/^\[/s//[include 2in1_hotend.cfg]\n[/' "$c/printer.cfg"
+                    urun sed -i '0,/^\[/s//[include 2in1_hotend.cfg]\n[/' "$c/printer.cfg"
                 fi
             fi
             warn "Prüfe in 2in1_hotend.cfg die Pins der Filamentschalter und die Strecken (prime_dist, park_dist)." ;;
@@ -540,7 +551,7 @@ install_marlin() {
     ui_yesno "Marlin flashen" "Firmware:  ${hex##*/} ($tag)\nModell:    $(marlin_asset_model) $(marlin_variant)\nAnschluss: $port\n\nVorher wird das EEPROM gesichert.\n${stopped:+Gestoppt werden kurz: ${stopped[*]}\n}\nDer Drucker darf dabei nicht drucken und nicht ausgeschaltet werden.\nJetzt flashen?" || { say "Nicht geflasht."; return 0; }
     need_sudo
     for s in "${stopped[@]}"; do srun systemctl stop "$s"; done
-    run mkdir -p "$KHOME/3dartmaker-backup"
+    urun mkdir -p "$KHOME/3dartmaker-backup"
     if run avrdude -patmega2560 -cwiring -P"$port" -b115200 -Ueeprom:r:"$KHOME/3dartmaker-backup/eeprom-$STAMP.hex":i -q -q; then
         ok "EEPROM gesichert: ~/3dartmaker-backup/eeprom-$STAMP.hex"
     else warn "EEPROM konnte nicht gesichert werden"; ui_yesno "Weiter?" "Das EEPROM wurde nicht gesichert. Trotzdem flashen?" nein || { for s in "${stopped[@]}"; do srun systemctl start "$s"; done; return 1; }; fi
@@ -607,8 +618,8 @@ do_upgrade() {
 
     if [ -d "$KHOME/klipper/.git" ] && [ "$FORK" = 1 ]; then
         head1 "Klipper (RF-Fork)"
-        git -C "$KHOME/klipper" fetch -q origin 2>/dev/null
-        local behind; behind=$(git -C "$KHOME/klipper" rev-list --count HEAD..origin/master 2>/dev/null || echo 0)
+        as_user git -C "$KHOME/klipper" fetch -q origin 2>/dev/null || warn "git fetch für Klipper fehlgeschlagen"
+        local behind; behind=$(as_user git -C "$KHOME/klipper" rev-list --count HEAD..origin/master 2>/dev/null || echo 0)
         if [ "${behind:-0}" -gt 0 ]; then
             warn "Klipper: $behind neue Änderung(en). Aktualisiere Klipper und Firmware zusammen in Mainsail: Firmware-Update → Update starten."
         else ok "Klipper ist aktuell"; fi
