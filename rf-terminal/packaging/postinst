@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+[ "$1" = "configure" ] || exit 0
+
+. /etc/rf-terminal/config
+
+case "$(dpkg --print-architecture)" in
+    arm64) BIN=ttyd.aarch64 ;;
+    armhf) BIN=ttyd.armhf ;;
+    amd64) BIN=ttyd.x86_64 ;;
+esac
+ln -sf "bin/$BIN" /usr/lib/rf-terminal/ttyd
+
+systemctl daemon-reload
+systemctl enable rf-terminal.service >/dev/null 2>&1
+systemctl restart rf-terminal.service
+/usr/bin/python3 /usr/lib/rf-terminal/setup_host.py install "$KLIPPER_USER"
+
+IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+echo "System-Terminal ist installiert: Mainsail neu laden oder http://$IP/terminal/ oeffnen."
+exit 0

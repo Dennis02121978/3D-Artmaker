@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+[ "$1" = "remove" ] || exit 0
+
+systemctl disable --now rf-terminal.service 2>/dev/null || true
+if [ -f /etc/rf-terminal/config ]; then
+    . /etc/rf-terminal/config
+    /usr/bin/python3 /usr/lib/rf-terminal/setup_host.py remove "$KLIPPER_USER"
+fi
+exit 0

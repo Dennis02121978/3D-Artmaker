@@ -17,6 +17,7 @@ Diese Anleitung führt dich Schritt für Schritt durch die Installation. Du brau
    - [Mehrere Drucker an einem Raspberry Pi](#mehrere-drucker-an-einem-raspberry-pi)
    - [3D-Artmaker BootScreen](#3d-artmaker-bootscreen)
    - [3D-Artmaker BootScreen Pi](#3d-artmaker-bootscreen-pi)
+   - [System Terminal](#system-terminal)
 5. [Updates installieren](#5-updates-installieren)
 6. [Wenn etwas nicht klappt](#6-wenn-etwas-nicht-klappt)
 7. [Paket wieder entfernen](#7-paket-wieder-entfernen)
@@ -33,6 +34,7 @@ Du kannst dir aussuchen, was du haben möchtest. Jedes Paket funktioniert allein
 | **3D-Artmaker Firmware Updater ATmega** | Aktualisiert die Klipper-Firmware deines ATmega-Boards per Knopfdruck in Mainsail. | dein Board einen ATmega2560 mit 16 MHz hat und mit 250000 Baud läuft, zum Beispiel beim RF1000 oder RF2000. |
 | **3D-Artmaker BootScreen** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du Armbian, KlipperScreen und ein 480x320-Display mit dem Treiber `fb_st7796` hast. |
 | **3D-Artmaker BootScreen Pi** | Zeigt beim Einschalten das 3D-Artmaker-Logo auf dem Display. | du einen Raspberry Pi mit KlipperScreen und einem funktionierenden 480x320-SPI-Display hast, zum Beispiel einem 3,5-Zoll-RPi-LCD. |
+| **System Terminal** | Fügt Mainsail den Menüpunkt **System Terminal** hinzu: ein Terminal im Browser wie per SSH, mit Anmeldung über Benutzername und Passwort. | du ohne PowerShell oder Terminal-Programm Befehle auf dem Drucker eingeben willst. |
 | **Mehrere Drucker (rf-multi)** | Betreibt bis zu 4 Drucker an einem Raspberry Pi, jeden mit eigenem Mainsail und mit Druckerauswahl in KlipperScreen. | du weitere RF-Drucker per USB an denselben Raspberry Pi anschließen willst. |
 
 Für das 2in1-Hotend gibt es außerdem eine fertige [Klipper-Config](#2in1-config-für-klipper) mit den Makros für Werkzeugwechsel, Druckstart und Laden. Sie ist für den RF2000 mit 2in1-Umbau gemacht. Hast du schon eine passende Config, brauchst du sie nicht.
@@ -225,13 +227,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skipr-filament_1.5.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/skipr-filament_1.5.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "86dc6124f080f198ca24aa35f66cc513d04bf56fc22f7c8a1ac588d006234c5a  skipr-filament_1.5.8_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_FILAMENT@  skipr-filament_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -240,7 +242,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.5.8_all.deb
+sudo apt install ./skipr-filament_1.5.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -260,13 +262,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skipr-update_1.5.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/skipr-update_1.5.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "9620f86823f99cff00fa377778b48b3dfa140592b8aaeb7adaf8914f68acbdb7  skipr-update_1.5.8_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_UPDATE@  skipr-update_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -275,7 +277,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.5.8_all.deb
+sudo apt install ./skipr-update_1.5.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -305,13 +307,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-update_1.5.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-update_1.5.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "caf088d1677b02eafe2fdc63b931c8ce6b6474416b9bde77d7cc9117e8ff4c56  rf-update_1.5.8_all.deb" | sha256sum -c
+echo "@SHA_RF_UPDATE@  rf-update_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -320,7 +322,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.5.8_all.deb
+sudo apt install ./rf-update_1.5.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -338,7 +340,7 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 Ab v1.5.6 stellt das Paket außerdem die USB-Wandler (FTDI) der Drucker auf 1 ms Wartezeit. Klipper reagiert dadurch schneller, und die SD-Karte im Drucker lässt sich etwa dreimal so schnell lesen.
 
-Die Display-Meldung braucht die `rf_display.cfg` (RF1000: `rf_display_rf1000.cfg`) ab v1.5.8, die LED-Signale die `rf_led.cfg` ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, gibt es weder Meldung noch LED-Signal. Das Update schreibt die Klipper-Firmware trotzdem.
+Die Display-Meldung braucht die `rf_display.cfg` (RF1000: `rf_display_rf1000.cfg`) ab v1.5.9, die LED-Signale die `rf_led.cfg` ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, gibt es weder Meldung noch LED-Signal. Das Update schreibt die Klipper-Firmware trotzdem.
 
 > [!CAUTION]
 > **Schalte den Drucker während des Firmware-Updates nicht aus!** Bricht das Schreiben trotzdem ab, schalte den Drucker aus und wieder ein und starte das Update erneut.
@@ -356,13 +358,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-multi_1.5.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-multi_1.5.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "e8e6c53b2cf54e4d87e61e4aa0a671a4f84fd5e8a6fa2326124ec561f5ee348b  rf-multi_1.5.8_all.deb" | sha256sum -c
+echo "@SHA_RF_MULTI@  rf-multi_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -370,7 +372,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.5.8_all.deb
+sudo apt install ./rf-multi_1.5.9_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**
@@ -411,13 +413,13 @@ Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Co
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skipr-bootlogo_1.5.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/skipr-bootlogo_1.5.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "d54c4b1f999db057de4f89c09e7c6d16686eb18d5b8d11b45f2ce442ad960f86  skipr-bootlogo_1.5.8_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_BOOTLOGO@  skipr-bootlogo_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -426,7 +428,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.5.8_all.deb
+sudo apt install ./skipr-bootlogo_1.5.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -451,13 +453,13 @@ Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, da
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-bootlogo_1.5.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-bootlogo_1.5.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "edf80048d38c2aca72463be964e436c80eb5e7a09863db0f7e623d7ad5672f5b  rf-bootlogo_1.5.8_all.deb" | sha256sum -c
+echo "@SHA_RF_BOOTLOGO@  rf-bootlogo_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -466,7 +468,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-bootlogo_1.5.8_all.deb
+sudo apt install ./rf-bootlogo_1.5.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
@@ -490,6 +492,40 @@ Die Verbindung im Terminal bricht dabei ab, das Fenster kannst du schließen.
 
 > [!NOTE]
 > Die Startmeldungen werden ausgeblendet. Hängt ein HDMI-Monitor am Pi, siehst du dort beim Start voraussichtlich auch keinen Text mehr.
+
+---
+
+### System Terminal
+
+Dieses Paket fügt Mainsail links den Menüpunkt **System Terminal** hinzu. Dort bekommst du ein Terminal im Browser und kannst alles machen wie per SSH. Es passt für den Raspberry Pi und für das MKS-SKIPR-Board.
+
+**1. Paket herunterladen:**
+
+```bash
+cd ~
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-terminal_1.5.9_all.deb
+```
+
+**2. Datei prüfen:**
+
+```bash
+echo "@SHA_RF_TERMINAL@  rf-terminal_1.5.9_all.deb" | sha256sum -c
+```
+
+Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
+
+**3. Installieren:**
+
+```bash
+sudo apt install ./rf-terminal_1.5.9_all.deb
+```
+
+**Geklappt?** Am Ende steht `System-Terminal ist installiert`.
+
+**4. Benutzen:** Lade Mainsail mit **F5** neu und klicke links auf **System Terminal**. Melde dich mit demselben Benutzer und Passwort an wie bei SSH (beim Raspberry-Pi-Image `pi`, beim SKIPR `mks`). Beim Tippen des Passworts siehst du nichts, das ist normal. Mit `exit` meldest du dich ab.
+
+> [!WARNING]
+> Wer das Passwort kennt, kann über diese Seite alles auf dem Drucker ändern. Ändere deshalb das Standard-Passwort mit `passwd` und gib den Drucker **nicht** im Router für das Internet frei.
 
 ---
 
@@ -643,6 +679,12 @@ sudo reboot
 ```bash
 sudo apt remove rf-bootlogo
 sudo reboot
+```
+
+**System Terminal:**
+
+```bash
+sudo apt remove rf-terminal
 ```
 
 ImageMagick bleibt dabei installiert. Mit `sudo apt autoremove` kannst du es ebenfalls entfernen, falls nichts anderes es braucht.

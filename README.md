@@ -14,6 +14,7 @@ Jedes Paket lässt sich allein installieren und erscheint dann als eigener Eintr
 | 3D-Artmaker BootScreen | `skipr-bootlogo` | Logo beim Start auf dem Display (Armbian) | Nur das Logo |
 | 3D-Artmaker BootScreen Pi | `rf-bootlogo` | Logo beim Start auf dem Display (Raspberry Pi) | Nur das Logo |
 | (kein Eintrag) | `rf-multi` | Bis zu 4 Drucker an einem Raspberry Pi | Nein, nur per `.deb` |
+| (kein Eintrag) | `rf-terminal` | System-Terminal im Browser (Menüpunkt in Mainsail), siehe [rf-terminal/README.md](rf-terminal/README.md) | Nein, nur per `.deb` |
 
 Die Pakete und ihre Prüfsummen liegen unter [Releases](https://github.com/Dennis02121978/3D-Artmaker/releases/latest).
 
@@ -35,7 +36,7 @@ Das passende Klipper mit den RF1000-Modulen liegt in [Dennis02121978/klipper](ht
 
 ## Warum nicht alles per Klick aktualisiert wird
 
-Moonraker läuft als normaler Benutzer. Teile, die als Root laufen, bleiben deshalb im `.deb`, sonst könnte jedes Programm dieses Benutzers eigenen Code als Root ausführen. Das betrifft das Update-Programm von `skipr-update` und `rf-update` und die Boot-Einstellungen von `skipr-bootlogo` und `rf-bootlogo`. `rf-multi` richtet Dienste ein und hat deshalb gar keinen Teil im Update-Manager. Ändern sich diese Teile, muss die neue `.deb` installiert werden.
+Moonraker läuft als normaler Benutzer. Teile, die als Root laufen, bleiben deshalb im `.deb`, sonst könnte jedes Programm dieses Benutzers eigenen Code als Root ausführen. Das betrifft das Update-Programm von `skipr-update` und `rf-update` und die Boot-Einstellungen von `skipr-bootlogo` und `rf-bootlogo`. `rf-multi` und `rf-terminal` richten Dienste ein und haben deshalb gar keinen Teil im Update-Manager. Ändern sich diese Teile, muss die neue `.deb` installiert werden.
 
 ## Neue Version veröffentlichen
 

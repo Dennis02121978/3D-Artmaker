@@ -1,0 +1,12 @@
+Package: rf-terminal
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Depends: python3, nginx, systemd, login, bsdutils, bash
+Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
+Description: System-Terminal im Browser fuer Mainsail
+ Fuegt Mainsail den Menuepunkt "System Terminal" hinzu. Die Seite zeigt ein
+ Terminal wie bei SSH. Jede Sitzung beginnt mit der Linux-Anmeldung
+ (Benutzername und Passwort). Enthaelt ttyd 1.7.7 (MIT-Lizenz) fuer arm64,
+ armhf und amd64.

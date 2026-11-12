@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove|purge)
+        rm -f /usr/lib/rf-terminal/ttyd
+        rm -rf /usr/lib/rf-terminal  # dpkg laesst den Python-Cache sonst liegen
+        systemctl daemon-reload 2>/dev/null || true
+        ;;
+esac
+if [ "$1" = "purge" ]; then
+    rm -rf /etc/rf-terminal
+fi
+exit 0

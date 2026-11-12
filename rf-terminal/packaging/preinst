@@ -1,0 +1,22 @@
+#!/bin/sh
+# Prueft vor dem Entpacken, ob das System passt. Schlaegt hier etwas fehl, bleibt alles unveraendert.
+set -e
+[ "$1" = "install" ] || [ "$1" = "upgrade" ] || exit 0
+
+fail() { echo "rf-terminal: $1" >&2; exit 1; }
+
+case "$(dpkg --print-architecture)" in
+    arm64|armhf|amd64) ;;
+    *) fail "Dieses System ($(dpkg --print-architecture)) wird nicht unterstuetzt." ;;
+esac
+
+KUSER=$(systemctl show -p User --value moonraker.service 2>/dev/null || true)
+[ -n "$KUSER" ] || KUSER=$(systemctl show -p User --value klipper.service 2>/dev/null || true)
+[ -n "$KUSER" ] || fail "Der Dienst moonraker.service oder klipper.service wurde nicht gefunden."
+getent passwd "$KUSER" >/dev/null || fail "Benutzer $KUSER existiert nicht."
+ls /etc/nginx/sites-available/mainsail* >/dev/null 2>&1 || fail "Mainsail mit nginx wurde nicht gefunden."
+grep -q '^    location / {$' /etc/nginx/sites-available/mainsail || fail "Die nginx-Konfiguration von Mainsail hat ein unbekanntes Format."
+
+mkdir -p /etc/rf-terminal
+echo "KLIPPER_USER=$KUSER" > /etc/rf-terminal/config
+exit 0
