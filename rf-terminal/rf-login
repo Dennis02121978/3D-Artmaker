@@ -1,0 +1,28 @@
+#!/bin/bash
+# Anmeldung fuer das System Terminal: Benutzer und Passwort wie bei SSH.
+#
+# ttyd laeuft als "nobody". su ist setuid root und prueft das Passwort ueber PAM,
+# genau wie login. Anders als login trennt su sein Terminal nicht (vhangup), deshalb
+# kommen Groessenaenderungen des Browserfensters weiter beim Programm an.
+host=$(hostname)
+while true; do
+    printf '%s login: ' "$host"
+    IFS= read -r user || exit 0
+    [ -n "$user" ] || continue
+    if ! [[ "$user" =~ ^[a-z_][a-z0-9_.-]{0,31}$ ]]; then
+        echo "Ungültiger Benutzername."
+        continue
+    fi
+    if [ "$user" = root ]; then
+        echo "root ist hier gesperrt. Melde dich als normaler Benutzer an und nutze sudo."
+        continue
+    fi
+    start=$(date +%s)
+    su -l -- "$user"
+    rc=$?
+    # Fehlgeschlagene Anmeldung bremsen (su meldet selbst "Authentication failure")
+    if [ "$rc" -ne 0 ] && [ $(( $(date +%s) - start )) -lt 5 ]; then
+        sleep 3
+    fi
+    echo
+done

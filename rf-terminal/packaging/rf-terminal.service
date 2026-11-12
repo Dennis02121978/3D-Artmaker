@@ -3,17 +3,18 @@ Description=System-Terminal im Browser (ttyd) fuer Mainsail
 After=network.target
 
 [Service]
-# Nur ueber nginx erreichbar (127.0.0.1). Jede Sitzung beginnt mit der normalen
-# Linux-Anmeldung, also mit Benutzername und Passwort wie bei SSH.
-# script gibt login ein eigenes Terminal: login trennt beim Start sein Terminal
-# (vhangup), direkt unter ttyd ginge danach keine Ausgabe mehr an den Browser.
-# script startet login ueber $SHELL; mit /bin/sh (dash) erscheint keine Anmeldung.
-Environment=SHELL=/bin/bash TERM=xterm-256color LANG=C.UTF-8
+# Nur ueber nginx erreichbar (127.0.0.1). Jede Sitzung beginnt mit der Anmeldung
+# (Benutzer und Passwort wie bei SSH, geprueft von su ueber PAM).
+# ttyd selbst laeuft ohne Rechte als nobody.
+User=nobody
+Group=nogroup
+Environment=TERM=xterm-256color LANG=C.UTF-8 HOME=/tmp
 ExecStart=/usr/lib/rf-terminal/ttyd --interface 127.0.0.1 --port 7683 --writable --check-origin --max-clients 4 \
     -t titleFixed=System-Terminal -t fontSize=15 -t disableLeaveAlert=true -t disableResizeOverlay=true \
-    /usr/bin/script -qfc /bin/login /dev/null
+    /usr/lib/rf-terminal/rf-login
 Restart=always
 RestartSec=3
+NoNewPrivileges=no
 
 [Install]
 WantedBy=multi-user.target

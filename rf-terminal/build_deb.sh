@@ -15,7 +15,7 @@ chmod 755 "$ROOT"  # mktemp legt 700 an, das wuerde als Rechte fuer / im Paket l
 LIB="$ROOT/usr/lib/rf-terminal"
 mkdir -p "$LIB/bin" "$ROOT/lib/systemd/system" "$ROOT/DEBIAN" dist
 
-install -m 755 setup_host.py "$LIB/"
+install -m 755 setup_host.py rf-login "$LIB/"
 install -m 755 files/ttyd.aarch64 files/ttyd.armhf files/ttyd.x86_64 "$LIB/bin/"
 # Seite mit Logo (dasselbe Logo wie beim BootScreen)
 install -D -m 644 index.html "$ROOT/usr/share/rf-terminal/index.html"

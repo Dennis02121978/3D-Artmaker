@@ -3,7 +3,7 @@ Version: @VERSION@
 Section: misc
 Priority: optional
 Architecture: all
-Depends: python3, nginx, systemd, login, bsdutils, bash
+Depends: python3, nginx, systemd, login, bash
 Maintainer: Dennis Rupprecht <Dennis02121978@users.noreply.github.com>
 Description: System-Terminal im Browser fuer Mainsail
  Fuegt Mainsail den Menuepunkt "System Terminal" hinzu. Die Seite zeigt ein

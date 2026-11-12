@@ -15,5 +15,9 @@ for p in $PACKAGES; do
 done
 (cd config && python3 -m zipfile -c ../dist/RF2000v2_DualExtruder.zip RF2000v2_DualExtruder)
 (cd config && python3 -m zipfile -c ../dist/RF2000_DualExtruder_3mm.zip RF2000_DualExtruder_3mm)
+# Installer mit eingetragener Version (3DArtmaker-upgrade vergleicht damit)
+sed "s/^VERSION=\"dev\"/VERSION=\"$VERSION\"/" installer/3dartmaker.sh > dist/3dartmaker-install.sh
+chmod 755 dist/3dartmaker-install.sh
+grep -q "^VERSION=\"$VERSION\"" dist/3dartmaker-install.sh
 (cd dist && sha256sum -- * > SHA256SUMS)
 ls -l dist
