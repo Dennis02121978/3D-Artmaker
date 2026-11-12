@@ -231,7 +231,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_FILAMENT@  skipr-filament_1.5.8_all.deb" | sha256sum -c
+echo "86dc6124f080f198ca24aa35f66cc513d04bf56fc22f7c8a1ac588d006234c5a  skipr-filament_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -266,7 +266,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_UPDATE@  skipr-update_1.5.8_all.deb" | sha256sum -c
+echo "9620f86823f99cff00fa377778b48b3dfa140592b8aaeb7adaf8914f68acbdb7  skipr-update_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -311,7 +311,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-u
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_UPDATE@  rf-update_1.5.8_all.deb" | sha256sum -c
+echo "caf088d1677b02eafe2fdc63b931c8ce6b6474416b9bde77d7cc9117e8ff4c56  rf-update_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -362,7 +362,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-m
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_MULTI@  rf-multi_1.5.8_all.deb" | sha256sum -c
+echo "e8e6c53b2cf54e4d87e61e4aa0a671a4f84fd5e8a6fa2326124ec561f5ee348b  rf-multi_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -417,7 +417,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_BOOTLOGO@  skipr-bootlogo_1.5.8_all.deb" | sha256sum -c
+echo "d54c4b1f999db057de4f89c09e7c6d16686eb18d5b8d11b45f2ce442ad960f86  skipr-bootlogo_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -457,7 +457,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.8/rf-b
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_BOOTLOGO@  rf-bootlogo_1.5.8_all.deb" | sha256sum -c
+echo "edf80048d38c2aca72463be964e436c80eb5e7a09863db0f7e623d7ad5672f5b  rf-bootlogo_1.5.8_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
