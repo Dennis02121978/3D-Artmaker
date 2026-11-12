@@ -11,7 +11,7 @@ Der Installer prüft dein System, fragt wie der Config Creator nach deinem Druck
 ```bash
 cd ~
 wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/3dartmaker-install.sh
-echo "@SHA_INSTALLER@  3dartmaker-install.sh" | sha256sum -c
+echo "81924428ccf65cc057d2d670f6aed38f8c2bc164c2e8067506e9bfa25cabc71b  3dartmaker-install.sh" | sha256sum -c
 bash 3dartmaker-install.sh
 ```
 
@@ -260,7 +260,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_FILAMENT@  skipr-filament_1.6.2_all.deb" | sha256sum -c
+echo "0bd53c7c99dc8e77e869465422ffb6b704d1ba4e021fde2e3d0d0eff7765ac37  skipr-filament_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -295,7 +295,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_UPDATE@  skipr-update_1.6.2_all.deb" | sha256sum -c
+echo "78d8e6096aa8b40f191e6a381603362686b67a4010a124445f671e939be71770  skipr-update_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -340,7 +340,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-u
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_UPDATE@  rf-update_1.6.2_all.deb" | sha256sum -c
+echo "940b25cb5fc93b08f24e79dca2db0e3337dccb18cb43ef6d4af605e58a0d83ba  rf-update_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -391,7 +391,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-m
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_MULTI@  rf-multi_1.6.2_all.deb" | sha256sum -c
+echo "716d06989ce5dae408a9a1fd2ce4a82697b116d66f44143e0feafc267e5f0164  rf-multi_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -446,7 +446,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_BOOTLOGO@  skipr-bootlogo_1.6.2_all.deb" | sha256sum -c
+echo "6d40d3541042ced40d36947fc98177852fd485b80f4d1670bfd72e25b3fdeb80  skipr-bootlogo_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -486,7 +486,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-b
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_BOOTLOGO@  rf-bootlogo_1.6.2_all.deb" | sha256sum -c
+echo "50133ad425acb6d4db663b6ecbddf8200b3a02fa5aec243a89b2147136eb6f6c  rf-bootlogo_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -536,7 +536,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-t
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_TERMINAL@  rf-terminal_1.6.2_all.deb" | sha256sum -c
+echo "684c81b01f0eeb9e694c4c10eb577851a88f04edd77edbff7c4bf53b94837860  rf-terminal_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
