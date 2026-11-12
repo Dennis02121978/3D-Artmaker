@@ -233,7 +233,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_FILAMENT@  skipr-filament_1.5.9_all.deb" | sha256sum -c
+echo "176d923a94d852ec83b391310d1ad1b4839efe943a5cd0c0da33575f7c208906  skipr-filament_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -268,7 +268,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_UPDATE@  skipr-update_1.5.9_all.deb" | sha256sum -c
+echo "9c7b4a4ac3d87e344b09901cd36b4715b821a799200c743502ce8ec85f527a13  skipr-update_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -313,7 +313,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-u
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_UPDATE@  rf-update_1.5.9_all.deb" | sha256sum -c
+echo "7e1cad45206bdc3d8b754c6b4c6e6a212771d9c6088fa68ef098a24c9ed12670  rf-update_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -364,7 +364,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-m
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_MULTI@  rf-multi_1.5.9_all.deb" | sha256sum -c
+echo "dd74fb76d190a78177f44153e2e10edbafae959ac215f28c9555bc4442617ed4  rf-multi_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -419,7 +419,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_SKIPR_BOOTLOGO@  skipr-bootlogo_1.5.9_all.deb" | sha256sum -c
+echo "4722d0d66b13635f3b9d1b7aff571a9e5919ec9b248cef8a8279182eb997fe1b  skipr-bootlogo_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -459,7 +459,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-b
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_BOOTLOGO@  rf-bootlogo_1.5.9_all.deb" | sha256sum -c
+echo "e99352adfe5ce186951872e2d518b5605856f71a21ae0ef08451b49f13935b5f  rf-bootlogo_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -509,7 +509,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.5.9/rf-t
 **2. Datei prüfen:**
 
 ```bash
-echo "@SHA_RF_TERMINAL@  rf-terminal_1.5.9_all.deb" | sha256sum -c
+echo "db9f0fb135ff8df363fa847e570538449c219ab9ae0abda00dad70e60bcb6bfa  rf-terminal_1.5.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
