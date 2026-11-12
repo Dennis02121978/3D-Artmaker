@@ -96,7 +96,7 @@ ui_menu() {  # Titel Text Vorgabe tag text tag text …  -> Auswahl auf stdout
     local t="$1" x="$2" def="$3"; shift 3
     if [ "$YES" = 1 ]; then echo "$def"; return 0; fi
     if [ "$UI" = whiptail ]; then
-        whiptail --title "$t" --default-item "$def" --ok-button "Weiter" --cancel-button "Abbrechen" \
+        whiptail --title "$t" --notags --default-item "$def" --ok-button "Weiter" --cancel-button "Abbrechen" \
             --menu "$x" $W_H $W_W 8 "$@" 3>&1 1>&2 2>&3 || { echo "__abbruch__"; return 1; }
         return 0
     fi
@@ -428,7 +428,7 @@ unpack_into_config() {   # ZIP [Unterordner]
     if [ -z "$sub" ]; then
         local dirs=("$WORK"/cfg/*/); [ -f "$WORK/cfg/printer.cfg" ] || { [ ${#dirs[@]} -eq 1 ] && [ -d "${dirs[0]}" ] && src="${dirs[0]%/}"; }
         if [ ! -f "$src/printer.cfg" ] && [ ${#dirs[@]} -gt 1 ]; then
-            local opts=() d; for d in "${dirs[@]}"; do d=${d%/}; opts+=("${d##*/}" "Drucker-Ordner"); done
+            local opts=() d; for d in "${dirs[@]}"; do d=${d%/}; opts+=("${d##*/}" "${d##*/}"); done
             sub=$(ui_menu "Drucker wählen" "Die ZIP enthält mehrere Drucker. Welcher gehört zu diesem Mainsail?" "${opts[0]}" "${opts[@]}"); abort_if "$sub"
             src="$WORK/cfg/$sub"
         fi
@@ -480,7 +480,7 @@ apply_config() {
                 ui_msg "Keine ZIP gefunden" "Keine ZIP aus dem Config Creator gefunden.\n\n1. Öffne $CREATOR_URL\n2. Stelle deinen Drucker ein und klicke auf „Alle als ZIP“.\n3. Lade die ZIP in Mainsail unter Maschine hoch.\n4. Starte den Installer noch einmal."
                 return 0
             fi
-            for z in "${zips[@]}"; do opts+=("$z" "$(date -r "$z" '+%d.%m.%Y %H:%M')"); done
+            for z in "${zips[@]}"; do opts+=("$z" "${z#$KHOME/}  ($(date -r "$z" '+%d.%m.%Y %H:%M'))"); done
             z=$(ui_menu "ZIP wählen" "Welche ZIP soll eingespielt werden?" "${zips[0]}" "${opts[@]}"); abort_if "$z"
             backup_config
             unpack_into_config "$z" ;;

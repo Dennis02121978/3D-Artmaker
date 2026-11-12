@@ -10,8 +10,8 @@ Der Installer prüft dein System, fragt wie der Config Creator nach deinem Druck
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/3dartmaker-install.sh
-echo "df85e2507092a7aec884e6427df2f63fe54552eae1f1324f272fe630fd3e1242  3dartmaker-install.sh" | sha256sum -c
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/3dartmaker-install.sh
+echo "@SHA_INSTALLER@  3dartmaker-install.sh" | sha256sum -c
 bash 3dartmaker-install.sh
 ```
 
@@ -254,13 +254,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/skipr-filament_1.6.1_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/skipr-filament_1.6.2_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "50fd241c217180dce982974362a421f41a3b361558beb916c6051e00575dd24f  skipr-filament_1.6.1_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_FILAMENT@  skipr-filament_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -269,7 +269,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.6.1_all.deb
+sudo apt install ./skipr-filament_1.6.2_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -289,13 +289,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/skipr-update_1.6.1_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/skipr-update_1.6.2_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "741a9fb043c96f82ed9ba1212fdd2e425af13b5a5fdd2284e9322a2c5f24da01  skipr-update_1.6.1_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_UPDATE@  skipr-update_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -304,7 +304,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.6.1_all.deb
+sudo apt install ./skipr-update_1.6.2_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -334,13 +334,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/rf-update_1.6.1_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-update_1.6.2_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "44fd27f33c68e499bf39b132b5bb6bb0120a4ca546dab15772969b99c9664582  rf-update_1.6.1_all.deb" | sha256sum -c
+echo "@SHA_RF_UPDATE@  rf-update_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -349,7 +349,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.6.1_all.deb
+sudo apt install ./rf-update_1.6.2_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -367,7 +367,7 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 Ab v1.5.6 stellt das Paket außerdem die USB-Wandler (FTDI) der Drucker auf 1 ms Wartezeit. Klipper reagiert dadurch schneller, und die SD-Karte im Drucker lässt sich etwa dreimal so schnell lesen.
 
-Die Display-Meldung braucht die `rf_display.cfg` (RF1000: `rf_display_rf1000.cfg`) ab v1.6.1, die LED-Signale die `rf_led.cfg` ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, gibt es weder Meldung noch LED-Signal. Das Update schreibt die Klipper-Firmware trotzdem.
+Die Display-Meldung braucht die `rf_display.cfg` (RF1000: `rf_display_rf1000.cfg`) ab v1.6.2, die LED-Signale die `rf_led.cfg` ab v1.5.0. Ohne sie schaltet die Seite die LED nur ein und aus. Läuft auf einem Drucker noch die Repetier-Firmware, gibt es weder Meldung noch LED-Signal. Das Update schreibt die Klipper-Firmware trotzdem.
 
 > [!CAUTION]
 > **Schalte den Drucker während des Firmware-Updates nicht aus!** Bricht das Schreiben trotzdem ab, schalte den Drucker aus und wieder ein und starte das Update erneut.
@@ -385,13 +385,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/rf-multi_1.6.1_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-multi_1.6.2_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "0e1348552695dd1f66f98ecd197682cfc6983b39074339742deb0410fae666a3  rf-multi_1.6.1_all.deb" | sha256sum -c
+echo "@SHA_RF_MULTI@  rf-multi_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -399,7 +399,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.6.1_all.deb
+sudo apt install ./rf-multi_1.6.2_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**
@@ -440,13 +440,13 @@ Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Co
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/skipr-bootlogo_1.6.1_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/skipr-bootlogo_1.6.2_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "ae8c0189f5a6ae903cd3d008e18849f9ab624cc603b0bc5478d7e1550932c719  skipr-bootlogo_1.6.1_all.deb" | sha256sum -c
+echo "@SHA_SKIPR_BOOTLOGO@  skipr-bootlogo_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -455,7 +455,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.6.1_all.deb
+sudo apt install ./skipr-bootlogo_1.6.2_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -480,13 +480,13 @@ Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, da
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/rf-bootlogo_1.6.1_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-bootlogo_1.6.2_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "1f71fb422a7330fbfc1fe680fa14a1373a84425c020e33de8f43609810e2ac6a  rf-bootlogo_1.6.1_all.deb" | sha256sum -c
+echo "@SHA_RF_BOOTLOGO@  rf-bootlogo_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -495,7 +495,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-bootlogo_1.6.1_all.deb
+sudo apt install ./rf-bootlogo_1.6.2_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
@@ -530,13 +530,13 @@ Dieses Paket fügt Mainsail links den Menüpunkt **System Terminal** hinzu. Dort
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.1/rf-terminal_1.6.1_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/rf-terminal_1.6.2_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "1490d0724e7d8bfa4f33b77ed9009bad1336ad33cc0848cbcaed9094e8614fc7  rf-terminal_1.6.1_all.deb" | sha256sum -c
+echo "@SHA_RF_TERMINAL@  rf-terminal_1.6.2_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -544,7 +544,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-terminal_1.6.1_all.deb
+sudo apt install ./rf-terminal_1.6.2_all.deb
 ```
 
 **Geklappt?** Am Ende steht `System-Terminal ist installiert`.
