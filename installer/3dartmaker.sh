@@ -1,8 +1,8 @@
 #!/bin/bash
 # 3D-Artmaker Installer fuer Renkforce RF1000 / RF2000 / RF2000 v2
-# Klipper oder Marlin, Raspberry Pi oder MKS SKIPR.
+# Klipper auf Raspberry Pi oder MKS SKIPR.
 #
-#   bash 3dartmaker-install.sh            Auswahl wie im Config Creator, dann installieren
+#   bash 3dartmaker-install.sh            Fragen wie im Config Creator, Config erzeugen und installieren
 #   3DArtmaker-upgrade                    alle 3D-Artmaker-Pakete auf den neuesten Stand
 #   Optionen: --probe (nur zeigen, nichts aendern), --text (ohne Dialogfenster), --ja (alle Fragen mit Ja)
 #
@@ -11,11 +11,11 @@ set -uo pipefail
 
 VERSION="dev"
 REPO="Dennis02121978/3D-Artmaker"
-MARLIN_REPO="Dennis02121978/Marlin-RFxxxx"
 KLIPPER_FORK="https://github.com/Dennis02121978/klipper.git"
 CREATOR_URL="https://3d-artmaker.de/config-creator.php"
 LIBDIR="/usr/local/lib/3dartmaker"
 STATE="/etc/3dartmaker/installer.conf"
+STATE_DIR="/etc/3dartmaker"
 OUR_PACKAGES="rf-update rf-multi rf-bootlogo rf-terminal skipr-update skipr-filament skipr-bootlogo"
 TITLE="3D-Artmaker Installer"
 
@@ -72,7 +72,7 @@ urun() { run as_user "$@"; }
 
 # ---------------------------------------------------------------- Dialoge
 # Dialogfenster mit whiptail, sonst einfache Textfragen.
-W_H=20; W_W=74
+W_H=22; W_W=76
 
 ui_msg() {   # Titel Text
     if [ "$UI" = whiptail ]; then whiptail --title "$1" --msgbox "$2" $W_H $W_W
@@ -96,8 +96,9 @@ ui_menu() {  # Titel Text Vorgabe tag text tag text …  -> Auswahl auf stdout
     local t="$1" x="$2" def="$3"; shift 3
     if [ "$YES" = 1 ]; then echo "$def"; return 0; fi
     if [ "$UI" = whiptail ]; then
+        local lh=$(( $# / 2 )); [ "$lh" -gt 10 ] && lh=10
         whiptail --title "$t" --notags --default-item "$def" --ok-button "Weiter" --cancel-button "Abbrechen" \
-            --menu "$x" $W_H $W_W 8 "$@" 3>&1 1>&2 2>&3 || { echo "__abbruch__"; return 1; }
+            --menu "$x" $W_H $W_W "$lh" "$@" 3>&1 1>&2 2>&3 || { echo "__abbruch__"; return 1; }
         return 0
     fi
     local tags=() i=1 a
@@ -132,6 +133,18 @@ ui_check() { # Titel Text tag text on|off …  -> ausgewaehlte Tags, durch Leerz
         shift 3
     done
     echo "$out"
+}
+
+ui_input() {  # Titel Text Vorgabe -> Eingabe auf stdout (Abbrechen = Vorgabe, Rueckgabe 1)
+    if [ "$YES" = 1 ]; then echo "$3"; return 0; fi
+    if [ "$UI" = whiptail ]; then
+        whiptail --title "$1" --ok-button "OK" --cancel-button "Zurück" --inputbox "$2" $W_H $W_W "$3" 3>&1 1>&2 2>&3 \
+            || { echo "$3"; return 1; }
+        return 0
+    fi
+    local a
+    { echo; echo "${B}$1${N}"; printf '%b\n' "$2"; printf "[%s] " "$3"; } >&2
+    read -r a; echo "${a:-$3}"
 }
 
 abort_if() { [ "$1" = "__abbruch__" ] && { say "Abgebrochen. Es wurde nichts weiter geändert."; exit 0; }; }
@@ -169,10 +182,7 @@ printer_busy() {  # 0 = gerade Druck oder Pause
     local s
     s=$(curl -fs --max-time 3 "http://127.0.0.1:7125/printer/objects/query?print_stats=state" 2>/dev/null \
         | python3 -c 'import json,sys; print(json.load(sys.stdin)["result"]["status"]["print_stats"]["state"])' 2>/dev/null)
-    [ "$s" = printing ] || [ "$s" = paused ] && return 0
-    # Repetier-Server (Marlin): laeuft bei einem Drucker ein Auftrag?
-    curl -fs --max-time 3 http://127.0.0.1:3344/printer/list 2>/dev/null \
-        | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if any(p.get("job","none")!="none" for p in d.get("data",[])) else 1)' 2>/dev/null
+    [ "$s" = printing ] || [ "$s" = paused ]
 }
 
 # ---------------------------------------------------------------- Systempruefung
@@ -260,44 +270,37 @@ check_system() {
 }
 
 # ---------------------------------------------------------------- Auswahl
-FW=""; BOARD=""; MODEL=""; EXTR=""; FIL=""; PKGS=""; CONFIG_CHOICE=""
+FW="klipper"; BOARD=""; MODEL=""; EXTR=""; FIL=""; PKGS=""; CONFIG_CHOICE=""
+TARGET_DIR="printer_data"; SERVICE="klipper"; PCOUNT=1; PNUM=1; PNAME=""
 
 choose() {
     local defb=atmega; [ "$DEVICE" = skipr ] && defb=skipr
-    BOARD=$(ui_menu "Schritt 1 von 5: Board" "Welches Board steuert deinen Drucker?" "$defb" \
+    BOARD=$(ui_menu "Schritt 1 von 4: Board" "Welches Board steuert deinen Drucker?" "$defb" \
         atmega "Renkforce-Board mit ATmega2560 (original)" \
         skipr  "MKS SKIPR (Umbau, Klipper direkt auf dem Board)") ; abort_if "$BOARD"
 
-    if [ "$BOARD" = skipr ]; then FW=klipper
-    else
-        FW=$(ui_menu "Schritt 2 von 5: Firmware" "Welche Firmware soll der Drucker bekommen?" klipper \
-            klipper "Klipper (mit Mainsail, Raspberry Pi steuert den Drucker)" \
-            marlin  "Marlin RFxxxx (Firmware auf dem Board, z. B. mit Repetier-Server)") ; abort_if "$FW"
-    fi
-
-    MODEL=$(ui_menu "Schritt 3 von 5: Drucker" "Welcher Drucker?" rf2000 \
+    MODEL=$(ui_menu "Schritt 2 von 4: Drucker" "Welcher Drucker?" rf2000 \
         rf1000   "Renkforce RF1000" \
         rf2000   "Renkforce RF2000" \
         rf2000v2 "Renkforce RF2000 v2") ; abort_if "$MODEL"
 
     if [ "$BOARD" = skipr ]; then
-        EXTR=$(ui_menu "Schritt 4 von 5: Extruder" "Welche Extruder hat dein Drucker?" 2in1 \
-            2in1   "Zwei Extruder an einem 2in1-Hotend" \
-            dual   "Zwei Extruder, zwei Düsen" \
-            single "Ein Extruder") ; abort_if "$EXTR"
+        EXTR=$(ui_menu "Schritt 3 von 4: Extruder" "Welche Extruder hat dein Drucker?" 2in1 \
+            2in1   "2in1-Hotend (zwei Extruder, eine Düse)" \
+            single "Single Extruder (eine Düse)") ; abort_if "$EXTR"
     else
-        EXTR=$(ui_menu "Schritt 4 von 5: Extruder" "Welche Extruder hat dein Drucker?" dual \
+        EXTR=$(ui_menu "Schritt 3 von 4: Extruder" "Welche Extruder hat dein Drucker?" dual \
             single "Single Extruder (eine Düse)" \
             dual   "Dual Extruder (zwei Düsen)") ; abort_if "$EXTR"
     fi
-    local deff=285; [ "$MODEL" = rf2000v2 ] && deff=175
-    FIL=$(ui_menu "Schritt 5 von 5: Filament" "Welcher Filamentdurchmesser?" "$deff" \
-        175 "1,75 mm" \
-        285 "2,85 mm (3 mm)") ; abort_if "$FIL"
+    local deff=2.85; [ "$MODEL" = rf2000v2 ] && deff=1.75
+    FIL=$(ui_menu "Schritt 4 von 4: Filament" "Welcher Filamentdurchmesser?" "$deff" \
+        1.75 "1,75 mm" \
+        2.85 "2,85 mm" \
+        3.00 "3,00 mm") ; abort_if "$FIL"
 }
 
 choose_packages() {
-    [ "$FW" = klipper ] || { PKGS=""; return; }
     local term=on; [ "$HAS_MAINSAIL" = 1 ] || term=off
     if [ "$BOARD" = atmega ]; then
         local logo=off multi=off; [ "$HAS_SPI_LCD" = 1 ] && [ "$DEVICE" = pi ] && logo=on
@@ -316,42 +319,264 @@ choose_packages() {
     fi
 }
 
-ready_config_name() {   # passende fertige Config aus dem Release
-    [ "$BOARD" = atmega ] && [ "$EXTR" = dual ] || return 1
-    case "$MODEL" in rf2000v2) echo RF2000v2_DualExtruder ;; rf2000) echo RF2000_DualExtruder_3mm ;; *) return 1 ;; esac
-}
-
 find_creator_zips() {
-    find "$KHOME/printer_data/config" "$KHOME/printer_data/gcodes" "$KHOME" -maxdepth 1 -type f \
+    find "$KHOME/$TARGET_DIR/config" "$KHOME/$TARGET_DIR/gcodes" "$KHOME" -maxdepth 1 -type f \
         \( -iname 'klipper-configs*.zip' -o -iname '*config*.zip' \) 2>/dev/null | sort -u | head -8
 }
 
 choose_config() {
-    [ "$FW" = klipper ] || return
-    local ready opts=() def=keep
-    ready=$(ready_config_name) && { opts+=(ready "Fertige Config aus dem Release ($ready)"); def=ready; }
-    opts+=(creator "ZIP aus dem Config Creator (vorher in Mainsail hochladen)")
-    [ "$EXTR" = 2in1 ] && { opts+=(2in1 "2in1-Config (2in1_hotend.cfg) dazulegen"); def=2in1; }
-    opts+=(keep "Config nicht ändern")
-    # Vorhandene Config nicht als Vorgabe ueberschreiben
-    [ -f "$KHOME/printer_data/config/printer.cfg" ] && def=keep
-    CONFIG_CHOICE=$(ui_menu "Klipper-Config" "Woher soll die Klipper-Config kommen?\n\nEine eigene Config für dein Modell erzeugt der Config Creator:\n$CREATOR_URL\nDie ZIP lädst du in Mainsail unter Maschine in den Config-Ordner hoch." "$def" "${opts[@]}") ; abort_if "$CONFIG_CHOICE"
+    choose_target
+    local def=gen
+    [ -f "$KHOME/$TARGET_DIR/config/printer.cfg" ] && def=keep
+    CONFIG_CHOICE=$(ui_menu "Klipper-Config" "Woher soll die Klipper-Config kommen?\n\nDer Installer kann sie wie der Config Creator erzeugen. Er stellt dazu dieselben Fragen und sichert vorher den ganzen Config-Ordner.\n($CREATOR_URL)" "$def" \
+        gen     "Config erzeugen (Fragen wie im Config Creator)" \
+        creator "ZIP aus dem Config Creator (vorher in Mainsail hochladen)" \
+        keep    "Config nicht ändern") ; abort_if "$CONFIG_CHOICE"
+    [ "$CONFIG_CHOICE" = gen ] && ask_config
+    return 0
 }
 
 summary_text() {
-    local b f m e c t
+    local b m e c t
     case "$BOARD" in atmega) b="Renkforce-Board (ATmega2560)" ;; skipr) b="MKS SKIPR" ;; esac
-    case "$FW" in klipper) f="Klipper" ;; marlin) f="Marlin RFxxxx" ;; esac
     case "$MODEL" in rf1000) m="RF1000" ;; rf2000) m="RF2000" ;; rf2000v2) m="RF2000 v2" ;; esac
     case "$EXTR" in single) e="Single" ;; dual) e="Dual (zwei Düsen)" ;; 2in1) e="2in1-Hotend" ;; esac
-    case "$CONFIG_CHOICE" in ready) c="fertige Config $(ready_config_name)" ;; creator) c="ZIP aus dem Config Creator" ;;
-        2in1) c="2in1_hotend.cfg dazulegen" ;; *) c="nicht ändern" ;; esac
-    t="Drucker:   $m, $e, ${FIL:0:1},${FIL:1} mm\nBoard:     $b\nFirmware:  $f\n"
-    [ "$FW" = klipper ] && t+="Pakete:   ${PKGS:- keine}\nConfig:    $c\n"
-    [ "$FW" = klipper ] && [ "$BOARD" = atmega ] && [ "$FORK" = 0 ] && t+="Klipper:   auf den RF-Fork umstellen\n"
-    [ "$FW" = marlin ] && t+="Marlin:    Marlin_$(marlin_asset_model)_$(marlin_variant).zip flashen\n"
+    case "$CONFIG_CHOICE" in gen) c="erzeugen wie im Config Creator" ;; creator) c="ZIP aus dem Config Creator" ;; *) c="nicht ändern" ;; esac
+    t="Drucker:   $m, $e, ${FIL/./,} mm\nBoard:     $b\nFirmware:  Klipper\n"
+    t+="Pakete:    $(echo ${PKGS:-keine})\nConfig:    $c\n"
+    [ "$TARGET_DIR" != printer_data ] && t+="Ordner:    ~/$TARGET_DIR\n"
+    [ "$CONFIG_CHOICE" = gen ] && t+="$(config_summary)\n"
+    [ "$BOARD" = atmega ] && [ "$FORK" = 0 ] && t+="Klipper:   auf den RF-Fork umstellen\n"
     t+="Befehl:    3DArtmaker-upgrade wird angelegt\n"
     echo "$t"
+}
+
+# ---------------------------------------------------------------- Config wie im Config Creator
+# Der Generator ist derselbe JavaScript-Code wie im Config Creator (rf_generator.js, beim Release
+# hinter "exit" als nie ausgefuehrtes Here-Document angehaengt). Er laeuft mit quickjs (qjs) oder Node.js.
+GEN_JS=""; JS=(); FORM=""
+
+prepare_generator() {
+    [ -n "$GEN_JS" ] && return 0
+    local self here; self=$(readlink -f "$0"); here=$(dirname "$self")
+    GEN_JS="$WORK/rf_generator.js"
+    if grep -q '^# __RF_GENERATOR__$' "$self"; then
+        sed -n '/^# __RF_GENERATOR__$/,/^__RF_GENERATOR_END__$/p' "$self" | sed '1,2d;$d' > "$GEN_JS"
+    elif [ -f "$here/rf_generator.js" ]; then cp "$here/rf_generator.js" "$GEN_JS"
+    else fail "Der Config-Generator fehlt im Installer"; fi
+    if command -v qjs >/dev/null; then JS=(qjs --std)
+    elif command -v node >/dev/null; then JS=(node)
+    elif command -v nodejs >/dev/null; then JS=(nodejs)
+    else
+        # quickjs nur herunterladen und entpacken, nicht installieren (1,9 MB, kein sudo noetig)
+        say "Lade quickjs für den Config-Generator (wird nicht installiert) …"
+        mkdir -p "$WORK/qjs"
+        if (cd "$WORK/qjs" && apt-get download quickjs >>"$LOG" 2>&1) \
+            && dpkg-deb -x "$(ls "$WORK"/qjs/quickjs_*.deb | head -1)" "$WORK/qjs/root" 2>>"$LOG" \
+            && [ -x "$WORK/qjs/root/usr/bin/qjs" ]; then
+            JS=("$WORK/qjs/root/usr/bin/qjs" --std)
+        else
+            ui_yesno "JavaScript" "Der Config-Generator braucht quickjs oder Node.js.\nquickjs gibt es für dieses System nicht.\n\nNode.js jetzt installieren (apt install nodejs)?" \
+                || fail "Ohne quickjs oder Node.js kann der Installer keine Config erzeugen. Nimm dann den Config Creator im Browser und lade die ZIP hoch."
+            need_sudo; srun env DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs || fail "nodejs konnte nicht installiert werden"
+            if command -v node >/dev/null; then JS=(node); else JS=(nodejs); fi
+        fi
+    fi
+    chmod -R a+rX "$WORK"
+    gen defaults atmega single rf2000 >/dev/null 2>>"$LOG" || fail "Der Config-Generator läuft nicht (${JS[*]}), siehe $LOG"
+    ok "Config-Generator bereit (${JS[0]##*/})"
+}
+gen() { "${JS[@]}" "$GEN_JS" "$@"; }
+
+# Formularwerte wie im Config Creator (JSON in $FORM): v:feld, c:haken (ja/nein), r:auswahl
+fget() {
+    python3 -c 'import json,sys
+v = json.load(open(sys.argv[1])).get(sys.argv[2], "")
+print(("ja" if v else "nein") if isinstance(v, bool) else v)' "$FORM" "$1"
+}
+fset() {
+    python3 - "$FORM" "$1" "$2" <<'PY'
+import json, sys
+f, k, v = sys.argv[1:4]
+d = json.load(open(f))
+d[k] = (v in ("ja", "true", "1", "on")) if k.startswith("c:") else v
+json.dump(d, open(f, "w"), ensure_ascii=False)
+PY
+}
+st() {   # berechneter Wert aus dem Generator (wie im Creator)
+    gen state "$FORM" | python3 -c 'import json,sys; v=json.load(sys.stdin)[sys.argv[1]]; print(("ja" if v else "nein") if isinstance(v,bool) else v)' "$1"
+}
+
+is_num() { [[ "$1" =~ ^-?[0-9]+([.][0-9]+)?$ ]]; }
+
+# Mehrere Werte als Liste zeigen, einzeln aendern: Titel Text feld "Bezeichnung" Einheit …
+edit_values() {
+    local t="$1" x="$2"; shift 2
+    local spec=("$@") i sel v
+    [ "$YES" = 1 ] && return 0
+    if [ "$UI" != whiptail ]; then
+        { echo; echo "${B}$t${N}"; printf '%b\n' "$x"; } >&2
+        for ((i=0; i<${#spec[@]}; i+=3)); do
+            while :; do
+                v=$(ui_input "$t" "${spec[i+1]}${spec[i+2]:+ ($(unit "${spec[i+2]}"))}" "$(fget "${spec[i]}")"); v=${v/,/.}
+                is_num "$v" && break; echo "Bitte eine Zahl eingeben." >&2
+            done
+            fset "${spec[i]}" "$v"
+        done
+        return 0
+    fi
+    while :; do
+        local opts=(weiter "➜ Weiter mit diesen Werten")
+        for ((i=0; i<${#spec[@]}; i+=3)); do
+            opts+=("${spec[i]}" "$(printf '%-36s %s %s' "${spec[i+1]}:" "$(fget "${spec[i]}" | tr . ,)" "$(unit "${spec[i+2]}")")")
+        done
+        sel=$(ui_menu "$t" "$x\n\nZum Ändern einen Wert wählen, dann Enter." weiter "${opts[@]}"); abort_if "$sel"
+        [ "$sel" = weiter ] && return 0
+        for ((i=0; i<${#spec[@]}; i+=3)); do [ "${spec[i]}" = "$sel" ] && break; done
+        v=$(ui_input "$t" "${spec[i+1]}${spec[i+2]:+ in $(unit "${spec[i+2]}")}:" "$(fget "$sel" | tr . ,)") || continue
+        v=${v/,/.}
+        if is_num "$v"; then fset "$sel" "$v"; else ui_msg "$t" "„$v“ ist keine Zahl. Der Wert bleibt unverändert."; fi
+    done
+}
+unit() { case "$1" in mm) echo "mm" ;; C) echo "°C" ;; s) echo "s" ;; pc) echo "%" ;; d) echo "Digits" ;; n) echo "Messwerte" ;; st) echo "Steps/mm" ;; *) echo "$1" ;; esac; }
+
+ask_bool() {   # feld Titel Text
+    local d=""; [ "$(fget "$1")" = ja ] || d=nein
+    if ui_yesno "$2" "$3" $d; then fset "$1" ja; else fset "$1" nein; fi
+}
+
+# Drucker an diesem Pi (rf-multi): fuer welchen Ordner wird die Config erzeugt?
+choose_target() {
+    TARGET_DIR=printer_data; SERVICE=klipper; PCOUNT=1; PNUM=1; PNAME=""
+    [ "$BOARD" = atmega ] || return 0
+    local d n names=() i=2
+    for d in "$KHOME"/printer_*_data; do
+        [ -d "$d/config" ] || continue
+        n=${d##*/printer_}; names+=("${n%_data}")
+    done
+    [ ${#names[@]} -gt 0 ] || return 0
+    local opts=(printer_data "Drucker 1 (~/printer_data, Mainsail ohne Port)")
+    for n in "${names[@]}"; do opts+=("printer_${n}_data" "Drucker $i: $n (~/printer_${n}_data)"); i=$((i+1)); done
+    TARGET_DIR=$(ui_menu "Drucker an diesem Pi" "An diesem Pi laufen mehrere Drucker (rf-multi).\nFür welchen soll die Config sein?" printer_data "${opts[@]}"); abort_if "$TARGET_DIR"
+    PCOUNT=$(( ${#names[@]} + 1 ))
+    if [ "$TARGET_DIR" != printer_data ]; then
+        PNAME=${TARGET_DIR#printer_}; PNAME=${PNAME%_data}; SERVICE="klipper-$PNAME"
+        i=2; for n in "${names[@]}"; do [ "$n" = "$PNAME" ] && PNUM=$i; i=$((i+1)); done
+    fi
+}
+
+current_serial() {   # serial aus [mcu] der vorhandenen printer.cfg
+    awk '/^\[mcu\]/{m=1;next} /^\[/{m=0} m&&/^serial:/{print $2; exit}' "$KHOME/$TARGET_DIR/config/printer.cfg" 2>/dev/null
+}
+
+# Alle Fragen des Config Creators, Seite fuer Seite
+ask_config() {
+    prepare_generator
+    FORM="$WORK/form.json"
+    gen defaults "$BOARD" "$EXTR" "$MODEL" > "$FORM" 2>>"$LOG" || fail "Vorgaben konnten nicht erzeugt werden (siehe $LOG)"
+    local saved="$STATE_DIR/config-$TARGET_DIR.json"
+    if [ -f "$saved" ] && python3 - "$saved" "$BOARD" "$EXTR" "$MODEL" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+sys.exit(0 if (d.get("board"), d.get("r:ext"), d.get("v:model")) == tuple(sys.argv[2:5]) else 1)
+PY
+    then
+        ui_yesno "Letzte Eingaben" "Für diesen Drucker gibt es Eingaben vom $(date -r "$saved" '+%d.%m.%Y %H:%M').\n\nAls Vorgabe übernehmen?" && cp "$saved" "$FORM"
+    fi
+    fset board "$BOARD"; fset fw klipper; fset pcount "$PCOUNT"; fset pnum "$PNUM"
+    [ -n "$PNAME" ] && fset v:pname "$PNAME"
+    fset r:fil "$FIL"
+    local mname; case "$MODEL" in rf1000) mname="RF1000" ;; rf2000) mname="RF2000" ;; *) mname="RF2000 v2" ;; esac
+
+    # Seite Drucker: Masse, LED, Display
+    edit_values "Drucker: Maße" "Bauraum des $mname. Die Vorgaben sind am Drucker gemessen.\nY-Home vor dem Bett: so weit steht die Düse am Y-Schalter vor der Bettkante.\nY frei vorne: Streifen für die Prime Line (im Slicer gesperrt)." \
+        v:xmax "X max" mm v:ytravel "Y-Fahrweg ab Schalter" mm v:zmax "Z max" mm \
+        v:yhome "Y-Home vor dem Bett" mm v:yfront "Y frei vorne (Prime Line)" mm
+    if [ "$BOARD" = skipr ]; then
+        ask_bool c:led "LED" "Ist ein LED-Streifen (Neopixel an PC5, 10 LEDs) angeschlossen?\n\nDann kommen led_progress.cfg und die Makros Licht_an / Licht_aus dazu."
+    else
+        [ "$MODEL" != rf1000 ] && ask_bool c:led "LED" "Hat dein Drucker die RGB-LED?\n\nDann kommt rf_led.cfg dazu: Licht wie in der RF-Firmware und LED-Signale beim Firmware-Update."
+        ask_bool c:rfdisp "Display" "Display und Menü wie in der RF-Firmware (rf_display.cfg)?\n\nStartseiten, Menü und Meldung beim Firmware-Update wie unter Repetier."
+    fi
+
+    # Seite Hotend: Duese, Extruder-Schritte, Duesenversatz
+    local nz; nz=$(fget v:nozzle)
+    nz=$(ui_menu "Hotend: Düse" "Welche Düse ist eingebaut?" "$nz" 0.2 "0,2 mm" 0.3 "0,3 mm" 0.4 "0,4 mm" 0.5 "0,5 mm" 0.6 "0,6 mm" 0.7 "0,7 mm" 0.8 "0,8 mm"); abort_if "$nz"
+    fset v:nozzle "$nz"
+    edit_values "Hotend: Extruder" "Schritte des Extrudermotors pro mm Filament bei $(st microsteps) Mikroschritten.\nDaraus wird rotation_distance berechnet (jetzt $(st rot | tr . ,))." \
+        v:esteps "Extruder Steps pro mm" st
+    if [ "$EXTR" = dual ]; then
+        edit_values "Hotend: Düsenversatz" "Versatz der zweiten Düse. Klipper addiert ihn zu den Koordinaten:\nLiegt Düse 2 rechts von Düse 1, ist offset_x negativ. Später mit OFFSET_TEST prüfen." \
+            v:offx "offset_x" mm v:offy "offset_y" mm
+        # Seite Filament (nur Dual): Vorgaben fuer den Duesenversatz-Test
+        local ft; ft=$(fget r:ftype)
+        ft=$(ui_menu "Filament" "Filament-Typ für den Düsenversatz-Test (OFFSET_TEST)?" "$ft" \
+            pla "PLA (195 °C, Bett 65 °C)" petg "PETG (220 °C, Bett 75 °C)" manual "Manuell (eigene Temperaturen)"); abort_if "$ft"
+        fset r:ftype "$ft"
+        case "$ft" in
+            pla)  fset v:ftemp 195; fset v:fbed 65 ;;
+            petg) fset v:ftemp 220; fset v:fbed 75 ;;
+            *)    edit_values "Filament" "Temperaturen für OFFSET_TEST." v:ftemp "Düsentemperatur" C v:fbed "Betttemperatur" C ;;
+        esac
+    fi
+
+    # Seite Anschluesse: MCU serial, Z-Endstop, Heissmessung
+    local cur ports=() p opts=() def sel
+    cur=$(current_serial); [ -n "$cur" ] || cur=$(fget v:serial)
+    if [ "$BOARD" = skipr ]; then ports=(/dev/ttyS0 "${STM_PORTS[@]}"); else ports=("${FTDI_PORTS[@]}"); fi
+    def=$cur
+    [ "$BOARD" = atmega ] && [ ${#FTDI_PORTS[@]} -eq 1 ] && [ "$TARGET_DIR" = printer_data ] && def=${FTDI_PORTS[0]}
+    # SKIPR: interne Verbindung, ausser die alte Config nutzt schon einen passenden Anschluss
+    [ "$BOARD" = skipr ] && case "$cur" in /dev/ttyS*|*stm32*|*Klipper*) ;; *) def=/dev/ttyS0 ;; esac
+    opts+=("$cur" "$cur  (bisher)")
+    for p in "${ports[@]}"; do [ "$p" = "$cur" ] || opts+=("$p" "$p  (gefunden)"); done
+    opts+=(__andere__ "Anderen Anschluss eingeben")
+    sel=$(ui_menu "Anschlüsse: MCU serial" "Über welchen Anschluss spricht Klipper mit dem Board?\n(Liste: ls /dev/serial/by-id/)" "$def" "${opts[@]}"); abort_if "$sel"
+    [ "$sel" = __andere__ ] && sel=$(ui_input "MCU serial" "Anschluss des Boards:" "$cur")
+    fset v:serial "$sel"
+    edit_values "Anschlüsse: Z-Endstop" "Z min ist der Weg, den Z unter 0 weiterfahren darf (Überfahrweg, negativ).\nRF1000-Endschalter etwa -0,8 mm, Lichtschranke -1,2 mm, SKIPR -0,8 mm." \
+        v:zmin "Z min / Überfahrweg" mm
+    ask_bool c:zinv "Z-Endstop" "Endstop-Pin $(fget v:zpin) invertieren (\"!\" davor)?\n\nSo ist es bei allen Renkforce-Druckern. Nach dem Start mit QUERY_ENDSTOPS prüfen: frei = open."
+    if [ "$EXTR" != 2in1 ]; then
+        ask_bool c:hp "Heißmessung" "Vor jedem Druck heiß mit PROBE messen und den Z-Offset setzen?\n\nDie Düse berührt dabei das Bett an einem Zufallspunkt. Das Mesh muss wie in bed_calibrate aufgenommen sein."
+        [ "$(fget c:hp)" = ja ] && edit_values "Heißmessung" "Zufallspunkt in X und Y zwischen „von“ und „bis“, Wartezeit nach dem Aufheizen." \
+            v:hpmin "Zufallspunkt von" mm v:hpmax "Zufallspunkt bis" mm v:hpwait "Wartezeit nach dem Aufheizen" s
+    fi
+
+    # Seite DMS (nur Renkforce-Board)
+    if [ "$BOARD" = atmega ]; then
+        ask_bool c:guard "DMS" "Notfall-Pause und Flow-Kompensation über den DMS einbinden?\n\n(Modul rf1000_pressure_guard aus dem RF-Klipper)"
+        if [ "$(fget c:guard)" = ja ]; then
+            ask_bool c:eon "DMS: Notfall-Pause" "Notfall-Pause verwenden?\n\nPausiert den Druck, wenn die Kraft an der Düse zu groß wird (Verstopfung, Düse im Bett)."
+            [ "$(fget c:eon)" = ja ] && edit_values "DMS: Notfall-Pause" "Grenzen in der Einheit von LCP_READ, Mittelwert über die letzten Messwerte." \
+                v:emin "Pause unter (negativ)" d v:emax "Pause über" d v:esamp "Mittelwert über" n
+            ask_bool c:fon "DMS: Flow-Kompensation" "Flow-Kompensation verwenden?\n\nPasst Extrusion und Vorschub an, wenn der Druck an der Düse steigt."
+            [ "$(fget c:fon)" = ja ] && edit_values "DMS: Flow-Kompensation" "Zwischen „Flow ab“ und „Volle Wirkung“ steigt die Korrektur linear an." \
+                v:fmin "Flow ab" d v:fmax "Volle Wirkung bei" d v:fpct "Extrusion bei voller Wirkung" pc v:vpct "Vorschub bei voller Wirkung" pc v:fminz "Korrektur erst ab Z" mm
+            ask_bool c:digits "DMS: Kurve" "Kurve „Digits“ in Mainsail anzeigen?\n\nZeigt die Kraft des DMS live, praktisch zum Einstellen der Grenzen."
+        fi
+    fi
+
+    # Dateien erzeugen (noch nicht einspielen)
+    rm -rf "$WORK/gen"; mkdir -p "$WORK/gen"
+    gen generate "$FORM" "$WORK/gen" > "$WORK/gen.list" 2>>"$LOG" || fail "Config konnte nicht erzeugt werden (siehe $LOG)"
+    chmod -R a+rX "$WORK"
+    ok "Config erzeugt: $(tr '\n' ' ' < "$WORK/gen.list")"
+}
+
+config_summary() {
+    gen state "$FORM" | python3 -c '
+import json, sys
+s = json.load(sys.stdin)
+f = lambda v: ("%g" % v).replace(".", ",")
+print("Maße:      X %s × Y %s × Z %s mm, Y-Home %s mm vor dem Bett" % (f(s["xmax"]), f(s["ymax"]), f(s["zmax"]), f(s["yhome"])))
+print("Hotend:    Düse %s mm, rotation_distance %s%s" % (f(s["nozzle"]), f(s["rot"]), ", Versatz X %s / Y %s" % (f(s["offx"]), f(s["offy"])) if s["dual"] else ""))
+x = ["LED" if s["led"] else "", "RF-Display" if s["rfdisp"] else "", "Heißmessung" if s["hp"] else ""]
+if s["board"] == "atmega":
+    x.append("DMS-Schutz" if s["guard"] else "ohne DMS-Schutz")
+print("Optionen:  %s" % (", ".join(v for v in x if v) or "keine"))
+print("Anschluss: %s, Z-Endstop %s" % (s["serial"], s["zpin"]))'
+    echo "Dateien:   $(tr '\n' ' ' < "$WORK/gen.list")"
 }
 
 # ---------------------------------------------------------------- Klipper
@@ -414,14 +639,71 @@ install_packages() {   # Paketnamen …
 }
 
 backup_config() {
-    local c="$KHOME/printer_data/config"
+    local name="config-$STAMP.tar.gz"; [ "$TARGET_DIR" != printer_data ] && name="config-${PNAME}-$STAMP.tar.gz"
+    [ -d "$KHOME/$TARGET_DIR/config" ] || return 0
     urun mkdir -p "$KHOME/3dartmaker-backup"
-    urun tar czf "$KHOME/3dartmaker-backup/config-$STAMP.tar.gz" -C "$KHOME/printer_data" config
-    ok "Config gesichert: ~/3dartmaker-backup/config-$STAMP.tar.gz"
+    urun tar czf "$KHOME/3dartmaker-backup/$name" -C "$KHOME/$TARGET_DIR" config
+    ok "Config gesichert: ~/3dartmaker-backup/$name"
+}
+
+# SAVE_CONFIG-Block (PID, Mesh, Z-Endstop …) der alten printer.cfg an die neue haengen.
+# Abschnitte, die es in der neuen Config nicht gibt (z. B. extruder1 nach Wechsel auf Single), fallen weg.
+keep_autosave() {   # alte printer.cfg, neue printer.cfg -> Ausgabe: behaltene und entfernte Abschnitte
+    python3 - "$1" "$2" <<'PY'
+import re, sys
+old, new = sys.argv[1], sys.argv[2]
+try:
+    o = open(old, encoding="utf-8").read()
+except OSError:
+    sys.exit(0)
+mark = "#*# <---------------------- SAVE_CONFIG ---------------------->"
+i = o.find(mark)
+if i < 0:
+    sys.exit(0)
+lines = o[i:].splitlines()
+head, secs, cur = [], [], None
+for l in lines:
+    m = re.match(r"#\*# \[([^\]]+)\]\s*$", l)
+    if m:
+        cur = [m.group(1), [l]]; secs.append(cur)
+    elif cur is None:
+        head.append(l)
+    else:
+        cur[1].append(l)
+n = open(new, encoding="utf-8").read()
+have = set(re.findall(r"(?m)^\[([^\]]+)\]", n))
+keep = [x for x in secs if x[0] in have or x[0].startswith("bed_mesh ") or x[0] == "input_shaper"]
+drop = [x[0] for x in secs if x not in keep]
+if not keep:
+    sys.exit(0)
+body = "\n".join(head + [l for x in keep for l in x[1]])
+open(new, "w", encoding="utf-8").write(n.rstrip("\n") + "\n\n" + body.rstrip("\n") + "\n")
+print("behalten: " + ", ".join(x[0] for x in keep))
+if drop:
+    print("entfernt: " + ", ".join(drop))
+PY
+}
+
+install_generated() {
+    head1 "Config einspielen (wie im Config Creator erzeugt)"
+    local c="$KHOME/$TARGET_DIR/config" out="$WORK/gen" r
+    [ -d "$c" ] || fail "Config-Ordner $c fehlt"
+    backup_config
+    if grep -qs '^#\*# <-* SAVE_CONFIG' "$c/printer.cfg"; then
+        if ui_yesno "Kalibrierwerte" "Die bisherige printer.cfg enthält gespeicherte Kalibrierwerte (SAVE_CONFIG: PID, Bed Mesh, Z-Endstop …).\n\nIn die neue printer.cfg übernehmen?\n(Abschnitte, die es dort nicht mehr gibt, fallen weg.)"; then
+            r=$(keep_autosave "$c/printer.cfg" "$out/printer.cfg") && [ -n "$r" ] && while IFS= read -r l; do ok "SAVE_CONFIG $l"; done <<< "$r"
+        fi
+    fi
+    chmod -R a+rX "$WORK"
+    local f; for f in $(cat "$WORK/gen.list"); do urun cp -f "$out/$f" "$c/$f"; done
+    ok "Eingespielt nach ~/$TARGET_DIR/config: $(tr '\n' ' ' < "$WORK/gen.list")"
+    if [ "$PROBE" = 1 ]; then say "  [Probe] Eingaben gespeichert in $STATE_DIR/config-$TARGET_DIR.json"
+    else sudo mkdir -p "$STATE_DIR"; sudo install -m 644 "$FORM" "$STATE_DIR/config-$TARGET_DIR.json"; fi
+    CONFIG_CHANGED=1
 }
 
 unpack_into_config() {   # ZIP [Unterordner]
-    local zip="$1" sub="${2:-}" c="$KHOME/printer_data/config"
+    local zip="$1" sub="${2:-}" c="$KHOME/$TARGET_DIR/config"
     rm -rf "$WORK/cfg"; mkdir -p "$WORK/cfg"
     python3 -m zipfile -e "$zip" "$WORK/cfg/" || fail "ZIP lässt sich nicht entpacken"
     local src="$WORK/cfg"
@@ -463,15 +745,9 @@ PY
 }
 
 apply_config() {
-    [ "$FW" = klipper ] || return 0
     case "$CONFIG_CHOICE" in
         keep|"") return 0 ;;
-        ready)
-            head1 "Fertige Config einspielen"
-            local n; n=$(ready_config_name)
-            release_download "$n.zip"
-            backup_config
-            unpack_into_config "$WORK/$n.zip" ;;
+        gen) install_generated; return 0 ;;
         creator)
             head1 "Config aus dem Config Creator einspielen"
             local zips=() z opts=()
@@ -484,19 +760,6 @@ apply_config() {
             z=$(ui_menu "ZIP wählen" "Welche ZIP soll eingespielt werden?" "${zips[0]}" "${opts[@]}"); abort_if "$z"
             backup_config
             unpack_into_config "$z" ;;
-        2in1)
-            head1 "2in1-Config dazulegen"
-            local c="$KHOME/printer_data/config" url="https://raw.githubusercontent.com/$REPO/main/config/2in1_hotend.cfg"
-            backup_config
-            fetch "$url" "$WORK/2in1_hotend.cfg" || fail "2in1_hotend.cfg nicht geladen"
-            chmod a+rX "$WORK" "$WORK/2in1_hotend.cfg"
-            urun cp -f "$WORK/2in1_hotend.cfg" "$c/2in1_hotend.cfg"
-            if ! grep -qs '^\[include 2in1_hotend.cfg\]' "$c/printer.cfg"; then
-                if ui_yesno "printer.cfg" "Soll die Zeile\n  [include 2in1_hotend.cfg]\nin printer.cfg eingetragen werden?\n\nVorher die Pins und Strecken in 2in1_hotend.cfg prüfen (siehe INSTALLATION.md)." nein; then
-                    urun sed -i '0,/^\[/s//[include 2in1_hotend.cfg]\n[/' "$c/printer.cfg"
-                fi
-            fi
-            warn "Prüfe in 2in1_hotend.cfg die Pins der Filamentschalter und die Strecken (prime_dist, park_dist)." ;;
     esac
     CONFIG_CHANGED=1
 }
@@ -505,70 +768,7 @@ CONFIG_CHANGED=0
 restart_klipper() {
     [ "$CONFIG_CHANGED" = 1 ] || return 0
     if printer_busy; then warn "Gerade läuft ein Druck. Klipper bitte nach dem Druck neu starten."; return; fi
-    run sudo systemctl restart klipper && ok "Klipper neu gestartet"
-}
-
-# ---------------------------------------------------------------- Marlin
-marlin_asset_model() { case "$MODEL" in rf1000) echo RF1000 ;; rf2000) echo RF2000 ;; rf2000v2) echo RF2000v2 ;; esac; }
-marlin_variant() { [ "$EXTR" = dual ] && echo Dual || echo Single; }
-
-pick_ftdi_port() {
-    if [ ${#FTDI_PORTS[@]} -eq 1 ]; then echo "${FTDI_PORTS[0]}"; return; fi
-    if [ ${#FTDI_PORTS[@]} -eq 0 ]; then
-        local u; u=$(ls /dev/ttyUSB* 2>/dev/null | head -1)
-        [ -n "$u" ] && { echo "$u"; return; }
-        echo ""; return
-    fi
-    local opts=() p; for p in "${FTDI_PORTS[@]}"; do opts+=("$p" "${p##*/}"); done
-    p=$(ui_menu "Anschluss" "Mehrere Renkforce-Boards gefunden. Welches soll Marlin bekommen?" "${FTDI_PORTS[0]}" "${opts[@]}"); abort_if "$p"; echo "$p"
-}
-
-install_marlin() {
-    head1 "Marlin flashen"
-    command -v avrdude >/dev/null || {
-        ui_yesno "avrdude fehlt" "Zum Flashen wird avrdude gebraucht.\nJetzt installieren?" || fail "Ohne avrdude kein Flashen."
-        need_sudo; srun apt-get install -y avrdude; }
-    local tag asset port hex
-    tag=$(gh_latest "$MARLIN_REPO"); [ -n "$tag" ] || fail "Neueste Marlin-Version nicht gefunden"
-    asset="Marlin_$(marlin_asset_model)_$(marlin_variant).zip"
-    say "Marlin $tag: $asset"
-    fetch "https://github.com/$MARLIN_REPO/releases/download/$tag/$asset" "$WORK/$asset" || fail "$asset nicht geladen"
-    if fetch "https://github.com/$MARLIN_REPO/releases/download/$tag/SHA256SUMS" "$WORK/MSUMS" 2>/dev/null; then
-        (cd "$WORK" && grep " $asset\$" MSUMS | sha256sum -c --quiet) || fail "Prüfsumme von $asset stimmt nicht"
-        ok "$asset geladen und geprüft"
-    else warn "$asset geladen (keine Prüfsummen im Release)"; fi
-    mkdir -p "$WORK/marlin"; python3 -m zipfile -e "$WORK/$asset" "$WORK/marlin/" || fail "ZIP defekt"
-    hex=$(find "$WORK/marlin" -name '*.hex' | head -1); [ -n "$hex" ] || fail "Keine .hex in $asset"
-
-    port=$(pick_ftdi_port); [ -n "$port" ] || fail "Kein Renkforce-Board gefunden. Ist der Drucker eingeschaltet und per USB verbunden?"
-    say "Anschluss: $port"
-
-    if printer_busy; then fail "Der Drucker druckt gerade. Bitte erst nach dem Druck flashen."; fi
-    local stopped=() s
-    for s in klipper RepetierServer octoprint; do
-        systemctl is-active --quiet "$s" 2>/dev/null && stopped+=("$s")
-    done
-    ui_yesno "Marlin flashen" "Firmware:  ${hex##*/} ($tag)\nModell:    $(marlin_asset_model) $(marlin_variant)\nAnschluss: $port\n\nVorher wird das EEPROM gesichert.\n${stopped:+Gestoppt werden kurz: ${stopped[*]}\n}\nDer Drucker darf dabei nicht drucken und nicht ausgeschaltet werden.\nJetzt flashen?" || { say "Nicht geflasht."; return 0; }
-    need_sudo
-    for s in "${stopped[@]}"; do srun systemctl stop "$s"; done
-    urun mkdir -p "$KHOME/3dartmaker-backup"
-    if run avrdude -patmega2560 -cwiring -P"$port" -b115200 -Ueeprom:r:"$KHOME/3dartmaker-backup/eeprom-$STAMP.hex":i -q -q; then
-        ok "EEPROM gesichert: ~/3dartmaker-backup/eeprom-$STAMP.hex"
-    else warn "EEPROM konnte nicht gesichert werden"; ui_yesno "Weiter?" "Das EEPROM wurde nicht gesichert. Trotzdem flashen?" nein || { for s in "${stopped[@]}"; do srun systemctl start "$s"; done; return 1; }; fi
-    if run avrdude -patmega2560 -cwiring -P"$port" -b115200 -D -Uflash:w:"$hex":i; then
-        ok "Marlin $tag geschrieben"
-        state_set marlin_model "$(marlin_asset_model)_$(marlin_variant)"; state_set marlin_version "$tag"; state_set marlin_port "$port"
-    else
-        warn "Flashen fehlgeschlagen. Drucker aus- und einschalten und noch einmal versuchen."
-    fi
-    if printf '%s\n' "${stopped[@]}" | grep -qx klipper; then
-        if ui_yesno "Klipper" "Klipper war aktiv. Mit Marlin braucht der Drucker Klipper nicht mehr.\nKlipper dauerhaft ausschalten (sonst stört es den Anschluss)?"; then
-            srun systemctl disable klipper
-            stopped=("${stopped[@]/klipper}")
-        fi
-    fi
-    for s in "${stopped[@]}"; do [ -n "$s" ] && srun systemctl start "$s"; done
-    ui_msg "Marlin ist drauf" "Nächste Schritte:\n\n• Verbindung zum Host (Repetier-Server, OctoPrint) mit 250000 Baud.\n• Nach dem ersten Start einmal M502 und M500 senden.\n• Heizbett-Scan M3010 mit Aufsicht, dann M3001.\n\nDetails: github.com/$MARLIN_REPO"
+    run sudo systemctl restart "$SERVICE" && ok "Klipper neu gestartet ($SERVICE)"
 }
 
 # ---------------------------------------------------------------- Befehle anlegen
@@ -625,18 +825,6 @@ do_upgrade() {
         else ok "Klipper ist aktuell"; fi
     fi
 
-    local mm; mm=$(state_get marlin_model)
-    if [ -n "$mm" ]; then
-        head1 "Marlin"
-        local mt cur_m; mt=$(gh_latest "$MARLIN_REPO"); cur_m=$(state_get marlin_version)
-        if [ -n "$mt" ] && [ "$mt" != "$cur_m" ] && dpkg --compare-versions "${mt#v}" gt "${cur_m#v}"; then
-            warn "Marlin $mt verfügbar (geflasht: $cur_m)"
-            if ui_yesno "Marlin" "Marlin $mt ist verfügbar (geflasht: $cur_m).\nJetzt flashen?" nein; then
-                MODEL=$(state_get model); EXTR=$(state_get extruder); install_marlin
-            fi
-        else ok "Marlin $cur_m ist aktuell"; fi
-    fi
-
     head1 "Betriebssystem"
     [ "$PROBE" = 1 ] || { need_sudo; sudo apt-get update -qq >>"$LOG" 2>&1; }
     UPGRADABLE=$(apt-get -s upgrade 2>/dev/null | grep -c '^Inst ' || true)
@@ -652,37 +840,39 @@ do_upgrade() {
 # ---------------------------------------------------------------- Ablauf
 do_install() {
     [ "$(id -u)" = 0 ] && [ -z "${SUDO_USER:-}" ] && warn "Starte den Installer am besten als normaler Benutzer (pi oder mks), nicht als root."
-    ui_msg "$TITLE" "Willkommen beim 3D-Artmaker Installer (Version $VERSION).\n\nEr prüft dein System, fragt wie im Renkforce Config Creator nach deinem Drucker und installiert dann, was du auswählst:\n\n• Klipper: RF-Fork, Firmware-Update, System Terminal, Logo, Configs\n• Marlin: fertige Firmware für dein Modell flashen\n\nVor jeder Änderung wird nachgefragt.$( [ "$PROBE" = 1 ] && echo '\n\nPROBELAUF: Es wird nichts verändert.')"
+    ui_msg "$TITLE" "Willkommen beim 3D-Artmaker Installer (Version $VERSION).\n\nEr prüft dein System, fragt wie im Renkforce Config Creator nach deinem Drucker und installiert dann, was du auswählst:\n\n• Klipper-Config wie im Config Creator erzeugen (Renkforce-Board mit ATmega2560 oder MKS SKIPR)\n• RF-Klipper, Firmware-Update, System Terminal, Logo\n\nMarlin ist nicht Teil des Installers (Firmware von github.com/Dennis02121978/Marlin-RFxxxx selbst flashen).\n\nVor jeder Änderung wird nachgefragt.$( [ "$PROBE" = 1 ] && echo '\n\nPROBELAUF: Es wird nichts verändert.')"
     check_system
     choose
-    if [ "$FW" = klipper ]; then
-        ensure_klipper_base
-        choose_packages
-        choose_config
-    fi
+    ensure_klipper_base
+    choose_packages
+    choose_config
     ui_yesno "Zusammenfassung" "$(summary_text)\nSo installieren?" || { say "Abgebrochen."; exit 0; }
     need_sudo
-    if [ "$FW" = klipper ]; then
-        switch_fork
-        # shellcheck disable=SC2086
-        install_packages $PKGS
-        apply_config
-        restart_klipper
-    else
-        install_marlin
-    fi
+    switch_fork
+    # shellcheck disable=SC2086
+    install_packages $PKGS
+    apply_config
+    restart_klipper
     install_commands
     local next="Fertig!\n\n"
-    if [ "$FW" = klipper ]; then
-        next+="• Lade Mainsail im Browser mit F5 neu.\n"
-        [ "$BOARD" = atmega ] && next+="• Mainsail → Firmware-Update → Update starten (schreibt Klipper aufs Board).\n"
-        [ "$BOARD" = skipr ] && [[ " $PKGS " == *" skipr-update "* ]] && next+="• Mainsail → Firmware-Update → Update starten.\n"
-        [[ " $PKGS " == *" rf-terminal "* ]] && next+="• Neu: Menüpunkt System Terminal.\n"
+    next+="• Lade Mainsail im Browser mit F5 neu.\n"
+    [ "$BOARD" = atmega ] && next+="• Mainsail → Firmware-Update → Update starten (schreibt Klipper aufs Board).\n"
+    [ "$BOARD" = skipr ] && [[ " $PKGS " == *" skipr-update "* ]] && next+="• Mainsail → Firmware-Update → Update starten.\n"
+    [[ " $PKGS " == *" rf-terminal "* ]] && next+="• Neu: Menüpunkt System Terminal.\n"
+    if [ "$CONFIG_CHOICE" = gen ]; then
+        next+="• Nach dem ersten Start: bed_calibrate (Bezugspunkt und Mesh), PID mit PID_Tuning_…\n"
+        next+="• Slicer: siehe ~/$TARGET_DIR/config/LIESMICH.txt und die Ausgabe unten.\n"
+    else
         next+="• Slicer-Einstellungen: Config Creator, Seite Anleitung.\n"
     fi
     next+="\nSpäter alles aktualisieren mit:\n   3DArtmaker-upgrade\n\nProtokoll: $LOG"
     ui_msg "Fertig" "$next"
+    if [ "$CONFIG_CHOICE" = gen ]; then
+        head1 "Slicer (OrcaSlicer)"
+        gen slicer "$FORM" | tee -a "$LOG"
+    fi
     echo; ok "Fertig. Später aktualisieren mit: 3DArtmaker-upgrade"
 }
 
 if [ "$MODE" = upgrade ]; then do_upgrade; else do_install; fi
+exit $?

@@ -4,7 +4,7 @@ Zusätze für den RF1000 und RF2000 mit Klipper, Moonraker und Mainsail.
 
 **Neu hier? Hier geht es zur [Installationsanleitung für Einsteiger](INSTALLATION.md).**
 
-**Am einfachsten:** Der [3D-Artmaker Installer](INSTALLATION.md#am-einfachsten-der-3d-artmaker-installer) richtet Klipper oder Marlin auf dem Raspberry Pi oder MKS SKIPR ein. Danach hält `3DArtmaker-upgrade` alles aktuell.
+**Am einfachsten:** Der [3D-Artmaker Installer](INSTALLATION.md#am-einfachsten-der-3d-artmaker-installer) richtet Klipper auf dem Raspberry Pi oder MKS SKIPR ein und erzeugt die Config mit denselben Fragen wie der Config Creator. Danach hält `3DArtmaker-upgrade` alles aktuell.
 
 Jedes Paket lässt sich allein installieren und erscheint dann als eigener Eintrag im Update-Manager von Mainsail.
 

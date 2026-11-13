@@ -17,6 +17,10 @@ done
 (cd config && python3 -m zipfile -c ../dist/RF2000_DualExtruder_3mm.zip RF2000_DualExtruder_3mm)
 # Installer mit eingetragener Version (3DArtmaker-upgrade vergleicht damit)
 sed "s/^VERSION=\"dev\"/VERSION=\"$VERSION\"/" installer/3dartmaker.sh > dist/3dartmaker-install.sh
+# Config-Generator des Config Creators hinten anhaengen (nach "exit", wird vom Installer ausgelesen)
+[ -f installer/rf_generator.js ] || { echo "installer/rf_generator.js fehlt (RenkforceConfigCreator/sync_files.py)"; exit 1; }
+{ echo; echo '# __RF_GENERATOR__'; echo ": <<'__RF_GENERATOR_END__'"; cat installer/rf_generator.js; echo '__RF_GENERATOR_END__'; } >> dist/3dartmaker-install.sh
+bash -n dist/3dartmaker-install.sh
 chmod 755 dist/3dartmaker-install.sh
 grep -q "^VERSION=\"$VERSION\"" dist/3dartmaker-install.sh
 (cd dist && sha256sum -- * > SHA256SUMS)

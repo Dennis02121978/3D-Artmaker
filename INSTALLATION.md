@@ -6,27 +6,29 @@ Diese Anleitung führt dich Schritt für Schritt durch die Installation. Du brau
 
 ## Am einfachsten: der 3D-Artmaker Installer
 
-Der Installer prüft dein System, fragt wie der Config Creator nach deinem Drucker und installiert dann alles, was du auswählst. Das geht für **Klipper oder Marlin**, auf dem **Raspberry Pi oder dem MKS SKIPR**. [Verbinde dich mit dem Drucker](#3-mit-dem-drucker-verbinden) und gib ein:
+Der Installer prüft dein System, stellt dieselben Fragen wie der [Config Creator](https://3d-artmaker.de/config-creator.php), erzeugt daraus die Klipper-Config und installiert alles, was du auswählst. Das geht für das **Renkforce-Board (ATmega2560) mit Raspberry Pi** und für das **MKS SKIPR**. Marlin ist nicht dabei, die Firmware dafür gibt es fertig bei [Marlin-RFxxxx](https://github.com/Dennis02121978/Marlin-RFxxxx/releases/latest). [Verbinde dich mit dem Drucker](#3-mit-dem-drucker-verbinden) und gib ein:
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.2/3dartmaker-install.sh
-echo "81924428ccf65cc057d2d670f6aed38f8c2bc164c2e8067506e9bfa25cabc71b  3dartmaker-install.sh" | sha256sum -c
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/3dartmaker-install.sh
+echo "fccf974be5d9877cfa3da6253d4fccd85c26ff0fae11369ab76823492e4d5daf  3dartmaker-install.sh" | sha256sum -c
 bash 3dartmaker-install.sh
 ```
 
 - Bedienung: Pfeiltasten zum Auswählen, **Leertaste** zum An- und Abwählen, **Enter** für Weiter. Vor jeder Änderung fragt der Installer nach.
+- Die Config erzeugt er mit **demselben Programmcode wie der Config Creator**: gleiche Fragen, gleiche Vorgaben, gleiche Dateien. Werte wie Maße oder Extruder-Schritte zeigt er als Liste. Einen Wert änderst du, indem du ihn auswählst und Enter drückst.
+- Vorher sichert er den ganzen Config-Ordner nach `~/3dartmaker-backup/`. Gespeicherte Kalibrierwerte (SAVE_CONFIG: PID, Bed Mesh, Z-Endstop) übernimmt er auf Wunsch in die neue `printer.cfg`. Deine Antworten merkt er sich als Vorgabe für das nächste Mal.
+- Für den Generator braucht er quickjs (Debian 13: wird nur geladen, nicht installiert) oder Node.js (ältere Systeme: er fragt vor der Installation).
 - Mit `bash 3dartmaker-install.sh --probe` siehst du nur, was er tun würde. Dabei wird nichts verändert.
-- Danach gibt es den Befehl **`3DArtmaker-upgrade`**. Er holt neue Versionen aller installierten 3D-Artmaker-Pakete, prüft Klipper, Marlin und das Betriebssystem und fragt vor jedem Schritt.
-- Protokoll: `~/3dartmaker-install.log`. Sicherungen der Config und des EEPROMs: `~/3dartmaker-backup/`.
+- Danach gibt es den Befehl **`3DArtmaker-upgrade`**. Er holt neue Versionen aller installierten 3D-Artmaker-Pakete, prüft Klipper und das Betriebssystem und fragt vor jedem Schritt.
+- Protokoll: `~/3dartmaker-install.log`. Sicherungen der Config: `~/3dartmaker-backup/`.
 
 Was der Installer macht:
 
 | Auswahl | Was passiert |
 |---|---|
-| Klipper, Renkforce-Board | Klipper auf den RF-Fork umstellen (mit Sicherung), Pakete `rf-update`, `rf-terminal`, `rf-bootlogo`, `rf-multi` nach Wahl, Config fertig aus dem Release, aus einer ZIP des Config Creators oder unverändert |
-| Klipper, MKS SKIPR | Pakete `skipr-update`, `rf-terminal`, `skipr-filament`, `skipr-bootlogo` nach Wahl, bei 2in1 auf Wunsch `2in1_hotend.cfg` |
-| Marlin, Renkforce-Board | Fertige Firmware aus [Marlin-RFxxxx](https://github.com/Dennis02121978/Marlin-RFxxxx/releases/latest) für dein Modell laden und prüfen, EEPROM sichern, flashen. Repetier-Server, OctoPrint oder Klipper werden dafür kurz angehalten. |
+| Renkforce-Board (ATmega2560) | Klipper auf den RF-Fork umstellen (mit Sicherung), Pakete `rf-update`, `rf-terminal`, `rf-bootlogo`, `rf-multi` nach Wahl. Config erzeugen wie im Config Creator (`printer.cfg`, `macros.cfg`, `z_tasten.cfg`, je nach Auswahl `offset_test.cfg`, `rf_led.cfg`, `rf_display.cfg`), aus einer ZIP des Config Creators oder unverändert. Bei mehreren Druckern (rf-multi) wählst du den Drucker. |
+| MKS SKIPR | Pakete `skipr-update`, `rf-terminal`, `skipr-filament`, `skipr-bootlogo` nach Wahl. Config erzeugen wie im Config Creator (`printer.cfg`, `macros.cfg`, `gcode_ignore.cfg`, mit LED `led_progress.cfg`, beim 2in1-Hotend `2in1_hotend.cfg` und `adaptives_mesh.cfg`), aus einer ZIP oder unverändert. |
 | fehlt Klipper, Moonraker oder Mainsail | Er bietet an, [KIAUH](https://github.com/dw-0/kiauh) zu laden und zu starten |
 
 Möchtest du lieber jedes Paket einzeln installieren, geht das wie unten beschrieben.
