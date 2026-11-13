@@ -22,6 +22,7 @@ install -m 755 ../shared/logo_anim.py "$LIB/"
 ../shared/make_web_files.sh rf-bootlogo "$VERSION" "$ROOT/usr/share/rf-bootlogo" "$LOGO/logo.png" "$LOGO/logo.rgb565"
 # Animation aus dem Logo berechnen (braucht python3-pil und python3-numpy auf dem Build-System)
 python3 ../shared/logo_anim.py build "$LOGO/logo.png" "$ROOT/usr/share/rf-bootlogo/anim.bin"
+chmod 644 "$ROOT/usr/share/rf-bootlogo/anim.bin"
 install -m 644 packaging/rf-boot-logo@.service "$UNITS/"
 install -m 644 packaging/rf-bootlogo.conf "$UNITS/KlipperScreen.service.d/"
 install -m 644 packaging/70-rf-boot-logo.rules "$ROOT/lib/udev/rules.d/"
