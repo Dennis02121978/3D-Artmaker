@@ -10,8 +10,8 @@ Der Installer prüft dein System, stellt dieselben Fragen wie der [Config Creato
 
 ```bash
 cd ~
-wget -q --show-progress -O 3dartmaker-install.sh https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/3dartmaker-install.sh
-echo "fccf974be5d9877cfa3da6253d4fccd85c26ff0fae11369ab76823492e4d5daf  3dartmaker-install.sh" | sha256sum -c
+wget -q --show-progress -O 3dartmaker-install.sh https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/3dartmaker-install.sh
+echo "4091fe315c62046de6a6924640b89c7b13716c70d0a14554e97fc6fe58702913  3dartmaker-install.sh" | sha256sum -c
 bash 3dartmaker-install.sh
 ```
 
@@ -256,13 +256,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/skipr-filament_1.6.3_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/skipr-filament_1.6.4_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "648cfd07d1191f0c97c94c18cb201c621eb54c398a85eedbaccbb08d81512596  skipr-filament_1.6.3_all.deb" | sha256sum -c
+echo "87972b6e92d040281acf1de35b56f5116ec6dd52699de2bcc1245ed6b0bbf5f5  skipr-filament_1.6.4_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -271,7 +271,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.6.3_all.deb
+sudo apt install ./skipr-filament_1.6.4_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -291,13 +291,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/skipr-update_1.6.3_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/skipr-update_1.6.4_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "b83275880e05969dfb971d4f76e8cffa79b4178b751031548d26bbdedfc6d583  skipr-update_1.6.3_all.deb" | sha256sum -c
+echo "23317c20e1d73f08a3b83aa81b034bc079735956232b3edbf5b98fe389038bd2  skipr-update_1.6.4_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -306,7 +306,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.6.3_all.deb
+sudo apt install ./skipr-update_1.6.4_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -336,13 +336,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/rf-update_1.6.3_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/rf-update_1.6.4_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "1f2c3850a1de7f1fa8c1075c8dbec234f5934c0d2ca5a4169282f15704b2bc95  rf-update_1.6.3_all.deb" | sha256sum -c
+echo "36d48dd36c39acf7cf9d92011b40d2a5f03c39279953b6eda123a4e3735ad470  rf-update_1.6.4_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -351,7 +351,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.6.3_all.deb
+sudo apt install ./rf-update_1.6.4_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -387,13 +387,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/rf-multi_1.6.3_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/rf-multi_1.6.4_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "3d6c9fdd9224de3623d368864e775df487343dbaa0d7e42509ab399c6b5902db  rf-multi_1.6.3_all.deb" | sha256sum -c
+echo "598c1fd68497514df4017a88657b8e2fe0fe4730d8b309d3374ff50f597cbb7f  rf-multi_1.6.4_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -401,7 +401,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.6.3_all.deb
+sudo apt install ./rf-multi_1.6.4_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**
@@ -442,13 +442,13 @@ Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Co
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/skipr-bootlogo_1.6.3_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/skipr-bootlogo_1.6.4_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "a7c06bf89e5f935739e2d274ac50a98cfa203fcbfa1489ac4cec3ca4d4aebfb4  skipr-bootlogo_1.6.3_all.deb" | sha256sum -c
+echo "406c3403585a84dccb5a94d3fce601a5259b2453759288bd45c396d8b2ad59cf  skipr-bootlogo_1.6.4_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -457,7 +457,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.6.3_all.deb
+sudo apt install ./skipr-bootlogo_1.6.4_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -482,13 +482,13 @@ Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, da
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/rf-bootlogo_1.6.3_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/rf-bootlogo_1.6.4_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "302f3bb995232ff1c47e4aebe98cebcdf8c41ca86fd0668caad8ec48d6dd58cb  rf-bootlogo_1.6.3_all.deb" | sha256sum -c
+echo "3ed9b96a7d07abce5af0c70cdbcb9cb6ad395389481b4b6f39aea293583a4c5a  rf-bootlogo_1.6.4_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -497,7 +497,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-bootlogo_1.6.3_all.deb
+sudo apt install ./rf-bootlogo_1.6.4_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
@@ -532,13 +532,13 @@ Dieses Paket fügt Mainsail links den Menüpunkt **System Terminal** hinzu. Dort
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.3/rf-terminal_1.6.3_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.6.4/rf-terminal_1.6.4_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "b4ed170ac36893db51378f8eb0fe1238ee0e20e05a3a0c56e7ee0a59bd741db4  rf-terminal_1.6.3_all.deb" | sha256sum -c
+echo "0f83425fa615185d64b52686d83c6ba1cda180106f6d6fd659885f0489b77a01  rf-terminal_1.6.4_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -546,7 +546,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-terminal_1.6.3_all.deb
+sudo apt install ./rf-terminal_1.6.4_all.deb
 ```
 
 **Geklappt?** Am Ende steht `System-Terminal ist installiert`.
@@ -555,6 +555,8 @@ sudo apt install ./rf-terminal_1.6.3_all.deb
 
 > [!WARNING]
 > Wer das Passwort kennt, kann über diese Seite alles auf dem Drucker ändern. Ändere deshalb das Standard-Passwort mit `passwd` und gib den Drucker **nicht** im Router für das Internet frei.
+
+Aktualisierst du Pakete im System Terminal selbst (zum Beispiel mit `3DArtmaker-upgrade`), bleibt die Sitzung ab Version 1.6.4 offen. Die neue Version des Terminals startet erst, wenn du dich abmeldest oder den Tab schließt, spätestens nach einer Stunde.
 
 ---
 
