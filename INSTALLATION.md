@@ -470,7 +470,7 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 sudo reboot
 ```
 
-Das Logo erscheint jetzt beim Start, bis KlipperScreen geladen ist. Die Verbindung im Terminal bricht dabei ab, das Fenster kannst du schließen.
+Das Logo erscheint jetzt beim Start, bis KlipperScreen geladen ist. Dabei wird es kurz animiert: Die Linie läuft einmal durch die 3D, danach wird der Schwung unter „Artmaker“ gezeichnet. Die Animation dauert etwa zwei Sekunden, danach bleibt das Logo stehen. Ein eigenes Logo im Ordner `skipr-bootlogo` wird ohne Animation angezeigt. Die Verbindung im Terminal bricht beim Neustart ab, das Fenster kannst du schließen.
 
 ---
 
@@ -515,7 +515,7 @@ Die Verbindung im Terminal bricht dabei ab, das Fenster kannst du schließen.
 **So sieht der Start danach aus** (gemessen auf einem Raspberry Pi 3):
 
 1. Das Display bleibt etwa 13 Sekunden weiß, bis der Treiber geladen ist. Das lässt sich mit diesem Paket nicht ändern.
-2. Das Logo erscheint.
+2. Das Logo erscheint und wird kurz animiert: Die Linie läuft einmal durch die 3D, danach wird der Schwung unter „Artmaker“ gezeichnet (etwa zwei Sekunden). Danach bleibt das Logo stehen. Ein eigenes Logo im Ordner `rf-bootlogo` wird ohne Animation angezeigt.
 3. Kurz bevor KlipperScreen kommt, wird das Bild für einen Moment schwarz, dann ist das Logo wieder da.
 4. KlipperScreen erscheint, auf dem Pi 3 nach etwa 40 Sekunden.
 

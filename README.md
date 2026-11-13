@@ -13,8 +13,8 @@ Jedes Paket lässt sich allein installieren und erscheint dann als eigener Eintr
 | 3D-Artmaker 2in1 Hotend | `skipr-filament` | Filament-Anzeige für das 2in1-Hotend | Die ganze Seite |
 | 3D-Artmaker Firmware Updater | `skipr-update` | Firmware-Update für das MKS-SKIPR-Board | Nur die Webseite |
 | 3D-Artmaker Firmware Updater ATmega | `rf-update` | Firmware-Update für ATmega2560-Boards | Nur die Webseite |
-| 3D-Artmaker BootScreen | `skipr-bootlogo` | Logo beim Start auf dem Display (Armbian) | Nur das Logo |
-| 3D-Artmaker BootScreen Pi | `rf-bootlogo` | Logo beim Start auf dem Display (Raspberry Pi) | Nur das Logo |
+| 3D-Artmaker BootScreen | `skipr-bootlogo` | Animiertes Logo beim Start auf dem Display (Armbian) | Nur das Logo |
+| 3D-Artmaker BootScreen Pi | `rf-bootlogo` | Animiertes Logo beim Start auf dem Display (Raspberry Pi) | Nur das Logo |
 | (kein Eintrag) | `rf-multi` | Bis zu 4 Drucker an einem Raspberry Pi | Nein, nur per `.deb` |
 | (kein Eintrag) | `rf-terminal` | System-Terminal im Browser (Menüpunkt in Mainsail), siehe [rf-terminal/README.md](rf-terminal/README.md) | Nein, nur per `.deb` |
 
@@ -47,7 +47,7 @@ git tag v1.2.0
 git push origin v1.2.0
 ```
 
-Danach baut GitHub alle Pakete und erstellt das Release. Trage die neue Version und die Prüfsummen aus `SHA256SUMS` danach in `INSTALLATION.md` ein. Alle Pakete tragen immer dieselbe Versionsnummer, deshalb meldet Mainsail auch dann ein Update, wenn sich nur ein anderes Paket geändert hat.
+Danach baut GitHub alle Pakete und erstellt das Release. Beim lokalen Bauen (`./build_release.sh`) braucht das System `python3-pil` und `python3-numpy`, sie berechnen die Logo-Animation. Trage die neue Version und die Prüfsummen aus `SHA256SUMS` danach in `INSTALLATION.md` ein. Alle Pakete tragen immer dieselbe Versionsnummer, deshalb meldet Mainsail auch dann ein Update, wenn sich nur ein anderes Paket geändert hat.
 
 ## Lizenz
 
