@@ -13,9 +13,24 @@ ln -sf "bin/$BIN" /usr/lib/rf-terminal/ttyd
 
 systemctl daemon-reload
 systemctl enable rf-terminal.service >/dev/null 2>&1
-systemctl restart rf-terminal.service
+# Update ($2 = alte Version): Laeuft gerade eine Sitzung im System Terminal (oft genau die, in der
+# dieses Update gestartet wurde), wuerde ein Neustart sie sofort beenden. Dann erst neu starten,
+# wenn keine Sitzung mehr offen ist (ttyd hat keine Kindprozesse mehr), spaetestens nach 1 Stunde.
+DEFERRED=0
+if [ -n "$2" ] && systemctl is-active --quiet rf-terminal.service; then
+    MAIN=$(systemctl show -p MainPID --value rf-terminal.service)
+    if [ -n "$MAIN" ] && [ "$MAIN" != 0 ] && pgrep -P "$MAIN" >/dev/null 2>&1; then
+        if systemd-run --quiet --collect --unit="rf-terminal-restart-$(date +%s)" /bin/sh -c \
+            'for i in $(seq 720); do M=$(systemctl show -p MainPID --value rf-terminal.service); pgrep -P "$M" >/dev/null 2>&1 || break; sleep 5; done; systemctl restart rf-terminal.service' \
+            >/dev/null 2>&1; then
+            DEFERRED=1
+        fi
+    fi
+fi
+[ "$DEFERRED" = 1 ] || systemctl restart rf-terminal.service
 /usr/bin/python3 /usr/lib/rf-terminal/setup_host.py install "$KLIPPER_USER"
 
 IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo "System-Terminal ist installiert: Mainsail neu laden oder http://$IP/terminal/ oeffnen."
+[ "$DEFERRED" = 1 ] && echo "Offene Sitzungen im System-Terminal laufen weiter. Die neue Version startet, sobald alle abgemeldet sind."
 exit 0

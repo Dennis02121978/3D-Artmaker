@@ -66,6 +66,40 @@ run() {
     return "${PIPESTATUS[0]}"
 }
 srun() { run sudo "$@"; }
+# apt als eigener systemd-Auftrag: Bricht die Sitzung ab (SSH, System Terminal in Mainsail),
+# laeuft die Installation trotzdem sauber zu Ende. Die Ausgabe geht in eine Datei (kein Abbruch
+# durch eine geschlossene Sitzung) und wird hier live mitgelesen.
+sapt() {
+    if [ "$PROBE" = 1 ]; then say "  [Probe] sudo $*"; return 0; fi
+    if ! command -v systemd-run >/dev/null || [ ! -d /run/systemd/system ]; then
+        srun env DEBIAN_FRONTEND=noninteractive "$@"; return
+    fi
+    local u="3dartmaker-apt-$STAMP-$RANDOM" out rc pos=0 st
+    out=$(sudo mktemp /var/log/3dartmaker-apt.XXXXXX) || { srun env DEBIAN_FRONTEND=noninteractive "$@"; return; }
+    sudo chmod 644 "$out"
+    echo "$(date '+%F %T') \$ $* (systemd: $u)" >> "$LOG"
+    sudo systemd-run --quiet --collect --unit="$u" --setenv=DEBIAN_FRONTEND=noninteractive /bin/sh -c \
+        'o="$1"; shift; "$@" >>"$o" 2>&1; echo $? >"$o.rc"' sh "$out" "$@" || { sudo rm -f "$out"; return 1; }
+    while :; do
+        st=0; [ -e "$out.rc" ] && st=1
+        tail -c +$((pos + 1)) "$out" | tee -a "$LOG"; pos=$(stat -c %s "$out")
+        [ "$st" = 1 ] && break
+        systemctl is-active --quiet "$u" || [ -e "$out.rc" ] || { sleep 1; [ -e "$out.rc" ] || break; }
+        sleep 1
+    done
+    rc=$(cat "$out.rc" 2>/dev/null || echo 1)
+    sudo rm -f "$out" "$out.rc"
+    return "$rc"
+}
+# Laeuft der Installer im System Terminal von Mainsail (ttyd)?
+in_web_terminal() {
+    local p=$$ c
+    while [ "${p:-1}" -gt 1 ]; do
+        c=$(ps -o comm= -p "$p" 2>/dev/null); [ "$c" = ttyd ] && return 0
+        p=$(ps -o ppid= -p "$p" 2>/dev/null | tr -d ' ')
+    done
+    return 1
+}
 # Arbeiten an Dateien des Klipper-Benutzers (git, pip, Config, Sicherungen) als dieser Benutzer
 as_user() { if [ "$(id -u)" = 0 ] && [ -n "$KUSER" ] && [ "$KUSER" != root ]; then sudo -u "$KUSER" -H "$@"; else "$@"; fi; }
 urun() { run as_user "$@"; }
@@ -264,7 +298,7 @@ check_system() {
     if [ "${UPGRADABLE:-0}" -gt 0 ]; then
         if ui_yesno "Systemupdates" "$UPGRADABLE Pakete des Betriebssystems können aktualisiert werden.\n\nJetzt aktualisieren (apt upgrade)? Das kann einige Minuten dauern.\nWährend eines Drucks besser später machen." nein; then
             if printer_busy; then warn "Gerade läuft ein Druck, das Systemupdate wird übersprungen."
-            else need_sudo; srun env DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; fi
+            else need_sudo; sapt apt-get upgrade -y; fi
         fi
     fi
 }
@@ -378,7 +412,7 @@ prepare_generator() {
         else
             ui_yesno "JavaScript" "Der Config-Generator braucht quickjs oder Node.js.\nquickjs gibt es für dieses System nicht.\n\nNode.js jetzt installieren (apt install nodejs)?" \
                 || fail "Ohne quickjs oder Node.js kann der Installer keine Config erzeugen. Nimm dann den Config Creator im Browser und lade die ZIP hoch."
-            need_sudo; srun env DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs || fail "nodejs konnte nicht installiert werden"
+            need_sudo; sapt apt-get install -y nodejs || fail "nodejs konnte nicht installiert werden"
             if command -v node >/dev/null; then JS=(node); else JS=(nodejs); fi
         fi
     fi
@@ -634,7 +668,10 @@ install_packages() {   # Paketnamen …
     if printer_busy; then fail "Gerade läuft ein Druck. Bitte nach dem Druck installieren."; fi
     need_sudo
     local debs=(); for p in "${files[@]}"; do debs+=("$WORK/$p"); done
-    srun env DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades "${debs[@]}" || fail "Installation fehlgeschlagen (siehe $LOG)"
+    if [[ " $* " == *" rf-terminal "* ]] && pkg_installed rf-terminal && in_web_terminal; then
+        say "Hinweis: Du arbeitest im System Terminal. Es bleibt offen, die neue Version startet nach dem Abmelden."
+    fi
+    sapt apt-get install -y --allow-downgrades "${debs[@]}" || fail "Installation fehlgeschlagen (siehe $LOG)"
     ok "Installiert: $*"
 }
 
@@ -831,7 +868,7 @@ do_upgrade() {
     if [ "${UPGRADABLE:-0}" -gt 0 ]; then
         warn "$UPGRADABLE Systempakete können aktualisiert werden"
         if ui_yesno "Systemupdates" "$UPGRADABLE Pakete des Betriebssystems aktualisieren (apt upgrade)?" nein; then
-            if printer_busy; then warn "Gerade läuft ein Druck, übersprungen."; else need_sudo; srun env DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; fi
+            if printer_busy; then warn "Gerade läuft ein Druck, übersprungen."; else need_sudo; sapt apt-get upgrade -y; fi
         fi
     else ok "System ist aktuell"; fi
     echo; ok "Fertig. Protokoll: $LOG"
