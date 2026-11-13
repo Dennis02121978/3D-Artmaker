@@ -1,10 +1,17 @@
 #!/bin/sh
-# Laeuft beim Start als Root. Die Datei im Benutzerordner wird nur aufs Display geschrieben,
+# Laeuft beim Start als Root.
+# Mit dem mitgelieferten Logo laeuft eine kurze Animation (Linie laeuft durch die 3D, danach wird der
+# Schwung unter "Artmaker" gezeichnet). Ein eigenes Logo im Benutzerordner wird unveraendert angezeigt.
+# Die Datei im Benutzerordner wird nur aufs Display geschrieben,
 # deshalb reichen hier die Pruefung von Typ und Groesse.
 SEED=/usr/share/skipr-bootlogo/logo.rgb565
+ANIM=/usr/share/skipr-bootlogo/anim.bin
 . /etc/skipr-bootlogo/config 2>/dev/null
 LOGO=$LOGO_DIR/logo.rgb565
 if [ -L "$LOGO" ] || [ ! -f "$LOGO" ] || [ "$(stat -c %s "$LOGO")" != "307200" ]; then
     LOGO=$SEED
+fi
+if [ -f "$ANIM" ] && /usr/bin/cmp -s "$LOGO" "$SEED"; then
+    exec /usr/bin/python3 /usr/lib/skipr-bootlogo/logo_anim.py play /dev/fb0 "$ANIM" "$LOGO"
 fi
 exec /bin/dd if="$LOGO" of=/dev/fb0 bs=4096 count=75 status=none

@@ -16,7 +16,10 @@ mkdir -p "$LIB" "$UNITS/KlipperScreen.service.d" "$ROOT/lib/udev/rules.d" "$ROOT
 
 install -m 755 ks-client ks-start show-logo setup_host.py "$LIB/"
 install -m 644 ../shared/artmaker_updates.py "$LIB/"
+install -m 755 ../shared/logo_anim.py "$LIB/"
 ../shared/make_web_files.sh skipr-bootlogo "$VERSION" "$ROOT/usr/share/skipr-bootlogo" logo.png logo.rgb565
+# Animation aus dem Logo berechnen (braucht python3-pil und python3-numpy auf dem Build-System)
+python3 ../shared/logo_anim.py build logo.png "$ROOT/usr/share/skipr-bootlogo/anim.bin"
 install -m 644 packaging/boot-logo.service "$UNITS/"
 install -m 644 packaging/skipr-bootlogo.conf "$UNITS/KlipperScreen.service.d/"
 install -m 644 packaging/70-boot-logo.rules "$ROOT/lib/udev/rules.d/"

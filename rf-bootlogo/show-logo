@@ -1,11 +1,17 @@
 #!/bin/sh
 # Laeuft beim Start als Root und bekommt das Display als Argument, zum Beispiel /dev/fb0.
+# Mit dem mitgelieferten Logo laeuft eine kurze Animation (Linie laeuft durch die 3D, danach wird der
+# Schwung unter "Artmaker" gezeichnet). Ein eigenes Logo im Benutzerordner wird unveraendert angezeigt.
 # Die Datei im Benutzerordner wird nur aufs Display geschrieben,
 # deshalb reichen hier die Pruefung von Typ und Groesse.
 SEED=/usr/share/rf-bootlogo/logo.rgb565
+ANIM=/usr/share/rf-bootlogo/anim.bin
 . /etc/rf-bootlogo/config 2>/dev/null
 LOGO=$LOGO_DIR/logo.rgb565
 if [ -L "$LOGO" ] || [ ! -f "$LOGO" ] || [ "$(stat -c %s "$LOGO")" != "307200" ]; then
     LOGO=$SEED
+fi
+if [ -f "$ANIM" ] && /usr/bin/cmp -s "$LOGO" "$SEED"; then
+    exec /usr/bin/python3 /usr/lib/rf-bootlogo/logo_anim.py play "$1" "$ANIM" "$LOGO"
 fi
 exec /bin/dd if="$LOGO" of="$1" bs=4096 count=75 status=none
