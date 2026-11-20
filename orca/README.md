@@ -41,6 +41,8 @@ Je nach Version heißen die Felder etwas anders, oder sie stehen im Fenster hint
 | Die Platte steht vorne und hinten weiter über als an den Seiten | Die Printable area ist kleiner als oben, zum Beispiel 200 x 223 mm im Marlin-Profil | Nur die Anzeige. Eine passende Variante lässt sich mit dem Skript unten erzeugen |
 | Das Bett ist wieder leer | Die Dateien wurden verschoben oder gelöscht | Die Dateien zurücklegen oder in OrcaSlicer neu laden |
 
+Fragen und Wünsche gerne im Forum: [OrcaSlicer: Druckbett mit 3D-Artmaker-Logo](https://3d-artmaker.de/viewtopic.php?t=91).
+
 ## Neu erzeugen
 
 Die Dateien kommen aus einem Skript. Maße, Farben, Logo-Deckkraft und die Lage von Display und Schrift stehen oben in [`tools/make_orca_beds.py`](../tools/make_orca_beds.py):
