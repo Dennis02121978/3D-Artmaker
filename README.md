@@ -28,6 +28,12 @@ Für den RF1000 gibt es die Display-Datei mit 16 Spalten und den kurzen Menütex
 
 Für den RF2000 mit zwei Extrudern und 3-mm-Filament gibt es eine mit dem Renkforce Klipper Config Creator erzeugte Config, noch ungetestet: [Download als ZIP](https://github.com/Dennis02121978/3D-Artmaker/releases/latest/download/RF2000_DualExtruder_3mm.zip) oder [Dateien ansehen](config/RF2000_DualExtruder_3mm/).
 
+## Druckbett für OrcaSlicer
+
+Für OrcaSlicer gibt es Bett-Textur und Bett-Modell für den RF1000, RF2000 und RF2000 v2: Raster und 3D-Artmaker-Logo auf dem Bett, davor die Vorderfront des Druckers mit Display und Schriftzug. Download und Anleitung: [orca/README.md](orca/README.md).
+
+[![Druckbett für OrcaSlicer](orca/preview_front.png)](orca/README.md)
+
 ## Mehrere Drucker an einem Raspberry Pi
 
 Mit dem Paket [`rf-multi`](rf-multi/README.md) laufen bis zu 4 Drucker an einem Raspberry Pi: jeder mit eigener Klipper- und Moonraker-Instanz, eigenem Mainsail (`http://<IP>:81` bis `:83`) und Druckerauswahl in Mainsail und KlipperScreen. Der Firmware Updater ATmega (`rf-update` ab v1.5.0) fragt dann, welcher Drucker aktualisiert werden soll, und zeigt auf dessen Display eine blinkende Meldung „FIRMWARE-UPDATE – DIESER DRUCKER“, dazu blinkt die LED rot (RF1000: nur Display). Während des Updates steht „UPDATE LAEUFT“ auf dem Display und die LED leuchtet rot, danach kurz „ERFOLGREICH“ und 5 Sekunden grün. Der Renkforce Klipper Config Creator fragt zuerst, wie viele Drucker am Pi hängen. Jeder Drucker bekommt eigene Einstellungen, am Ende gibt es alle Configs als ZIP mit einem Ordner pro Drucker. Anleitung: [INSTALLATION.md](INSTALLATION.md#mehrere-drucker-an-einem-raspberry-pi).
