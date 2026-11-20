@@ -90,11 +90,12 @@ function stateFrom(f) {
   const marlin = !skipr && f.fw === 'marlin';
   const mkey = NAMES[v('model')] ? v('model') : 'rf2000';
   const dual = !skipr && r('ext') === 'dual', twoin1 = skipr && r('ext') === '2in1';
+  const dualcar = !skipr && marlin && !dual && c('dualcar');   // Marlin: Dual-Schlitten mit einem Hotend
   const xmax = num('xmax', 200), ytravel = num('ytravel', 295), zmax = num('zmax', 190);
   // Marlin: Y=0 am Schalter wie Repetier, das Feld ist dort Y max
   const yoff = Math.max(0, num('yhome', 5));   // Duese am Y-Schalter vor dem Bett (Marlin: nur Slicer)
   const yhome = marlin ? 0 : yoff, ymax = ytravel - yhome;
-  const useOff = dual;
+  const useOff = dual || dualcar;
   // Mehrere Drucker an einem Pi (Paket rf-multi): Drucker 2 bis 4 haben einen eigenen Ordner. SKIPR: immer einer.
   const pcount = skipr ? 1 : Math.min(4, Math.max(1, parseInt(f.pcount, 10) || 1));
   const pnum = pcount === 1 ? 1 : Math.min(pcount, Math.max(1, parseInt(f.pnum, 10) || 1));
@@ -103,7 +104,7 @@ function stateFrom(f) {
   const ms = MICROSTEPS_E[board];
   return {
     board, skipr, twoin1, microsteps: ms,
-    dual, model: NAMES[mkey], mkey, marlin, esteps: num('esteps', 280), xmax, ymax, ytravel, zmax,
+    dual, dualcar, model: NAMES[mkey], mkey, marlin, esteps: num('esteps', 280), xmax, ymax, ytravel, zmax,
     meshy: Math.min(MESHY[mkey] || ymax - 5, ymax - 5),
     pcount, pnum, pname, dataDir: pnum === 1 ? 'printer_data' : `printer_${pname}_data`,
     mport: 7124 + pnum, wport: pnum === 1 ? 80 : 79 + pnum, rfdisp: !skipr && c('rfdisp'),
@@ -196,17 +197,18 @@ function marlinBlock(s) {
   const g = s.guard;
   return [
     '// ==== BEGIN RF CONFIG CREATOR ====',
-    '// Renkforce Configurator (Marlin): ' + s.model + ', ' + (s.dual ? 'Dual' : 'Single') + ' Extruder, Filament ' + s.fil + ' mm',
+    '// Renkforce Configurator (Marlin): ' + s.model + ', ' + (s.dual ? 'Dual' : s.dualcar ? 'Single (Dual-Schlitten)' : 'Single') + ' Extruder, Filament ' + s.fil + ' mm',
     d(true, 'RF_MODEL', MMODEL[s.mkey] || 'RF_MODEL_RF2000'),
     d(s.dual, 'RF_DUAL_EXTRUDER', ''),
+    d(s.dualcar, 'RF_DUAL_CARRIAGE', '', 'dual carriage, only one hotend (left, T0)'),
     d(true, 'RF_FILAMENT_DIA', s.fil, 'mm'),
-    d(true, 'RF_HOTEND', 'RF_HOTEND_' + (s.hotend || 'v2').toUpperCase(), 'V1, V2 (stock), V3 or E3D (thermistor table and PID like RF Repetier)'),
+    d(true, 'RF_HOTEND', 'RF_HOTEND_' + (s.hotend || 'v2').toUpperCase(), 'V1, V2 (stock), V3 or E3D at first start (menu / M3930 at runtime)'),
     d(true, 'RF_X_MAX', I(s.xmax), 'mm, X travel (RF Repetier X_MAX_LENGTH_PRINT)'),
     d(true, 'RF_Y_MAX', I(s.ymax), 'mm, Y travel (RF Repetier Y_MAX_LENGTH)'),
     d(true, 'RF_Z_MAX', I(s.zmax), 'mm, Z travel (RF Repetier Z_MAX_LENGTH)'),
     d(true, 'RF_E_STEPS', fmt(s.esteps), 'extruder steps/mm (32 microsteps)'),
-    d(s.dual, 'RF_T1_OFFSET_X', fmt(s.offx), 'mm, nozzle 2 (dual)'),
-    d(s.dual, 'RF_T1_OFFSET_Y', fmt(s.offy), 'mm'),
+    d(s.dual || s.dualcar, 'RF_T1_OFFSET_X', fmt(s.offx), s.dualcar ? 'mm, home X = minus this (dual carriage)' : 'mm, nozzle 2 (dual)'),
+    d(s.dual || s.dualcar, 'RF_T1_OFFSET_Y', fmt(s.offy), 'mm'),
     d(true, 'RF_PREHEAT_HOTEND', I(s.ftemp), 'C, preheat 1'),
     d(true, 'RF_PREHEAT_BED', I(s.fbed), 'C'),
     d(s.led, 'RF_RGB_LIGHT', '', 'RGB light (RF2000 / RF2000 v2)'),
@@ -1871,6 +1873,7 @@ function slicerText(s) {
 const FORM_DEFAULTS = {
  "v:pname": "RF2000v2",
  "r:ext": "single",
+ "c:dualcar": false,
  "v:model": "rf1000",
  "v:xmax": "",
  "v:ytravel": "",
