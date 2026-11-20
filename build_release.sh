@@ -23,5 +23,11 @@ sed "s/^VERSION=\"dev\"/VERSION=\"$VERSION\"/" installer/3dartmaker.sh > dist/3d
 bash -n dist/3dartmaker-install.sh
 chmod 755 dist/3dartmaker-install.sh
 grep -q "^VERSION=\"$VERSION\"" dist/3dartmaker-install.sh
+# Flash-Dateien fuer skipr_flash (vorher auf dev-it.de), Quelle ist skipr-update/files
+for f in flash_card board_defs.py mcu-build-config-skipr linux_process; do
+    install -m 644 "skipr-update/files/$f" "dist/$f"
+done
+install -m 755 skipr-flash/skipr_flash dist/skipr_flash
+bash -n dist/skipr_flash
 (cd dist && sha256sum -- * > SHA256SUMS)
 ls -l dist
