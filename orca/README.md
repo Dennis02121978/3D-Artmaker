@@ -16,6 +16,7 @@ Bett-Modell und Bett-Textur für den RF1000, RF2000 und RF2000 v2. In OrcaSlicer
    - Bei **Bed custom texture** auf **Load** klicken und `<Drucker>_texture.png` wählen.
    - Bei **Bed custom model** auf **Load** klicken und `<Drucker>_bed.stl` wählen.
 4. Das Druckerprofil speichern.
+5. Hast du eine Datei unter demselben Namen ersetzt, OrcaSlicer ganz beenden (Mac: Cmd+Q) und neu starten. Orca liest das Modell nur neu ein, wenn sich der Dateiname ändert.
 
 Je nach Version heißen die Felder etwas anders, oder sie stehen im Fenster hinter dem Knopf neben **Printable area**.
 
