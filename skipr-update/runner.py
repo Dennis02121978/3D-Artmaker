@@ -131,6 +131,26 @@ def clean_files():
     run(["git", "checkout", BOARD_DEFS], check=False)
 
 
+def build_host_helper():
+    """Baut klippy/chelper/c_helper.so, solange Klipper noch laeuft.
+
+    Klipper und flash_card bauen die Bibliothek selbst, wenn sich die C-Quellen
+    geaendert haben. Bricht dieser Bau ab, bleibt eine leere Datei zurueck, die
+    neuer ist als die Quellen. Dann baut niemand neu und Klipper und das Flashen
+    scheitern mit "file too short".
+    """
+    lib = os.path.join(c.KLIPPER, "klippy", "chelper", "c_helper.so")
+    if not simulate and os.path.exists(lib) and os.path.getsize(lib) == 0:
+        say("Leere c_helper.so gefunden, wird neu gebaut")
+        os.remove(lib)
+    code = ("import sys; sys.path.insert(0, 'klippy'); import chelper; "
+            "chelper.get_ffi(); print('c_helper.so OK')")
+    if run([c.HOME + "/klippy-env/bin/python", "-c", code], timeout=900, check=False):
+        if not simulate and os.path.exists(lib):
+            os.remove(lib)  # Halbe Datei nicht liegen lassen, sonst baut Klipper nie neu
+        raise Fail("c_helper.so konnte nicht gebaut werden")
+
+
 def flash():
     run(["cp", "board_defs.py", BOARD_DEFS])
     for attempt in range(1, FLASH_TRIES + 1):
@@ -162,6 +182,7 @@ def update():
         # fehlen neue Optionen wie WANT_I2C, WANT_BUTTONS oder WANT_NEOPIXEL.
         run(["make", "olddefconfig", "KCONFIG_CONFIG=mcu-build-config-skipr"])
         run(["make", "-j4", "KCONFIG_CONFIG=mcu-build-config-skipr"], timeout=1800)
+        build_host_helper()
 
         enter("stop")
         status["danger"] = True
