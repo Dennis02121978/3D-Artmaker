@@ -4,8 +4,8 @@
 Aufruf im Repo-Ordner:  python3 tools/make_orca_beds.py
 Ergebnis in orca/:      <Modell>_bed.stl und <Modell>_texture.png
 
-OrcaSlicer zieht die Textur auf die Druckflaeche (Printable area) und setzt das
-Modell mittig darunter. Die Masse kommen aus installer/rf_generator.js
+OrcaSlicer zieht die Textur auf die Druckflaeche (Printable area) und verschiebt
+das Modell um deren Mitte, die STL liegt deshalb um X/Y = 0. Die Masse kommen aus installer/rf_generator.js
 (Klipper, ein Extruder).
 """
 import os
@@ -36,6 +36,7 @@ LOGO_OPACITY = 0.45          # Logo halb durchsichtig, gedruckte Teile bleiben g
 MARGIN = 8.0                 # Rand der Platte um die Druckflaeche in mm
 THICK = 4.0
 RADIUS = 6.0
+TOP_GAP = 0.05              # Oberseite der Platte unter der Textur in mm
 
 
 def font(size):
@@ -98,18 +99,24 @@ def rounded_outline(x, y, r, steps=8):
 
 
 def stl(fname, x_mm, y_mm):
-    """Platte mit runden Ecken, Oberseite bei Z=0, mittig unter der Druckflaeche."""
+    """Platte mit runden Ecken, um X/Y = 0 zentriert.
+
+    OrcaSlicer verschiebt das Modell um die Mitte der Druckflaeche, die STL muss
+    deshalb um den Nullpunkt liegen. Die Oberseite liegt knapp unter Z=0, damit
+    sie nicht mit der Textur flimmert.
+    """
     sx, sy = x_mm + 2 * MARGIN, y_mm + 2 * MARGIN
-    ring = [(px - MARGIN, py - MARGIN) for px, py in rounded_outline(sx, sy, RADIUS)]
-    cx, cy = x_mm / 2, y_mm / 2
+    ring = [(px - sx / 2, py - sy / 2) for px, py in rounded_outline(sx, sy, RADIUS)]
+    cx, cy = 0.0, 0.0
+    top, bot = -TOP_GAP, -TOP_GAP - THICK
     tris = []
     n = len(ring)
     for i in range(n):
         a, b = ring[i], ring[(i + 1) % n]
-        top_a, top_b = (a[0], a[1], 0.0), (b[0], b[1], 0.0)
-        bot_a, bot_b = (a[0], a[1], -THICK), (b[0], b[1], -THICK)
-        tris.append(((cx, cy, 0.0), top_a, top_b))            # Deckel
-        tris.append(((cx, cy, -THICK), bot_b, bot_a))         # Boden
+        top_a, top_b = (a[0], a[1], top), (b[0], b[1], top)
+        bot_a, bot_b = (a[0], a[1], bot), (b[0], b[1], bot)
+        tris.append(((cx, cy, top), top_a, top_b))            # Deckel
+        tris.append(((cx, cy, bot), bot_b, bot_a))         # Boden
         tris.append((bot_a, bot_b, top_b))                    # Seite
         tris.append((bot_a, top_b, top_a))
     path = os.path.join(OUT, fname + "_bed.stl")
