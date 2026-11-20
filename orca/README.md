@@ -2,6 +2,8 @@
 
 Bett-Modell und Bett-Textur für den RF1000, RF2000 und RF2000 v2. In OrcaSlicer siehst du dann statt der leeren Platte ein Bett mit Raster (10 mm, alle 50 mm beschriftet), dem 3D-Artmaker-Logo und dem Druckernamen.
 
+Vor dem Bett sitzt die Vorderfront des Druckers: eine schräge Blende mit Endkappen, Display mit 3D-Artmaker-Logo, OLED, vier Schrauben und dem ausgeschnittenen Schriftzug „3D - Artmaker“. OrcaSlicer zeigt das Modell einfarbig, Logo und Schrift sind deshalb als Relief mit abgeschrägten Kanten geformt und über Licht und Schatten zu sehen.
+
 | Drucker | Textur | Modell | Druckfläche |
 |---|---|---|---|
 | RF1000 | [RF1000_texture.png](RF1000_texture.png) | [RF1000_bed.stl](RF1000_bed.stl) | 240 x 245 mm |
