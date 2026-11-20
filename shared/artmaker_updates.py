@@ -28,7 +28,12 @@ def install_folder(user, folder, seed):
     """Moonraker aktualisiert diesen Ordner. Eine neuere Version von dort bleibt erhalten."""
     target = os.path.join(home(user), folder)
     current = read_version(target)
-    if current and subprocess.run(["dpkg", "--compare-versions", current, "ge", read_version(seed)]).returncode == 0:
+    try:
+        page_ok = os.path.getsize(os.path.join(target, "index.html")) > 0
+    except OSError:
+        page_ok = False
+    # Leere Dateien (z. B. nach Stromausfall kurz nach dem Schreiben) immer ersetzen
+    if current and page_ok and subprocess.run(["dpkg", "--compare-versions", current, "ge", read_version(seed)]).returncode == 0:
         return
     shutil.rmtree(target, ignore_errors=True)
     shutil.copytree(seed, target)
@@ -38,6 +43,8 @@ def install_folder(user, folder, seed):
         path = os.path.join(target, name)
         os.chmod(path, 0o644)
         shutil.chown(path, user, user)
+    # Sofort auf die SD-Karte schreiben, sonst bleiben bei Stromausfall leere Dateien
+    os.sync()
 
 
 def remove_folder(user, folder):
