@@ -96,6 +96,9 @@ function stateFrom(f) {
   const yoff = Math.max(0, num('yhome', 5));   // Duese am Y-Schalter vor dem Bett (Marlin: nur Slicer)
   const yhome = marlin ? 0 : yoff, ymax = ytravel - yhome;
   const useOff = dual || dualcar;
+  // Dual-Schlitten: am X-Schalter steht die linke Duese (T0) auf X 0, die rechte auf X = Versatz.
+  // T0 erreicht X 0..xmax-Versatz, T1 Versatz..xmax (xmax = Breite, die beide Duesen zusammen erreichen).
+  const t0xmax = useOff ? Math.round((xmax - Math.abs(num('offx', 35))) * 100) / 100 : xmax;
   // Mehrere Drucker an einem Pi (Paket rf-multi): Drucker 2 bis 4 haben einen eigenen Ordner. SKIPR: immer einer.
   const pcount = skipr ? 1 : Math.min(4, Math.max(1, parseInt(f.pcount, 10) || 1));
   const pnum = pcount === 1 ? 1 : Math.min(pcount, Math.max(1, parseInt(f.pnum, 10) || 1));
@@ -104,7 +107,7 @@ function stateFrom(f) {
   const ms = MICROSTEPS_E[board];
   return {
     board, skipr, twoin1, microsteps: ms,
-    dual, dualcar, model: NAMES[mkey], mkey, marlin, esteps: num('esteps', 280), xmax, ymax, ytravel, zmax,
+    dual, dualcar, t0xmax, model: NAMES[mkey], mkey, marlin, esteps: num('esteps', 280), xmax, ymax, ytravel, zmax,
     meshy: Math.min(MESHY[mkey] || ymax - 5, ymax - 5),
     pcount, pnum, pname, dataDir: pnum === 1 ? 'printer_data' : `printer_${pname}_data`,
     mport: 7124 + pnum, wport: pnum === 1 ? 80 : 79 + pnum, rfdisp: !skipr && c('rfdisp'),
@@ -389,7 +392,8 @@ microsteps: 32
 endstop_pin: ${P.xstop}
 position_endstop: 0
 position_min: 0
-position_max: ${fmt(s.xmax)}
+${s.dual ? `# Dual: linke Duese (T0) X 0..${fmt(s.t0xmax)}, rechte Duese (T1) X ${fmt(Math.abs(s.offx))}..${fmt(s.xmax)} (X max minus Versatz)
+` : ''}position_max: ${fmt(s.dual ? s.t0xmax : s.xmax)}
 homing_speed: 40.0
 second_homing_speed: 10.0
 
@@ -567,7 +571,7 @@ stiffness = 6200
 speed: 100
 horizontal_move_z: 2
 mesh_min: 10,50
-mesh_max: ${fmt(s.xmax)},${fmt(s.meshy)}
+mesh_max: ${fmt(s.dual ? s.t0xmax : s.xmax)},${fmt(s.meshy)}
 algorithm: ${s.model === 'RF2000 v2' ? 'bicubic' : 'lagrange'}
 probe_count: ${s.model === 'RF2000 v2' ? '6,9' : '5,5'}
 fade_start: 1.0
@@ -934,11 +938,11 @@ ${led(1, 0.2353, 0.8824)}
 
     # Prime Line (Menge auf ${s.fil} mm Filament umgerechnet): rechts nach links bei Y3,
     # 1 mm versetzt bei Y4 wieder zurueck, damit mehr Material durch die Duese geht
-    G1 X${Math.min(180, s.xmax - 20)} Y3 Z0.35 F5000
+    G1 X${Math.min(180, s.t0xmax - 20)} Y3 Z0.35 F5000
     G1 F800 E${prime1}
     G1 X20 E${prime2} F1000
     G1 Y4 F1000
-    G1 X${Math.min(180, s.xmax - 20)} E${prime3} F1000
+    G1 X${Math.min(180, s.t0xmax - 20)} E${prime3} F1000
 
     G92 E0
 
@@ -1763,11 +1767,11 @@ gcode:
 
     # Prime Line (Menge auf ${s.fil} mm Filament umgerechnet): rechts nach links bei Y3,
     # 1 mm versetzt bei Y4 wieder zurueck, damit mehr Material durch die Duese geht
-    G1 X${Math.min(180, s.xmax - 20)} Y3 Z0.35 F5000
+    G1 X${Math.min(180, s.t0xmax - 20)} Y3 Z0.35 F5000
     G1 F800 E${prime1}
     G1 X20 E${prime2} F1000
     G1 Y4 F1000
-    G1 X${Math.min(180, s.xmax - 20)} E${prime3} F1000
+    G1 X${Math.min(180, s.t0xmax - 20)} E${prime3} F1000
 
     G92 E0
 
