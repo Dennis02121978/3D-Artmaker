@@ -33,4 +33,8 @@ fi
 IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo "System-Terminal ist installiert: Mainsail neu laden oder http://$IP/terminal/ oeffnen."
 [ "$DEFERRED" = 1 ] && echo "Offene Sitzungen im System-Terminal laufen weiter. Die neue Version startet, sobald alle abgemeldet sind."
+
+# Sofort auf die SD-Karte schreiben: Bei Stromausfall kurz nach der Installation
+# blieben sonst leere Dateien zurueck (z. B. /etc/sudoers.d/skipr-update).
+sync
 exit 0
