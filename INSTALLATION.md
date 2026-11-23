@@ -566,6 +566,16 @@ Aktualisierst du Pakete im System Terminal selbst (zum Beispiel mit `3DArtmaker-
 
 Das Design gibt Mainsail die Farben des 3D-Artmaker Logos (Marineblau, blauer Akzent) und setzt das Logo in die Seitenleiste. Es ist ein reiner Ordner `.theme` im Config-Ordner des Druckers, kein Paket. Die Menüpunkte **System Terminal** und **Firmware-Update** bleiben erhalten. Die Seiten Firmware-Update, System Terminal und Filament haben die Farben schon ab Version 1.7.4 im Paket.
 
+So sieht Mainsail mit dem Design aus:
+
+![Mainsail mit dem 3D-Artmaker Design](docs/design/01_mainsail.png)
+
+Die Seiten **Firmware-Update** und **System Terminal** haben dieselben Farben:
+
+![Firmware-Update im 3D-Artmaker Design](docs/design/02_firmware_update.png)
+
+![System Terminal im 3D-Artmaker Design](docs/design/03_system_terminal.png)
+
 **Am einfachsten:** `3DArtmaker-upgrade` ausführen (holt zuerst die neue Installer-Version), dann `3DArtmaker-install` starten. Bei der Config **Config nicht ändern** wählen und bei **Mainsail-Design** mit **Ja** antworten. Danach hält `3DArtmaker-upgrade` das Design in diesem Ordner aktuell.
 
 **Von Hand:**
@@ -598,6 +608,8 @@ Jedes installierte Paket hat in Mainsail einen eigenen Eintrag. Für Updates bra
 5. Lade die Seite danach mit **F5** neu.
 
 Starte Updates am besten nur, wenn kein Druck läuft.
+
+**Das Mainsail-Design** ist kein Paket und taucht deshalb nicht im Update Manager auf. Neue Versionen des Designs holt `3DArtmaker-upgrade`: Es ersetzt die Dateien in `.theme` in allen Druckerordnern, in denen das Design schon liegt, und lässt Ordner ohne Design in Ruhe. Danach lädst du Mainsail mit **Strg+F5** neu, damit der Browser die neuen Farben und das Logo nicht aus dem Zwischenspeicher nimmt. Die Seiten Firmware-Update, System Terminal und Filament bekommen ihre Farben dagegen mit dem jeweiligen Paket, also über den Update Manager.
 
 | Eintrag | Was der Klick erneuert | Was du sonst noch tun musst |
 |---|---|---|
