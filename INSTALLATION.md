@@ -21,6 +21,7 @@ bash 3dartmaker-install.sh
 - Für den Generator braucht er quickjs (Debian 13: wird nur geladen, nicht installiert) oder Node.js (ältere Systeme: er fragt vor der Installation).
 - Mit `bash 3dartmaker-install.sh --probe` siehst du nur, was er tun würde. Dabei wird nichts verändert.
 - Danach gibt es den Befehl **`3DArtmaker-upgrade`**. Er holt neue Versionen aller installierten 3D-Artmaker-Pakete, prüft Klipper und das Betriebssystem und fragt vor jedem Schritt.
+- Auf Wunsch spielt er das **Mainsail-Design** ein (Marineblau mit dem 3D-Artmaker Logo, siehe [Mainsail-Design](#mainsail-design)). `3DArtmaker-upgrade` hält es dort aktuell, wo es schon liegt.
 - Protokoll: `~/3dartmaker-install.log`. Sicherungen der Config: `~/3dartmaker-backup/`.
 
 Was der Installer macht:
@@ -47,6 +48,7 @@ Möchtest du lieber jedes Paket einzeln installieren, geht das wie unten beschri
    - [3D-Artmaker BootScreen](#3d-artmaker-bootscreen)
    - [3D-Artmaker BootScreen Pi](#3d-artmaker-bootscreen-pi)
    - [System Terminal](#system-terminal)
+   - [Mainsail-Design](#mainsail-design)
 5. [Updates installieren](#5-updates-installieren)
 6. [Wenn etwas nicht klappt](#6-wenn-etwas-nicht-klappt)
 7. [Paket wieder entfernen](#7-paket-wieder-entfernen)
@@ -560,6 +562,23 @@ Aktualisierst du Pakete im System Terminal selbst (zum Beispiel mit `3DArtmaker-
 
 ---
 
+### Mainsail-Design
+
+Das Design gibt Mainsail die Farben des 3D-Artmaker Logos (Marineblau, blauer Akzent) und setzt das Logo in die Seitenleiste. Es ist ein reiner Ordner `.theme` im Config-Ordner des Druckers, kein Paket. Die Menüpunkte **System Terminal** und **Firmware-Update** bleiben erhalten. Die Seiten Firmware-Update, System Terminal und Filament haben die Farben schon ab Version 1.7.4 im Paket.
+
+**Am einfachsten:** `3DArtmaker-upgrade` ausführen (holt zuerst die neue Installer-Version), dann `3DArtmaker-install` starten. Bei der Config **Config nicht ändern** wählen und bei **Mainsail-Design** mit **Ja** antworten. Danach hält `3DArtmaker-upgrade` das Design in diesem Ordner aktuell.
+
+**Von Hand:**
+
+```bash
+cd ~
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.4/mainsail-theme.tar.gz
+echo "e5a8649628d6d7ea37e53a5283ae59ecb02ce4fc9994df01bad5ed6c5b9ad483  mainsail-theme.tar.gz" | sha256sum -c
+tar xzf mainsail-theme.tar.gz -C ~/printer_data/config/
+```
+
+Am Ende der Prüfung muss `OK` stehen. Bei einem weiteren Drucker nimmst du statt `printer_data` den Ordner `printer_<Name>_data`. Lade Mainsail danach mit **Strg+F5** neu. Zusätzlich kannst du in Mainsail unter *Einstellungen → Oberfläche* die Primärfarbe `#2f6bff` eintragen.
+
 ### Fertig: Verbindung trennen
 
 Hast du alles installiert, gibst du das hier ein und schließt danach das Fenster:
@@ -711,6 +730,15 @@ sudo reboot
 sudo apt remove rf-bootlogo
 sudo reboot
 ```
+
+**Mainsail-Design:** Lösche nur die Design-Dateien und lass die `navi.json` stehen, sonst verschwinden auch die Menüpunkte System Terminal und Firmware-Update:
+
+```bash
+cd ~/printer_data/config/.theme
+rm -f custom.css logo.svg sidebar-logo.svg sidebar-background.svg favicon.png
+```
+
+Lade Mainsail danach mit **Strg+F5** neu.
 
 **System Terminal:**
 
