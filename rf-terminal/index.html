@@ -30,6 +30,8 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-height: 0;
+    overflow-y: auto;
   }
   .logo {
     background: #fff;
@@ -50,6 +52,18 @@
   .box p { margin: 0 0 8px; color: var(--muted); }
   .box p:last-child { margin-bottom: 0; }
   .box b { color: var(--text); }
+  .box code {
+    display: block;
+    margin-top: 10px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    background: var(--bg);
+    color: var(--text);
+    font: 13px/1.4 ui-monospace, Consolas, "Courier New", monospace;
+    overflow-wrap: anywhere;
+  }
+  .box code + p { margin-top: 4px; }
+  .box h2 { font-size: 14px; margin: 14px 0 0; }
   .btn {
     display: block;
     text-align: center;
@@ -117,6 +131,15 @@
     <p>Hier gibst du Befehle direkt auf dem Drucker ein, wie per SSH.</p>
     <p>Anmelden mit <b>Benutzer</b> und <b>Passwort</b> des Systems. Beim Tippen des Passworts siehst du nichts, das ist normal.</p>
     <p>Abmelden mit <b>exit</b>. <b>root</b> ist gesperrt, nutze <b>sudo</b>.</p>
+  </div>
+  <div class="box">
+    <h1>3D-Artmaker Befehle</h1>
+    <code>3DArtmaker-upgrade</code>
+    <p>Pakete, Mainsail-Design und Klipper prüfen und aktualisieren.</p>
+    <code>3DArtmaker-install</code>
+    <p>Installer: Config erzeugen, Pakete und Design wählen. <b>--probe</b> zeigt nur, was er täte.</p>
+    <code>sudo rf-multi</code>
+    <p>Weiteren Drucker einrichten. Auch: <b>list</b> und <b>remove NAME</b>.</p>
   </div>
   <a class="btn" href="/">Zurück zu Mainsail</a>
   <a class="btn ghost" href="https://3d-artmaker.de" target="_blank" rel="noopener">Forum 3d-artmaker.de</a>
