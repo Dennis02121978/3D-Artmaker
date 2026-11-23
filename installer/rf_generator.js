@@ -1138,6 +1138,7 @@ gcode:
 
 [gcode_macro bed_calibrate]
 gcode:
+    G28
     G0 Z10
     G0 X100 Y100
     G0 Z2
