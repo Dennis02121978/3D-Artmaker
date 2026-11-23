@@ -529,8 +529,11 @@ PY
     if [ "$BOARD" = skipr ]; then
         ask_bool c:led "LED" "Ist ein LED-Streifen (Neopixel an PC5, 10 LEDs) angeschlossen?\n\nDann kommen led_progress.cfg und die Makros Licht_an / Licht_aus dazu."
     else
-        [ "$MODEL" != rf1000 ] && ask_bool c:led "LED" "Hat dein Drucker die RGB-LED?\n\nDann kommt rf_led.cfg dazu: Licht wie in der RF-Firmware und LED-Signale beim Firmware-Update."
-        ask_bool c:rfdisp "Display" "Display und Menü wie in der RF-Firmware (rf_display.cfg)?\n\nStartseiten, Menü und Meldung beim Firmware-Update wie unter Repetier."
+        # RGB-LED (rf_led.cfg) gehört bei RF2000 und RF2000 v2 immer dazu, der RF1000 hat keine
+        if [ "$MODEL" = rf1000 ]; then fset c:led nein; else fset c:led ja; fi
+        # Display und Menü (rf_display.cfg) gehören beim ATmega2560 immer dazu, ohne Nachfrage:
+        # Der Firmware-Updater zeigt seine Meldung über RF_DISPLAY_SIGNAL aus dieser Datei.
+        fset c:rfdisp ja
     fi
 
     # Seite Hotend: Duese, Extruder-Schritte, Duesenversatz
@@ -781,9 +784,84 @@ PY
     fi
 }
 
+# Config "nicht ändern": Beim ATmega2560 fehlen Display-Menü und Update-Meldung (rf_display.cfg)
+# und beim RF2000 / RF2000 v2 die RGB-LED (rf_led.cfg) oft in einer älteren Config. Die Dateien
+# und die Abschnitte [display], [save_variables], [led led] kommen aus dem Generator,
+# alles andere in der printer.cfg bleibt.
+ensure_rf_display() {
+    [ "$BOARD" = atmega ] || return 0
+    local c="$KHOME/$TARGET_DIR/config"
+    [ -f "$c/printer.cfg" ] || return 0
+    local want_led=0 have_disp=0 have_led=1
+    [ "$MODEL" != rf1000 ] && want_led=1
+    if [ -f "$c/rf_display.cfg" ] && grep -qs '^\[include rf_display.cfg\]' "$c/printer.cfg" \
+       && grep -qs 'RF_DISPLAY_SIGNAL' "$c/rf_display.cfg"; then have_disp=1; fi
+    if [ "$want_led" = 1 ]; then
+        have_led=0
+        if [ -f "$c/rf_led.cfg" ] && grep -qs '^\[include rf_led.cfg\]' "$c/printer.cfg" \
+           && grep -qs '^\[led led\]' "$c/printer.cfg"; then have_led=1; fi
+    fi
+    [ "$have_disp" = 1 ] && [ "$have_led" = 1 ] && return 0
+    head1 "Display-Menü, Update-Meldung und LED ergänzen (rf_display.cfg, rf_led.cfg)"
+    prepare_generator
+    FORM="$WORK/form.json"
+    gen defaults "$BOARD" "$EXTR" "$MODEL" > "$FORM" 2>>"$LOG" || { warn "Display-Vorgaben konnten nicht erzeugt werden (siehe $LOG)"; return 0; }
+    fset board "$BOARD"; fset fw klipper; fset pcount "$PCOUNT"; fset pnum "$PNUM"
+    [ -n "$PNAME" ] && fset v:pname "$PNAME"
+    fset r:fil "$FIL"; fset c:rfdisp ja
+    if [ "$want_led" = 1 ]; then fset c:led ja; else fset c:led nein; fi
+    gen generate "$FORM" "$WORK/gen" > "$WORK/gen.list" 2>>"$LOG" || { warn "Display-Config konnte nicht erzeugt werden (siehe $LOG)"; return 0; }
+    chmod -R a+rX "$WORK"
+    [ -f "$WORK/gen/rf_display.cfg" ] && [ -f "$WORK/gen/printer.cfg" ] || { warn "Generator hat keine rf_display.cfg geliefert"; return 0; }
+    [ "$want_led" = 1 ] && [ ! -f "$WORK/gen/rf_led.cfg" ] && { warn "Generator hat keine rf_led.cfg geliefert"; return 0; }
+    backup_config
+    local tmp="$WORK/printer.patched"
+    if python3 - "$c/printer.cfg" "$WORK/gen/printer.cfg" "$tmp" "$want_led" <<'PY'
+import re, sys
+old, new, out, want_led = sys.argv[1:5]
+O = open(old, encoding="utf-8").read().split("\n")
+N = open(new, encoding="utf-8").read().split("\n")
+def head(l): return l.strip().lower()
+def is_start(l): return re.match(r"\[[^\]]+\]\s*$", l) is not None
+def is_end(l): return is_start(l) or l.startswith("#*# <")
+def section(lines, name):          # (von, bis) der Zeilen oder None
+    for i, l in enumerate(lines):
+        if head(l) == name:
+            j = i + 1
+            while j < len(lines) and not is_end(lines[j]): j += 1
+            return i, j
+    return None
+names = ["[display]", "[save_variables]"] + (["[led led]"] if want_led == "1" else [])
+includes = ["[include rf_display.cfg]"] + (["[include rf_led.cfg]"] if want_led == "1" else [])
+for name in names:
+    s = section(N, name)
+    if not s: continue
+    body = N[s[0]:s[1]]
+    while body and not body[-1].strip(): body.pop()
+    body.append("")
+    o = section(O, name)
+    if o: O[o[0]:o[1]] = body
+    else:
+        k = next((i for i, l in enumerate(O) if l.startswith("#*# <")), len(O))
+        O[k:k] = body
+for line in includes:
+    if not any(head(l) == line for l in O):
+        inc = [i for i, l in enumerate(O) if l.lower().startswith("[include ")]
+        O.insert(inc[-1] + 1 if inc else 0, line)
+open(out, "w", encoding="utf-8").write("\n".join(O))
+PY
+    then
+        urun cp -f "$WORK/gen/rf_display.cfg" "$c/rf_display.cfg"
+        [ "$want_led" = 1 ] && urun cp -f "$WORK/gen/rf_led.cfg" "$c/rf_led.cfg"
+        urun cp -f "$tmp" "$c/printer.cfg"
+        ok "rf_display.cfg$([ "$want_led" = 1 ] && echo ' und rf_led.cfg') ergänzt, printer.cfg angepasst (Sicherung in ~/3dartmaker-backup)"
+        CONFIG_CHANGED=1
+    else warn "printer.cfg konnte nicht angepasst werden, nichts geändert"; fi
+}
+
 apply_config() {
     case "$CONFIG_CHOICE" in
-        keep|"") return 0 ;;
+        keep|"") ensure_rf_display; return 0 ;;
         gen) install_generated; return 0 ;;
         creator)
             head1 "Config aus dem Config Creator einspielen"
