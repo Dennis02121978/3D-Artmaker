@@ -15,6 +15,8 @@ for p in $PACKAGES; do
 done
 (cd config && python3 -m zipfile -c ../dist/RF2000v2_DualExtruder.zip RF2000v2_DualExtruder)
 (cd config && python3 -m zipfile -c ../dist/RF2000_DualExtruder_3mm.zip RF2000_DualExtruder_3mm)
+# Mainsail-Design (Ordner .theme), vom Installer und von 3DArtmaker-upgrade eingespielt
+tar czf dist/mainsail-theme.tar.gz -C mainsail-theme .theme
 # Installer mit eingetragener Version (3DArtmaker-upgrade vergleicht damit)
 sed "s/^VERSION=\"dev\"/VERSION=\"$VERSION\"/" installer/3dartmaker.sh > dist/3dartmaker-install.sh
 # Config-Generator des Config Creators hinten anhaengen (nach "exit", wird vom Installer ausgelesen)

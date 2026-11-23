@@ -1,0 +1,49 @@
+/* 3D-Artmaker Design für Mainsail: Marineblau aus dem Logo, Akzent in kräftigem Blau.
+   Ordner .theme gehört nach ~/printer_data/config/ (bei mehreren Druckern in deren config-Ordner). */
+:root {
+  --am-bg:      #0b1226;   /* Seitenhintergrund */
+  --am-card:    #121d3a;   /* Karten, Panels */
+  --am-card-2:  #19284d;   /* Kopfzeilen, Hover */
+  --am-line:    #26386b;   /* Linien */
+  --am-accent:  #2f6bff;   /* Akzent (Logo-Blau, aufgehellt für dunklen Grund) */
+  --am-accent-2:#5b8dff;
+  --am-text:    #e8edf9;
+  --am-muted:   #9aa8cc;
+}
+
+/* Hintergrund und Karten */
+.theme--dark.v-application { background: var(--am-bg) !important; color: var(--am-text); }
+.theme--dark.v-sheet, .theme--dark.v-card, .theme--dark.v-list,
+.theme--dark.v-expansion-panels .v-expansion-panel, .theme--dark.v-data-table,
+.theme--dark.v-tabs-items, .theme--dark.v-menu__content { background-color: var(--am-card) !important; }
+.theme--dark.v-sheet--outlined, .theme--dark.v-card--outlined { border-color: var(--am-line) !important; }
+.theme--dark.v-divider, .theme--dark.v-data-table tbody tr:not(:last-child) td { border-color: var(--am-line) !important; }
+.theme--dark.v-card > .v-toolbar, .theme--dark.v-toolbar.v-sheet, .theme--dark.v-card .v-card__title { background-color: var(--am-card-2) !important; }
+.theme--dark.v-data-table tbody tr:hover:not(.v-data-table__expanded__content) { background: var(--am-card-2) !important; }
+
+/* Kopfleiste */
+.theme--dark.v-app-bar.v-toolbar.v-sheet { background-color: var(--am-card) !important; border-bottom: 2px solid var(--am-accent); }
+
+/* Seitenleiste: Verlauf kommt aus sidebar-background.svg, Eintrag aktiv in Akzentfarbe */
+.theme--dark.v-navigation-drawer { background-color: #0d1a36 !important; border-right: 1px solid var(--am-line); }
+.theme--dark.v-navigation-drawer .v-list-item--active { background: linear-gradient(90deg, rgba(47,107,255,.30), rgba(47,107,255,.05)) !important; border-left: 3px solid var(--am-accent); color: #fff !important; }
+.theme--dark.v-navigation-drawer .v-list-item--active .v-icon { color: var(--am-accent-2) !important; }
+.theme--dark.v-navigation-drawer .v-list-item:hover { background: var(--am-card-2) !important; }
+
+/* Schaltflächen, Schalter, Fortschritt und Slider in der Akzentfarbe */
+.theme--dark.v-btn.primary, .v-btn.primary, .primary { background-color: var(--am-accent) !important; border-color: var(--am-accent) !important; }
+.primary--text, .theme--dark .primary--text { color: var(--am-accent-2) !important; caret-color: var(--am-accent-2) !important; }
+.v-progress-linear__determinate, .v-progress-linear__indeterminate, .v-slider__track-fill, .v-slider__thumb { background-color: var(--am-accent) !important; }
+.v-input--switch.v-input--is-dirty .v-input--switch__thumb, .v-input--selection-controls.v-input--is-dirty .v-icon { color: var(--am-accent-2) !important; }
+.v-input--switch.v-input--is-dirty .v-input--switch__track { color: var(--am-accent) !important; }
+.theme--dark.v-tabs .v-tab--active, .theme--dark.v-tabs .v-tabs-slider { color: var(--am-accent-2) !important; }
+.v-tabs-slider-wrapper { color: var(--am-accent) !important; }
+a, .theme--dark a:not(.v-btn):not(.v-list-item) { color: var(--am-accent-2); }
+
+/* Texte und Eingabefelder */
+.theme--dark.v-label, .theme--dark .text--secondary { color: var(--am-muted) !important; }
+.theme--dark.v-text-field > .v-input__control > .v-input__slot:before { border-color: var(--am-line) !important; }
+.theme--dark.v-text-field--outlined fieldset { border-color: var(--am-line) !important; }
+
+/* Logo oben in der Seitenleiste */
+.sidebar-logo img, .v-navigation-drawer .v-image { filter: drop-shadow(0 2px 6px rgba(0,0,0,.45)); }

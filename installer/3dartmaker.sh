@@ -379,6 +379,7 @@ summary_text() {
     t="Drucker:   $m, $e, ${FIL/./,} mm\nBoard:     $b\nFirmware:  Klipper\n"
     t+="Pakete:    $(echo ${PKGS:-keine})\nConfig:    $c\n"
     [ "$TARGET_DIR" != printer_data ] && t+="Ordner:    ~/$TARGET_DIR\n"
+    [ "$THEME" = 1 ] && t+="Design:    3D-Artmaker Design für Mainsail\n"
     [ "$CONFIG_CHOICE" = gen ] && t+="$(config_summary)\n"
     [ "$BOARD" = atmega ] && [ "$FORK" = 0 ] && t+="Klipper:   auf den RF-Fork umstellen\n"
     t+="Befehl:    3DArtmaker-upgrade wird angelegt\n"
@@ -880,6 +881,60 @@ apply_config() {
 }
 CONFIG_CHANGED=0
 
+# ---------------------------------------------------------------- Mainsail-Design
+# Ordner .theme im Config-Ordner des Druckers (Release-Datei mainsail-theme.tar.gz).
+# Die navi.json mit den Menüpunkten der Pakete bleibt unberührt.
+THEME=0
+THEME_FILES="custom.css logo.svg sidebar-logo.svg sidebar-background.svg favicon.png"
+
+theme_dirs() {   # Datenordner (printer_data, printer_*_data), in denen unser Design liegt
+    local d
+    for d in "$KHOME/printer_data" "$KHOME"/printer_*_data; do
+        grep -qs '3D-Artmaker Design' "$d/config/.theme/custom.css" && echo "$d"
+    done
+    return 0
+}
+
+theme_fetch() {   # laedt mainsail-theme.tar.gz und entpackt nach $WORK/theme
+    [ -d "$WORK/theme/.theme" ] && return 0
+    release_download mainsail-theme.tar.gz
+    mkdir -p "$WORK/theme" && tar xzf "$WORK/mainsail-theme.tar.gz" -C "$WORK/theme" || return 1
+    chmod -R a+rX "$WORK/theme"
+}
+
+theme_copy() {   # Datenordner
+    local d="$1" f
+    urun mkdir -p "$d/config/.theme"
+    for f in $THEME_FILES; do urun cp -f "$WORK/theme/.theme/$f" "$d/config/.theme/$f"; done
+}
+
+choose_theme() {
+    [ "$HAS_MAINSAIL" = 1 ] || return 0
+    ui_yesno "Mainsail-Design" "3D-Artmaker Design für Mainsail einspielen?\n\nMarineblau mit dem 3D-Artmaker Logo, Ordner ~/$TARGET_DIR/config/.theme. Die Menüpunkte (System Terminal, Firmware-Update) bleiben.\nEntfernen: Ordner .theme löschen.\n3DArtmaker-upgrade hält das Design aktuell." && THEME=1
+    return 0
+}
+
+install_theme() {
+    [ "$THEME" = 1 ] || return 0
+    head1 "Mainsail-Design"
+    theme_fetch || { warn "Design konnte nicht geladen werden, übersprungen"; return 0; }
+    theme_copy "$KHOME/$TARGET_DIR"
+    ok "Design eingespielt nach ~/$TARGET_DIR/config/.theme (Mainsail mit Strg+F5 neu laden)"
+}
+
+upgrade_theme() {   # nur, wo das Design schon liegt
+    local dirs d f same
+    dirs=$(theme_dirs); [ -n "$dirs" ] || return 0
+    head1 "Mainsail-Design"
+    theme_fetch || { warn "Design konnte nicht geladen werden, übersprungen"; return 0; }
+    for d in $dirs; do
+        same=1
+        for f in $THEME_FILES; do cmp -s "$WORK/theme/.theme/$f" "$d/config/.theme/$f" || same=0; done
+        if [ "$same" = 1 ]; then ok "~/${d##*/}: Design ist aktuell"
+        else theme_copy "$d"; ok "~/${d##*/}: Design aktualisiert (Mainsail mit Strg+F5 neu laden)"; fi
+    done
+}
+
 restart_klipper() {
     [ "$CONFIG_CHANGED" = 1 ] || return 0
     if printer_busy; then warn "Gerade läuft ein Druck. Klipper bitte nach dem Druck neu starten."; return; fi
@@ -931,6 +986,8 @@ do_upgrade() {
         if ui_yesno "Updates" "${#todo[@]} Paket(e) auf $v aktualisieren?\n\n  ${todo[*]}"; then install_packages "${todo[@]}"; fi
     else ok "Alle 3D-Artmaker-Pakete sind aktuell"; fi
 
+    upgrade_theme
+
     if [ -d "$KHOME/klipper/.git" ] && [ "$FORK" = 1 ]; then
         head1 "Klipper (RF-Fork)"
         as_user git -C "$KHOME/klipper" fetch -q origin 2>/dev/null || warn "git fetch für Klipper fehlgeschlagen"
@@ -961,6 +1018,7 @@ do_install() {
     ensure_klipper_base
     choose_packages
     choose_config
+    choose_theme
     ui_yesno "Zusammenfassung" "$(summary_text)\nSo installieren?" || { say "Abgebrochen."; exit 0; }
     need_sudo
     switch_fork
@@ -968,6 +1026,7 @@ do_install() {
     install_packages $PKGS
     apply_config
     restart_klipper
+    install_theme
     install_commands
     local next="Fertig!\n\n"
     next+="• Lade Mainsail im Browser mit F5 neu.\n"
