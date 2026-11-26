@@ -638,7 +638,9 @@ seek_limit: 210
 1. Bett **nicht** ganz unten: `QUERY_ENDSTOPS` in der Mainsail-Konsole muss `z_max:open` melden.
 2. Schalter von Hand gedrückt halten (oder Bett steht unten): Jetzt muss `z_max:TRIGGERED` erscheinen.
 
-Am Drucker gemessen: Beim RF2000 v2 löste der Schalter bei **Z 184,11** aus, beim RF2000 bei **Z 189,72**. Das kann bei deinem Drucker etwas anders sein, die Meldung in der Konsole zeigt den Wert. Liegt er unter deiner Druckhöhe im Slicer, stelle dort eine etwas kleinere Höhe ein, beim gemessenen v2 höchstens 184 mm.
+Am Drucker gemessen: Beim RF2000 v2 löste der Schalter bei **Z 184,11** aus, beim RF2000 bei **Z 189,72**. Das kann bei deinem Drucker etwas anders sein, die Meldung in der Konsole zeigt den Wert.
+
+**RF2000 v2: Z max 180 mm (ab 1.7.10).** Neue Configs haben `position_max: 180`, damit keine normale Fahrt den Schalter erreicht. Die Druckhöhe im Slicer ist dann **175 mm**. `3DArtmaker-upgrade` ändert vorhandene Werte nicht. In einer vorhandenen v2-Config änderst du **beides zusammen**: in der `printer.cfg` unter `[stepper_z]` `position_max: 180` und in der `macros.cfg` in `PRINT_END` die zwei Zeilen mit `185` auf `175`. Änderst du nur das Erste, bricht `PRINT_END` mit „Move out of range“ ab.
 
 ### MKS SKIPR
 

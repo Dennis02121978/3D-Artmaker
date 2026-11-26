@@ -13,7 +13,7 @@ Drucker gemessen. Diese bitte kalibrieren.
 |---|---|---|
 | Printable area | 200 x 290 mm | Maximaler Fahrweg X 200 mm und Y 290 mm (`position_max`), Ursprung 0 / 0 = vordere linke Ecke des Betts |
 | Bed exclude area | `0x0,200x0,200x15,0x15` | Vorderer Streifen 15 mm für die Prime Line, bedruckbar bleiben 200 x 275 mm |
-| Printable height | 185 mm | `position_max` Z ist 190 mm, 5 mm Reserve für Z-Hop und Parken |
+| Printable height | 175 mm | `position_max` Z ist 180 mm, 5 mm Reserve für Z-Hop und Parken |
 | G-code flavor | Klipper | |
 | Use relative E distances | an | |
 | Use firmware retraction | aus | Es gibt kein `[firmware_retraction]` |

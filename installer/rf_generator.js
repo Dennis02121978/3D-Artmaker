@@ -25,12 +25,14 @@ const NAMES = { rf1000: 'RF1000', rf2000: 'RF2000', rf2000v2: 'RF2000 v2' };
 // Z max bei allen Modellen 190 mm: 10 mm Reserve unter dem Fahrweg (200 mm), weil Klipper Z beim Homing
 // zuerst von der Duese wegfaehrt (z_hop) und die Achse dabei nicht an das Ende fahren darf
 const ZMAX = 190;
+// Ausnahme RF2000 v2: Der Z-Max-Schalter loest schon bei etwa Z 184 aus, deshalb nur 180 mm
+const ZMAX_MODEL = { rf2000v2: 180 };
 // Marlin RFxxxx: Bauraum wie RF Repetier (RF1000.h / RF2000.h / RF2000v2.h), 0 = Schalter
 const SIZES_MARLIN = {
   single: { rf1000: [240, 245, false], rf2000: [240, 245, true], rf2000v2: [230, 290, true] },
   dual:   { rf1000: [200, 245, false], rf2000: [200, 245, true], rf2000v2: [170, 290, true] }
 };
-const ZMAX_MARLIN = { rf1000: 200, rf2000: 200, rf2000v2: 185 };
+const ZMAX_MARLIN = { rf1000: 200, rf2000: 200, rf2000v2: 180 };
 
 const fmt = n => String(Math.round(n * 1000) / 1000);
 // Zeile(n) nur ausgeben, wenn Bedingung wahr
@@ -59,7 +61,7 @@ function modelDefaults(board, marlin, ext, m) {
   }
   const e = ext === 'dual' ? 'dual' : 'single';
   const sz = (marlin ? SIZES_MARLIN : SIZES)[e][m];
-  const d = { xmax: sz[0], ytravel: sz[1], led: sz[2], zmax: marlin ? ZMAX_MARLIN[m] : ZMAX, rfdisp: true, zmin: ZMIN[m],
+  const d = { xmax: sz[0], ytravel: sz[1], led: sz[2], zmax: marlin ? ZMAX_MARLIN[m] : (ZMAX_MODEL[m] || ZMAX), rfdisp: true, zmin: ZMIN[m],
               yhome: (marlin ? YHOME_MARLIN : YHOME)[m], yfront: marlin ? 5 : YFRONT[m] };
   if (marlin) { const o = MOFF[m] || MOFF.rf2000v2; d.offx = o[0]; d.offy = o[1]; }
   return d;

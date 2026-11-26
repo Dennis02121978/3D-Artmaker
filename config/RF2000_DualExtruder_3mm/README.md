@@ -27,7 +27,7 @@ Das ist die Config für einen Renkforce RF2000 mit zwei Extrudern, 3-mm-Filament
 | Sperrbereich vorne im Slicer | 15 mm (`0x0,200x0,200x15,0x15`) | 15 mm |
 | Sense Offset Schwelle | 4000 (Vorgabe) | 500 (am Drucker eingestellt) |
 
-Z max ist bei allen Modellen 190 mm: Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), dafür bleiben 10 mm Reserve unter dem Fahrweg von 200 mm. `PRINT_END` fährt deshalb nur bis 185 mm.
+Z max ist beim RF1000 und RF2000 190 mm (RF2000 v2: 180 mm): Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), dafür bleiben 10 mm Reserve unter dem Fahrweg von 200 mm. `PRINT_END` fährt deshalb nur bis 185 mm.
 
 **Z-Max-Endstop (PH1):** Unten an der Z-Achse sitzt ein zweiter Endschalter, wie in der RF-Repetier-Firmware. Der Abschnitt `[rf_z_max]` in der `printer.cfg` wertet ihn aus (Modul `rf_z_max.py` aus dem Klipper-Fork, also erst Klipper aktualisieren und dann die Config):
 

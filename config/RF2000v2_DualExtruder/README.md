@@ -52,7 +52,7 @@ serial: /dev/serial/by-id/DEIN-NAME
 
 ## Z-Höhe
 
-Z max ist 190 mm, nicht 200 mm. Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), damit nichts kaputtgeht. Dafür bleiben 10 mm Reserve unter dem Fahrweg. `PRINT_END` fährt deshalb nur bis 185 mm. Die Druckhöhe in OrcaSlicer (185 mm, siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)) liegt darunter.
+Z max ist 180 mm: Der untere Z-Schalter löst beim RF2000 v2 schon bei etwa Z 184 aus (am Drucker gemessen: 184,11). Bis Z 180 erreicht keine normale Fahrt den Schalter, auch kein kleiner Schritt während eines Drucks. Nur „Objekt ausgeben“ fährt weiter bis zum Schalter. `PRINT_END` fährt bis 175 mm. Die Druckhöhe in OrcaSlicer ist 175 mm (siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)).
 
 **Z-Max-Endstop (PH1):** Unten an der Z-Achse sitzt ein zweiter Endschalter, wie in der RF-Repetier-Firmware. Der Abschnitt `[rf_z_max]` in der `printer.cfg` wertet ihn aus (Modul `rf_z_max.py` aus dem Klipper-Fork, also erst Klipper aktualisieren und dann die Config):
 
