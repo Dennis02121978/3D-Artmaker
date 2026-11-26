@@ -17,6 +17,7 @@ bash 3dartmaker-install.sh
 
 - Bedienung: Pfeiltasten zum Auswählen, **Leertaste** zum An- und Abwählen, **Enter** für Weiter. Vor jeder Änderung fragt der Installer nach.
 - Die Config erzeugt er mit **demselben Programmcode wie der Config Creator**: gleiche Fragen, gleiche Vorgaben, gleiche Dateien. Werte wie Maße oder Extruder-Schritte zeigt er als Liste. Einen Wert änderst du, indem du ihn auswählst und Enter drückst.
+- **Eine vorhandene `printer.cfg` bleibt erhalten (ab 1.7.8).** Vorausgewählt ist „Vorhandene Config behalten, nur Fehlendes ergänzen“: Dazu kommen nur fehlende Teile wie der Z-Max-Endstop (`[rf_z_max]`). Ersetzt wird die Datei nur, wenn du „Config erzeugen“ oder „ZIP“ wählst **und** die Rückfrage ausdrücklich mit Ja beantwortest (Vorgabe Nein, auch mit `--ja`). Fehlt das RF-Display-Menü oder beim RF2000 / v2 die LED, setzt der Installer dafür die Abschnitte `[display]`, `[save_variables]` und `[led led]` neu. `3DArtmaker-upgrade` fügt für den Z-Max-Endstop nur Zeilen hinzu.
 - Vorher sichert er den ganzen Config-Ordner nach `~/3dartmaker-backup/`. Gespeicherte Kalibrierwerte (SAVE_CONFIG: PID, Bed Mesh, Z-Endstop) übernimmt er auf Wunsch in die neue `printer.cfg`. Deine Antworten merkt er sich als Vorgabe für das nächste Mal.
 - Für den Generator braucht er quickjs (Debian 13: wird nur geladen, nicht installiert) oder Node.js (ältere Systeme: er fragt vor der Installation).
 - Mit `bash 3dartmaker-install.sh --probe` siehst du nur, was er tun würde. Dabei wird nichts verändert.

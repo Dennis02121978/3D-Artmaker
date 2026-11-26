@@ -365,9 +365,18 @@ choose_config() {
     CONFIG_CHOICE=$(ui_menu "Klipper-Config" "Woher soll die Klipper-Config kommen?\n\nDer Installer kann sie wie der Config Creator erzeugen. Er stellt dazu dieselben Fragen und sichert vorher den ganzen Config-Ordner.\n($CREATOR_URL)" "$def" \
         gen     "Config erzeugen (Fragen wie im Config Creator)" \
         creator "ZIP aus dem Config Creator (vorher in Mainsail hochladen)" \
-        keep    "Config nicht ändern") ; abort_if "$CONFIG_CHOICE"
+        keep    "Vorhandene Config behalten, nur Fehlendes ergänzen") ; abort_if "$CONFIG_CHOICE"
+    protect_printer_cfg
     [ "$CONFIG_CHOICE" = gen ] && ask_config
     return 0
+}
+
+# Eine vorhandene printer.cfg wird nur nach ausdruecklichem Ja ersetzt (Vorgabe Nein, auch mit --ja)
+protect_printer_cfg() {
+    [ "$CONFIG_CHOICE" != keep ] && [ -f "$KHOME/$TARGET_DIR/config/printer.cfg" ] || return 0
+    ui_yesno "printer.cfg ist schon da" "In ~/$TARGET_DIR/config gibt es schon eine printer.cfg.\n\nJA: Sie wird ERSETZT. Eigene Änderungen gehen verloren (die alte Config liegt danach in ~/3dartmaker-backup).\n\nNEIN: Sie bleibt erhalten, es wird nur Fehlendes ergänzt (Z-Max-Endstop, Display, LED).\n\nprinter.cfg ersetzen?" nein && return 0
+    CONFIG_CHOICE=keep
+    say "printer.cfg bleibt erhalten, es wird nur Fehlendes ergänzt."
 }
 
 summary_text() {
@@ -375,7 +384,7 @@ summary_text() {
     case "$BOARD" in atmega) b="Renkforce-Board (ATmega2560)" ;; skipr) b="MKS SKIPR" ;; esac
     case "$MODEL" in rf1000) m="RF1000" ;; rf2000) m="RF2000" ;; rf2000v2) m="RF2000 v2" ;; esac
     case "$EXTR" in single) e="Single" ;; dual) e="Dual (zwei Düsen)" ;; 2in1) e="2in1-Hotend" ;; esac
-    case "$CONFIG_CHOICE" in gen) c="erzeugen wie im Config Creator" ;; creator) c="ZIP aus dem Config Creator" ;; *) c="nicht ändern" ;; esac
+    case "$CONFIG_CHOICE" in gen) c="erzeugen wie im Config Creator" ;; creator) c="ZIP aus dem Config Creator" ;; *) c="behalten, nur Fehlendes ergänzen" ;; esac
     t="Drucker:   $m, $e, ${FIL/./,} mm\nBoard:     $b\nFirmware:  Klipper\n"
     t+="Pakete:    $(echo ${PKGS:-keine})\nConfig:    $c\n"
     [ "$TARGET_DIR" != printer_data ] && t+="Ordner:    ~/$TARGET_DIR\n"
@@ -1186,6 +1195,8 @@ do_install() {
     install_packages $PKGS
     apply_config
     restart_klipper
+    # Behaltene Config: den Z-Max-Endstop dazu eintragen (RF2000 / RF2000 v2)
+    [ "$CONFIG_CHOICE" = keep ] && upgrade_zmax
     install_theme
     install_commands
     local next="Fertig!\n\n"
