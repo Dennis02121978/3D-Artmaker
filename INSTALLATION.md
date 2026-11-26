@@ -11,7 +11,7 @@ Der Installer prüft dein System, stellt dieselben Fragen wie der [Config Creato
 ```bash
 cd ~
 wget -q --show-progress -O 3dartmaker-install.sh https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/3dartmaker-install.sh
-echo "ec699263c4c1c71cda2cfd3844ee77012a2b9529310f93d14c68d1edc1b54e1f  3dartmaker-install.sh" | sha256sum -c
+echo "784ab027a4f327b810a5480e61aa832950c7c5a6ac85a25a2b811c8a3c5b362f  3dartmaker-install.sh" | sha256sum -c
 bash 3dartmaker-install.sh
 ```
 
@@ -266,7 +266,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "0a2f27a026388c2d0f9641f3e42d024f535a20f9609d041556ad6f1d519e06ca  skipr-filament_1.7.7_all.deb" | sha256sum -c
+echo "00736c3780f7ae387f34ab332b4f2cc9d088854bb8e7bdbb77ee656828eb8a44  skipr-filament_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -301,7 +301,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "873e0c07058c817c4a427a73a2f2b3d91f6a6a6362b699a95ac0da5a675ad8a9  skipr-update_1.7.7_all.deb" | sha256sum -c
+echo "4eddedbbc8a3b59ea4650c9a09a45b1918c48bbbfce8e4561965e16cf030762b  skipr-update_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -346,7 +346,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-u
 **2. Datei prüfen:**
 
 ```bash
-echo "8d41e9bca323c8992beeac4c3760fe328c904cf1dad1a3869e8e63fb8d8b53f4  rf-update_1.7.7_all.deb" | sha256sum -c
+echo "836a6e951d0e33b83a2fad018fe223807390fefe3f93686e378d20d68c28dd7e  rf-update_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -397,7 +397,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-m
 **2. Datei prüfen:**
 
 ```bash
-echo "339a5d12eaaf4a9f625dbcfca654a23c808c5b9c67db8ff4ed758aee8dc46963  rf-multi_1.7.7_all.deb" | sha256sum -c
+echo "4722254e26c934ea584b54bfb6c3d60ad30c501d88b2a1863adc46a6fe9bee93  rf-multi_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -452,7 +452,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/skip
 **2. Datei prüfen:**
 
 ```bash
-echo "af7d6ac6bdfdbd9e915db2c1ce6b0a22dda53c76d95c9ec389d9e42439977397  skipr-bootlogo_1.7.7_all.deb" | sha256sum -c
+echo "6cf888318de5d21b9f5a02809322ff5f238da55a2676138cf24b0bbd61826f03  skipr-bootlogo_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -492,7 +492,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-b
 **2. Datei prüfen:**
 
 ```bash
-echo "ac0c89c064c8b693c803d52d1f02adfe52e92f73236e285d0e3c6b60e1777f42  rf-bootlogo_1.7.7_all.deb" | sha256sum -c
+echo "e1fa969e2f7d39dfc74b0067b9d5f77c0ec38574a5716639cc2ec4bc1b7d07b9  rf-bootlogo_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -542,7 +542,7 @@ wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-t
 **2. Datei prüfen:**
 
 ```bash
-echo "b436a213cb5849bc3132c966a897bbbccf96fb5d5a0a8bc4ced9bd9aa7108227  rf-terminal_1.7.7_all.deb" | sha256sum -c
+echo "824053ce826bd1fe5f11ce0bacd66ac708aac34a468369b73cedc8a850b4963f  rf-terminal_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -585,7 +585,7 @@ Die Seiten **Firmware-Update** und **System Terminal** haben dieselben Farben:
 ```bash
 cd ~
 wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/mainsail-theme.tar.gz
-echo "78b621f0f332b849640db99d3fdd1e4ccce7ed40e5a2e33e5b95e68af9d2cb4a  mainsail-theme.tar.gz" | sha256sum -c
+echo "5f087c6274ee893a9ac4432a996456b953c4e10b29c5c0fd31003e78ca90f324  mainsail-theme.tar.gz" | sha256sum -c
 tar xzf mainsail-theme.tar.gz -C ~/printer_data/config/
 ```
 
