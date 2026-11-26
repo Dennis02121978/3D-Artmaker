@@ -10,8 +10,8 @@ Der Installer prüft dein System, stellt dieselben Fragen wie der [Config Creato
 
 ```bash
 cd ~
-wget -q --show-progress -O 3dartmaker-install.sh https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/3dartmaker-install.sh
-echo "f70d83c3da64131236d5df370bb0e2e34baeb1a2cf2f0d4f6ed0a2ca73d9c68f  3dartmaker-install.sh" | sha256sum -c
+wget -q --show-progress -O 3dartmaker-install.sh https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/3dartmaker-install.sh
+echo "3b3ea687c4920ff7477656a7aaba95b769a2fd9a3ff5abc539bc9407c19ad6f2  3dartmaker-install.sh" | sha256sum -c
 bash 3dartmaker-install.sh
 ```
 
@@ -261,13 +261,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/skipr-filament_1.7.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/skipr-filament_1.7.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "8b69074933980e0669f0d7bc25a25cd03f5febc77e8ccb83e5094e5ab8852070  skipr-filament_1.7.8_all.deb" | sha256sum -c
+echo "45e0824cc01c0dd6a3bc505b150847cc843b34261424a820f3a8925682466514  skipr-filament_1.7.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -276,7 +276,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.7.8_all.deb
+sudo apt install ./skipr-filament_1.7.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -296,13 +296,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/skipr-update_1.7.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/skipr-update_1.7.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "d4af7c3514423eceaa62a82ed25f1e62ce0851bef92e1e863625e2ede077221a  skipr-update_1.7.8_all.deb" | sha256sum -c
+echo "5ddeef9589b0d2fcb34efdeb787026a845fcffda5e24a9838fbdf6287b5fb23a  skipr-update_1.7.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -311,7 +311,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.7.8_all.deb
+sudo apt install ./skipr-update_1.7.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -341,13 +341,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/rf-update_1.7.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/rf-update_1.7.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "773cbcc14a7ef74574c01c23925e12ee48f8d072cc3317600e2c4a3500eea0cf  rf-update_1.7.8_all.deb" | sha256sum -c
+echo "50ab74a246fd0e257c6a76bd24a8f5004aaae553765befa2af4b7d0fc2fee8ad  rf-update_1.7.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -356,7 +356,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.7.8_all.deb
+sudo apt install ./rf-update_1.7.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -392,13 +392,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/rf-multi_1.7.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/rf-multi_1.7.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "d4f390579b81d01750353326ca5c0597443b6a3e3f2169f035bbdc6c297c1e84  rf-multi_1.7.8_all.deb" | sha256sum -c
+echo "80f7abe7170259f292c90b375aa82268b109c9e7214950eaed03178ce06d5156  rf-multi_1.7.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -406,7 +406,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.7.8_all.deb
+sudo apt install ./rf-multi_1.7.9_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**
@@ -447,13 +447,13 @@ Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Co
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/skipr-bootlogo_1.7.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/skipr-bootlogo_1.7.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "bf472b6c86deaea46f1e14e1093b55bfb180b9ea12b98dc1c532bff9256efa4f  skipr-bootlogo_1.7.8_all.deb" | sha256sum -c
+echo "b55a48e1287f53d380816e644a540716934283be86332c1c76bdc64d495f5346  skipr-bootlogo_1.7.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -462,7 +462,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.7.8_all.deb
+sudo apt install ./skipr-bootlogo_1.7.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -487,13 +487,13 @@ Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, da
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/rf-bootlogo_1.7.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/rf-bootlogo_1.7.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "5bc073c48ce81586d5050bbd20d2977c442579ab7f50e56e7a8347b2bf6c8fa9  rf-bootlogo_1.7.8_all.deb" | sha256sum -c
+echo "2b530488e91360838128175dee8b26b568becb92b990750665cd00da19d42cf1  rf-bootlogo_1.7.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -502,7 +502,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-bootlogo_1.7.8_all.deb
+sudo apt install ./rf-bootlogo_1.7.9_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
@@ -537,13 +537,13 @@ Dieses Paket fügt Mainsail links den Menüpunkt **System Terminal** hinzu. Dort
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/rf-terminal_1.7.8_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/rf-terminal_1.7.9_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "0b111bdc05f535e2e7ef676d0b9e06dc21ad5c35db3a49336d3b6c096f148b69  rf-terminal_1.7.8_all.deb" | sha256sum -c
+echo "e419b4609f200bfc87f6cb371e0a75756ab11f579f391591dcfb25e8ffbeb6da  rf-terminal_1.7.9_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -551,7 +551,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-terminal_1.7.8_all.deb
+sudo apt install ./rf-terminal_1.7.9_all.deb
 ```
 
 **Geklappt?** Am Ende steht `System-Terminal ist installiert`.
@@ -587,8 +587,8 @@ Die Seiten **Firmware-Update** und **System Terminal** haben dieselben Farben:
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.8/mainsail-theme.tar.gz
-echo "0bb09328d699b15ac504e3cef7169c81ed204cead54500473c740dca482d8f59  mainsail-theme.tar.gz" | sha256sum -c
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.9/mainsail-theme.tar.gz
+echo "caf9d2946d0f4db5f5119ccacf4ffdbecdd8918d5bfc10feae9b8cd01dea0872  mainsail-theme.tar.gz" | sha256sum -c
 tar xzf mainsail-theme.tar.gz -C ~/printer_data/config/
 ```
 
@@ -637,6 +637,8 @@ seek_limit: 210
 
 1. Bett **nicht** ganz unten: `QUERY_ENDSTOPS` in der Mainsail-Konsole muss `z_max:open` melden.
 2. Schalter von Hand gedrückt halten (oder Bett steht unten): Jetzt muss `z_max:TRIGGERED` erscheinen.
+
+Am Drucker gemessen: Beim RF2000 v2 löste der Schalter bei **Z 184,11** aus, beim RF2000 bei **Z 189,72**. Das kann bei deinem Drucker etwas anders sein, die Meldung in der Konsole zeigt den Wert. Liegt er unter deiner Druckhöhe im Slicer, stelle dort eine etwas kleinere Höhe ein, beim gemessenen v2 höchstens 184 mm.
 
 ### MKS SKIPR
 
