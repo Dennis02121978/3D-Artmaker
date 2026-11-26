@@ -52,7 +52,15 @@ serial: /dev/serial/by-id/DEIN-NAME
 
 ## Z-Höhe
 
-Z max ist 190 mm, nicht 200 mm. Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), damit nichts kaputtgeht. Dafür bleiben 10 mm Reserve unter dem Fahrweg. `PRINT_END` und „Objekt ausgeben“ fahren deshalb nur bis 185 mm. Die Druckhöhe in OrcaSlicer (185 mm, siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)) liegt darunter.
+Z max ist 190 mm, nicht 200 mm. Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), damit nichts kaputtgeht. Dafür bleiben 10 mm Reserve unter dem Fahrweg. `PRINT_END` fährt deshalb nur bis 185 mm. Die Druckhöhe in OrcaSlicer (185 mm, siehe [OrcaSlicer_Einstellungen.md](OrcaSlicer_Einstellungen.md)) liegt darunter.
+
+**Z-Max-Endstop (PH1):** Unten an der Z-Achse sitzt ein zweiter Endschalter, wie in der RF-Repetier-Firmware. Der Abschnitt `[rf_z_max]` in der `printer.cfg` wertet ihn aus (Modul `rf_z_max.py` aus dem Klipper-Fork, also erst Klipper aktualisieren und dann die Config):
+
+- Ist der Schalter ausgelöst, fährt das Bett nicht weiter nach unten. Das gilt auch für den `z_hop` beim Homing, wenn der Tisch beim Start schon ganz unten steht.
+- „Objekt ausgeben“ fährt bis zum Schalter (`RF_Z_MAX_SEEK`), höchstens bis `seek_limit` (210 mm, wie `Z210` bei Repetier).
+- Überwacht werden Fahrten nach unten ab Z 150 (`guard_height`). Während eines Drucks bleiben Schritte bis 1 mm normale Fahrten, damit der Druck nicht bei jeder Schicht anhält. `FORCE_MOVE` wird nicht überwacht.
+
+**Vor der ersten Fahrt testen:** `QUERY_ENDSTOPS` muss bei freiem Schalter `z_max:open` melden. Drücke den Schalter dann von Hand und frage noch einmal ab, jetzt muss `z_max:TRIGGERED` erscheinen. Erscheint das nicht, benutze „Objekt ausgeben“ nicht, sonst fährt das Bett bis 210 mm.
 
 Y max ist 290 mm: Der Fahrweg ab dem Home-Schalter ist 295 mm, am Schalter steht die Düse 5 mm vor dem Bett (Y = −5). Mit 300 mm fuhr das Bett zu weit nach vorne. Wer von einer älteren Config mit Y = −10 kommt, muss das Bettnetz neu aufnehmen, weil sich Y=0 um 5 mm verschoben hat.
 

@@ -27,7 +27,15 @@ Das ist die Config für einen Renkforce RF2000 mit zwei Extrudern, 3-mm-Filament
 | Sperrbereich vorne im Slicer | 15 mm (`0x0,200x0,200x15,0x15`) | 15 mm |
 | Sense Offset Schwelle | 4000 (Vorgabe) | 500 (am Drucker eingestellt) |
 
-Z max ist bei allen Modellen 190 mm: Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), dafür bleiben 10 mm Reserve unter dem Fahrweg von 200 mm. `PRINT_END` und „Objekt ausgeben“ fahren deshalb nur bis 185 mm.
+Z max ist bei allen Modellen 190 mm: Beim Homing fährt Klipper Z zuerst von der Düse weg (`z_hop`), dafür bleiben 10 mm Reserve unter dem Fahrweg von 200 mm. `PRINT_END` fährt deshalb nur bis 185 mm.
+
+**Z-Max-Endstop (PH1):** Unten an der Z-Achse sitzt ein zweiter Endschalter, wie in der RF-Repetier-Firmware. Der Abschnitt `[rf_z_max]` in der `printer.cfg` wertet ihn aus (Modul `rf_z_max.py` aus dem Klipper-Fork, also erst Klipper aktualisieren und dann die Config):
+
+- Ist der Schalter ausgelöst, fährt das Bett nicht weiter nach unten. Das gilt auch für den `z_hop` beim Homing, wenn der Tisch beim Start schon ganz unten steht.
+- „Objekt ausgeben“ fährt bis zum Schalter (`RF_Z_MAX_SEEK`), höchstens bis `seek_limit` (210 mm, wie `Z210` bei Repetier).
+- Überwacht werden Fahrten nach unten ab Z 150 (`guard_height`). Während eines Drucks bleiben Schritte bis 1 mm normale Fahrten, damit der Druck nicht bei jeder Schicht anhält. `FORCE_MOVE` wird nicht überwacht.
+
+**Vor der ersten Fahrt testen:** `QUERY_ENDSTOPS` muss bei freiem Schalter `z_max:open` melden. Drücke den Schalter dann von Hand und frage noch einmal ab, jetzt muss `z_max:TRIGGERED` erscheinen. Erscheint das nicht, benutze „Objekt ausgeben“ nicht, sonst fährt das Bett bis 210 mm.
 
 Y max (`position_max`) ist der am Drucker gemessene Fahrweg ab dem Home-Schalter minus dem Abstand der Düse vor dem Bett am Schalter: RF1000 245 − 22 = 223 mm, RF2000 245 − 18 = 227 mm, RF2000 v2 295 − 5 = 290 mm. Weiter darf das Bett nicht nach vorne fahren. X max ist beim RF2000 und RF2000 v2 200 mm (Single und Dual).
 

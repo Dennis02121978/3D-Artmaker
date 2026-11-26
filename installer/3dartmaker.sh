@@ -214,7 +214,7 @@ state_set() {
 
 printer_busy() {  # 0 = gerade Druck oder Pause
     local s
-    s=$(curl -fs --max-time 3 "http://127.0.0.1:7125/printer/objects/query?print_stats=state" 2>/dev/null \
+    s=$(curl -fs --max-time 3 "http://127.0.0.1:${1:-7125}/printer/objects/query?print_stats=state" 2>/dev/null \
         | python3 -c 'import json,sys; print(json.load(sys.stdin)["result"]["status"]["print_stats"]["state"])' 2>/dev/null)
     [ "$s" = printing ] || [ "$s" = paused ]
 }
@@ -737,6 +737,7 @@ install_generated() {
     fi
     chmod -R a+rX "$WORK"
     local f; for f in $(cat "$WORK/gen.list"); do urun cp -f "$out/$f" "$c/$f"; done
+    zmax_strip_if_missing "$c/printer.cfg"
     ok "Eingespielt nach ~/$TARGET_DIR/config: $(tr '\n' ' ' < "$WORK/gen.list")"
     if [ "$PROBE" = 1 ]; then say "  [Probe] Eingaben gespeichert in $STATE_DIR/config-$TARGET_DIR.json"
     else sudo mkdir -p "$STATE_DIR"; sudo install -m 644 "$FORM" "$STATE_DIR/config-$TARGET_DIR.json"; fi
@@ -762,6 +763,7 @@ unpack_into_config() {   # ZIP [Unterordner]
     urun cp -f "$src"/*.cfg "$c/"
     [ -f "$src/LIESMICH.txt" ] && urun cp -f "$src/LIESMICH.txt" "$c/"
     fix_mcu_serial "$c/printer.cfg"
+    zmax_strip_if_missing "$c/printer.cfg"
 }
 
 fix_mcu_serial() {   # printer.cfg: [mcu] serial auf das angeschlossene Board setzen
@@ -941,6 +943,162 @@ restart_klipper() {
     run sudo systemctl restart "$SERVICE" && ok "Klipper neu gestartet ($SERVICE)"
 }
 
+# ---------------------------------------------------------------- Z-Max-Endstop (RF2000 / RF2000 v2)
+# [rf_z_max] braucht rf_z_max.py aus dem RF-Klipper. Ohne das Modul startet Klipper nicht.
+zmax_module() { [ -f "$KHOME/klipper/klippy/extras/rf_z_max.py" ]; }
+
+zmax_strip_if_missing() {   # printer.cfg: [rf_z_max] entfernen, solange Klipper das Modul nicht hat
+    [ "$PROBE" = 1 ] && return 0
+    zmax_module && return 0
+    grep -qs '^\[rf_z_max\]' "$1" || return 0
+    awk '/^\[rf_z_max\]/{s=1;next} s&&(/^[[:space:]]*$/||/^\[/){s=0} !s' "$1" > "$WORK/nozmax.cfg"
+    chmod a+r "$WORK/nozmax.cfg"; chmod a+x "$WORK"
+    urun cp -f "$WORK/nozmax.cfg" "$1"
+    warn "Z-Max-Endstop noch nicht eingetragen, dafür ist Klipper zu alt. Erst Firmware-Update in Mainsail ausführen, dann 3DArtmaker-upgrade."
+}
+
+# Aendert nur RF2000 und RF2000 v2 auf dem ATmega2560 (an den Pins erkannt) ohne [rf_z_max].
+# Rueckgabe 0 = Config braucht den Z-Max-Endstop. Mit Zielordner werden dort die
+# geaenderten Dateien geschrieben.
+zmax_patch() {   # Config-Ordner [Zielordner]
+    python3 - "$1" "${2:-}" <<'PY'
+import os, re, sys
+cfg, out = sys.argv[1], sys.argv[2]
+def read(name):
+    try:
+        with open(os.path.join(cfg, name), encoding="utf-8", newline="") as f:
+            return f.read()
+    except (OSError, UnicodeDecodeError):
+        return ""
+printer = read("printer.cfg")
+active = printer.split("\n#*# <")[0].replace("\r", "")
+def value(section, key):
+    m = re.search(r"(?ms)^\[%s\][ \t]*$(.*?)(?=^\[|\Z)" % re.escape(section), active)
+    v = m and re.search(r"(?m)^%s[ \t]*[:=][ \t]*([^#;\n]*)" % key, m.group(1))
+    return v.group(1).strip().lstrip("^~!").strip() if v else ""
+if not (value("stepper_x", "endstop_pin") == "PC2"
+        and value("stepper_z", "endstop_pin") == "PC6"
+        and value("drv8711 stepper_z", "cs_pin") == "PB6"):
+    sys.exit(1)
+texts = [active]
+for name in re.findall(r"(?m)^\[include ([^\]*?]+)\]", active):
+    texts.append(read(name.strip()).replace("\r", ""))
+for text in texts:
+    if re.search(r"(?m)^\[rf_z_max\]", text):
+        sys.exit(1)
+    # PH1 schon anders belegt: nichts anfassen
+    if any(re.search(r"\bPH1\b", l.split("#")[0]) for l in text.split("\n")):
+        sys.exit(1)
+if not re.search(r"(?m)^\[stepper_x\]", active):
+    sys.exit(1)
+if not out:
+    sys.exit(0)
+def write(name, text):
+    with open(os.path.join(out, name), "w", encoding="utf-8", newline="") as f:
+        f.write(text)
+nl = "\r\n" if "\r\n" in printer else "\n"
+block = nl.join([
+    "# Z-Max-Endstop am unteren Ende der Z-Achse (Repetier Z_MAX_PIN PH1). Ist er ausgeloest,",
+    "# faehrt das Bett nicht weiter nach unten. Objekt ausgeben faehrt bis zum Schalter,",
+    "# hoechstens bis seek_limit. Braucht rf_z_max.py aus dem Klipper-Fork.",
+    "# Test: Schalter von Hand druecken, QUERY_ENDSTOPS muss dann z_max:TRIGGERED melden.",
+    "[rf_z_max]", "pin: ^!PH1", "seek_limit: 210", "", ""])
+write("printer.cfg", re.sub(r"(?m)^\[stepper_x\]", lambda m: block + m.group(0), printer, count=1))
+# Objekt ausgeben: bis zum Schalter statt auf eine feste Hoehe
+display = read("rf_display.cfg")
+if "RF_Z_MAX_SEEK" not in display:
+    nl = "\r\n" if "\r\n" in display else "\n"
+    old = "    G1 Z{th.axis_maximum.z - 5} F540"
+    new = nl.join(["    {% if 'rf_z_max' in printer %}",
+                   "    # RF2000: bis zum Z-Max-Endstop, nie weiter",
+                   "    RF_Z_MAX_SEEK", "    {% else %}", old, "    {% endif %}"])
+    pat = r"(?ms)(^\[gcode_macro _RF_OUTPUT_OBJECT\](?:(?!^\[).)*?)^%s(?=\r?$)" % re.escape(old)
+    text, n = re.subn(pat, lambda m: m.group(1) + new, display)
+    if n == 1:
+        write("rf_display.cfg", text)
+sys.exit(0)
+PY
+}
+
+klipper_service_for() {   # Datenordner -> Dienst, der dessen printer.cfg nutzt
+    local u t
+    for u in $(systemctl list-unit-files 'klipper*.service' --no-legend 2>/dev/null | awk '{print $1}'); do
+        t=$(systemctl cat "$u" 2>/dev/null)
+        [[ "$t" == *"$1/config/printer.cfg"* || "$t" == *"$1/systemd/"* ]] && { echo "$u"; return 0; }
+    done
+    return 1
+}
+
+moonraker_port() {   # Datenordner
+    local p
+    p=$(awk '/^\[/{s=($0 ~ /^\[server\]/)} s&&/^port[ \t]*[:=]/{sub(/^port[ \t]*[:=][ \t]*/,""); print int($0); exit}' "$1/config/moonraker.conf" 2>/dev/null)
+    echo "${p:-7125}"
+}
+
+klipper_state() {   # Moonraker-Port -> ready, startup, error, shutdown oder leer
+    curl -fs --max-time 3 "http://127.0.0.1:$1/printer/info" 2>/dev/null \
+        | python3 -c 'import json,sys; print(json.load(sys.stdin)["result"]["state"])' 2>/dev/null
+}
+
+klipper_wait() {   # Moonraker-Port -> 0 = bereit
+    local i s
+    sleep 5
+    for i in $(seq 30); do
+        s=$(klipper_state "$1")
+        [ "$s" = ready ] && return 0
+        [ "$s" = error ] && [ "$i" -gt 5 ] && return 1
+        sleep 2
+    done
+    return 1
+}
+
+upgrade_zmax() {
+    [ "$FORK" = 1 ] || return 0
+    local d todo=()
+    for d in "$KHOME/printer_data" "$KHOME"/printer_*_data; do
+        [ -f "$d/config/printer.cfg" ] && zmax_patch "$d/config" && todo+=("$d")
+    done
+    [ ${#todo[@]} -gt 0 ] || return 0
+    head1 "Z-Max-Endstop (RF2000 / RF2000 v2)"
+    if ! zmax_module; then
+        warn "Dafür ist Klipper noch zu alt. Erst in Mainsail Firmware-Update → Update starten, danach 3DArtmaker-upgrade noch einmal ausführen."
+        return 0
+    fi
+    local list=""; for d in "${todo[@]}"; do list+="  ~/${d##*/}\n"; done
+    ui_yesno "Z-Max-Endstop" "Z-Max-Endstop (Pin PH1) eintragen? Das Bett fährt dann nicht weiter nach unten, wenn der Schalter ausgelöst ist.\n\n$list\nprinter.cfg bekommt [rf_z_max], \"Objekt ausgeben\" in rf_display.cfg fährt bis zum Schalter. Vorher wird die Config gesichert, danach startet Klipper neu." || return 0
+    local name c svc port before new f
+    for d in "${todo[@]}"; do
+        name=${d##*/}; c="$d/config"; port=$(moonraker_port "$d")
+        if printer_busy "$port"; then warn "~/$name: Es läuft ein Druck, übersprungen. Bitte später noch einmal."; continue; fi
+        svc=$(klipper_service_for "$d") || { warn "~/$name: Klipper-Dienst nicht gefunden, übersprungen"; continue; }
+        if [ "$PROBE" = 1 ]; then say "  [Probe] ~/$name: [rf_z_max] eintragen, $svc neu starten"; continue; fi
+        need_sudo
+        urun mkdir -p "$KHOME/3dartmaker-backup"
+        urun tar czf "$KHOME/3dartmaker-backup/config-$name-zmax-$STAMP.tar.gz" -C "$d" config \
+            || { warn "~/$name: Sicherung fehlgeschlagen, nichts geändert"; continue; }
+        new="$WORK/zmax-$name"; mkdir -p "$new/neu" "$new/alt"
+        zmax_patch "$c" "$new/neu" || { warn "~/$name: Config konnte nicht angepasst werden, nichts geändert"; continue; }
+        before=$(klipper_state "$port")
+        for f in "$new/neu"/*.cfg; do cp "$c/${f##*/}" "$new/alt/"; done
+        chmod a+x "$WORK"; chmod -R a+rX "$new"
+        for f in "$new/neu"/*.cfg; do urun cp -f "$f" "$c/${f##*/}"; done
+        [ -f "$new/neu/rf_display.cfg" ] || grep -qs RF_Z_MAX_SEEK "$c/rf_display.cfg" \
+            || warn "~/$name: \"Objekt ausgeben\" nicht angepasst (eigenes Makro). Der Endstop schützt trotzdem."
+        run sudo systemctl restart "$svc"
+        if klipper_wait "$port"; then
+            ok "~/$name: Z-Max-Endstop eingetragen, $svc neu gestartet"
+        elif [ "$before" = ready ]; then
+            for f in "$new/alt"/*.cfg; do urun cp -f "$f" "$c/${f##*/}"; done
+            run sudo systemctl restart "$svc"
+            warn "~/$name: Klipper wurde nicht bereit, die alte Config ist wieder eingespielt (siehe klippy.log)"
+            continue
+        else
+            warn "~/$name: eingetragen. Klipper war schon vorher nicht bereit, bitte in Mainsail prüfen."
+        fi
+        warn "~/$name: Jetzt den Schalter testen: QUERY_ENDSTOPS meldet frei z_max:open und von Hand gedrückt z_max:TRIGGERED. Sonst \"Objekt ausgeben\" nicht benutzen."
+    done
+}
+
 # ---------------------------------------------------------------- Befehle anlegen
 install_commands() {
     head1 "Befehl 3DArtmaker-upgrade anlegen"
@@ -996,6 +1154,8 @@ do_upgrade() {
             warn "Klipper: $behind neue Änderung(en). Aktualisiere Klipper und Firmware zusammen in Mainsail: Firmware-Update → Update starten."
         else ok "Klipper ist aktuell"; fi
     fi
+
+    upgrade_zmax
 
     head1 "Betriebssystem"
     [ "$PROBE" = 1 ] || { need_sudo; sudo apt-get update -qq >>"$LOG" 2>&1; }

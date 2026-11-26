@@ -21,6 +21,7 @@ bash 3dartmaker-install.sh
 - Für den Generator braucht er quickjs (Debian 13: wird nur geladen, nicht installiert) oder Node.js (ältere Systeme: er fragt vor der Installation).
 - Mit `bash 3dartmaker-install.sh --probe` siehst du nur, was er tun würde. Dabei wird nichts verändert.
 - Danach gibt es den Befehl **`3DArtmaker-upgrade`**. Er holt neue Versionen aller installierten 3D-Artmaker-Pakete, prüft Klipper und das Betriebssystem und fragt vor jedem Schritt.
+- **RF2000 / RF2000 v2, Z-Max-Endstop (ab 1.7.7):** `3DArtmaker-upgrade` trägt den unteren Endschalter (`[rf_z_max]`, Pin PH1) in die Config ein, damit das Bett nie weiter als bis zum Schalter fährt. Dafür muss Klipper neu genug sein: erst in Mainsail **Firmware-Update → Update starten**, danach `3DArtmaker-upgrade` ausführen. Teste den Schalter danach mit `QUERY_ENDSTOPS`: frei `z_max:open`, von Hand gedrückt `z_max:TRIGGERED`.
 - Auf Wunsch spielt er das **Mainsail-Design** ein (Marineblau mit dem 3D-Artmaker Logo, siehe [Mainsail-Design](#mainsail-design)). `3DArtmaker-upgrade` hält es dort aktuell, wo es schon liegt.
 - Protokoll: `~/3dartmaker-install.log`. Sicherungen der Config: `~/3dartmaker-backup/`.
 
