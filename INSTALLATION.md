@@ -607,6 +607,11 @@ Unten an der Z-Achse sitzt beim RF2000 und RF2000 v2 ein zweiter Endschalter (Pi
 - Das Bett fährt nicht weiter nach unten, wenn der Schalter ausgelöst ist. Steht der Tisch beim Start schon ganz unten, rattert der Motor beim Homing nicht mehr.
 - **Objekt ausgeben** fährt das Bett genau bis zum Schalter, höchstens bis Z 210.
 
+**Objekt ausgeben starten** (vorher alle Achsen homen):
+
+- Display: **Schnelleinstellung → Objekt ausgeben**
+- Mainsail: Makro-Knopf **OBJEKT_AUSGEBEN** (ab 1.7.9). `3DArtmaker-upgrade` hängt das Makro an eine vorhandene `rf_display.cfg` an, das gibt es auch beim RF1000. Während eines Drucks ist es gesperrt.
+
 Der RF1000 hat diesen Schalter nicht, dort ändert sich nichts.
 
 ### Einspielen mit Klipper

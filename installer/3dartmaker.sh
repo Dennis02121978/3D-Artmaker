@@ -1108,6 +1108,63 @@ upgrade_zmax() {
     done
 }
 
+# ---------------------------------------------------------------- Makro OBJEKT_AUSGEBEN
+# "Objekt ausgeben" als Knopf in Mainsail. Wird nur an eine vorhandene rf_display.cfg angehaengt.
+output_macro_missing() {   # Config-Ordner
+    grep -qs '^\[gcode_macro _RF_OUTPUT_OBJECT\]' "$1/rf_display.cfg" \
+        && ! grep -qsi '^\[gcode_macro OBJEKT_AUSGEBEN\]' "$1"/*.cfg
+}
+
+output_macro_block() {
+    cat <<'CFG'
+
+# Knopf in Mainsail: Objekt ausgeben wie im Display-Menue (waehrend eines Drucks gesperrt)
+[gcode_macro OBJEKT_AUSGEBEN]
+description: Bett nach unten und nach vorne, Motoren aus (vorher alle Achsen homen)
+gcode:
+    {% if printer.print_stats.state in ["printing", "paused"] %}
+    RESPOND TYPE=error MSG="Objekt ausgeben: Nicht waehrend eines Drucks."
+    {% else %}
+    _RF_OUTPUT_OBJECT
+    {% endif %}
+CFG
+}
+
+upgrade_output_macro() {
+    [ "$FORK" = 1 ] || return 0
+    local d todo=()
+    for d in "$KHOME/printer_data" "$KHOME"/printer_*_data; do
+        output_macro_missing "$d/config" && todo+=("$d")
+    done
+    [ ${#todo[@]} -gt 0 ] || return 0
+    head1 "Makro OBJEKT_AUSGEBEN"
+    local list=""; for d in "${todo[@]}"; do list+="  ~/${d##*/}\n"; done
+    ui_yesno "Objekt ausgeben" "\"Objekt ausgeben\" als Makro-Knopf in Mainsail anlegen?\n\n$list\nDas Makro wird an die rf_display.cfg angehängt, danach startet Klipper neu." || return 0
+    local name c svc port before
+    for d in "${todo[@]}"; do
+        name=${d##*/}; c="$d/config"; port=$(moonraker_port "$d")
+        if printer_busy "$port"; then warn "~/$name: Es läuft ein Druck, übersprungen. Bitte später noch einmal."; continue; fi
+        svc=$(klipper_service_for "$d") || { warn "~/$name: Klipper-Dienst nicht gefunden, übersprungen"; continue; }
+        if [ "$PROBE" = 1 ]; then say "  [Probe] ~/$name: Makro anhängen, $svc neu starten"; continue; fi
+        need_sudo
+        urun mkdir -p "$KHOME/3dartmaker-backup"
+        urun tar czf "$KHOME/3dartmaker-backup/config-$name-makro-$STAMP.tar.gz" -C "$d" config \
+            || { warn "~/$name: Sicherung fehlgeschlagen, nichts geändert"; continue; }
+        cp "$c/rf_display.cfg" "$WORK/rf_display.alt" || continue
+        { cat "$WORK/rf_display.alt"; output_macro_block; } > "$WORK/rf_display.neu"
+        chmod a+x "$WORK"; chmod a+r "$WORK/rf_display.alt" "$WORK/rf_display.neu"
+        before=$(klipper_state "$port")
+        urun cp -f "$WORK/rf_display.neu" "$c/rf_display.cfg"
+        run sudo systemctl restart "$svc"
+        if klipper_wait "$port"; then ok "~/$name: Makro OBJEKT_AUSGEBEN angelegt (Mainsail neu laden)"
+        elif [ "$before" = ready ]; then
+            urun cp -f "$WORK/rf_display.alt" "$c/rf_display.cfg"
+            run sudo systemctl restart "$svc"
+            warn "~/$name: Klipper wurde nicht bereit, die alte rf_display.cfg ist wieder eingespielt"
+        else warn "~/$name: Makro angehängt. Klipper war schon vorher nicht bereit, bitte in Mainsail prüfen."; fi
+    done
+}
+
 # ---------------------------------------------------------------- Befehle anlegen
 install_commands() {
     head1 "Befehl 3DArtmaker-upgrade anlegen"
@@ -1165,6 +1222,7 @@ do_upgrade() {
     fi
 
     upgrade_zmax
+    upgrade_output_macro
 
     head1 "Betriebssystem"
     [ "$PROBE" = 1 ] || { need_sudo; sudo apt-get update -qq >>"$LOG" 2>&1; }
@@ -1196,7 +1254,7 @@ do_install() {
     apply_config
     restart_klipper
     # Behaltene Config: den Z-Max-Endstop dazu eintragen (RF2000 / RF2000 v2)
-    [ "$CONFIG_CHOICE" = keep ] && upgrade_zmax
+    [ "$CONFIG_CHOICE" = keep ] && { upgrade_zmax; upgrade_output_macro; }
     install_theme
     install_commands
     local next="Fertig!\n\n"
