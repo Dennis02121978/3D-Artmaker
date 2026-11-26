@@ -34,6 +34,10 @@ Für OrcaSlicer gibt es Bett-Textur und Bett-Modell für den RF1000, RF2000 und 
 
 [![Druckbett für OrcaSlicer](orca/preview_front.png)](orca/README.md)
 
+## Z-Max-Endstop am RF2000 und RF2000 v2
+
+Ab 1.7.7 wird der untere Endschalter der Z-Achse ausgewertet: Das Bett fährt nie weiter als bis zum Schalter, auch nicht beim Homing, wenn der Tisch schon unten steht, und „Objekt ausgeben“ fährt genau bis dorthin. Erst Klipper per Firmware-Update aktualisieren, dann `3DArtmaker-upgrade` ausführen und den Schalter testen. Anleitung, auch für SKIPR und Marlin: [INSTALLATION.md](INSTALLATION.md#z-max-endstop-am-rf2000-und-rf2000-v2).
+
 ## Mehrere Drucker an einem Raspberry Pi
 
 Mit dem Paket [`rf-multi`](rf-multi/README.md) laufen bis zu 4 Drucker an einem Raspberry Pi: jeder mit eigener Klipper- und Moonraker-Instanz, eigenem Mainsail (`http://<IP>:81` bis `:83`) und Druckerauswahl in Mainsail und KlipperScreen. Der Firmware Updater ATmega (`rf-update` ab v1.5.0) fragt dann, welcher Drucker aktualisiert werden soll, und zeigt auf dessen Display eine blinkende Meldung „FIRMWARE-UPDATE – DIESER DRUCKER“, dazu blinkt die LED rot (RF1000: nur Display). Während des Updates steht „UPDATE LAEUFT“ auf dem Display und die LED leuchtet rot, danach kurz „ERFOLGREICH“ und 5 Sekunden grün. Der Renkforce Klipper Config Creator fragt zuerst, wie viele Drucker am Pi hängen. Jeder Drucker bekommt eigene Einstellungen, am Ende gibt es alle Configs als ZIP mit einem Ordner pro Drucker. Anleitung: [INSTALLATION.md](INSTALLATION.md#mehrere-drucker-an-einem-raspberry-pi).

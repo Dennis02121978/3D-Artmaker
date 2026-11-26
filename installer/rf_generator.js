@@ -1468,6 +1468,16 @@ z_hop: 2
 
 [force_move]
 enable_force_move: True
+${s.model === 'RF1000' ? '' : `
+# Z-Max-Endstop (RF2000 / RF2000 v2): unterer Schalter der Z-Achse. NUR einschalten, wenn er
+# am SKIPR angeschlossen ist, vorgeschlagen am freien Anschluss Z+ (PB14). Dazu die "#" vor den
+# drei Zeilen entfernen. Braucht rf_z_max.py aus dem Klipper-Fork github.com/Dennis02121978/klipper.
+# Test: QUERY_ENDSTOPS muss frei z_max:open und gedrueckt z_max:TRIGGERED melden, sonst "!" aendern.
+# Ohne diesen Test nicht benutzen: RF_Z_MAX_SEEK faehrt bis zum Schalter, hoechstens bis seek_limit.
+#[rf_z_max]
+#pin: ^!PB14
+#seek_limit: 210
+`}
 
 
 [stepper_x]

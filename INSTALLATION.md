@@ -10,8 +10,8 @@ Der Installer prüft dein System, stellt dieselben Fragen wie der [Config Creato
 
 ```bash
 cd ~
-wget -q --show-progress -O 3dartmaker-install.sh https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/3dartmaker-install.sh
-echo "21ccbbbcf6d35a2eabd638fbb11a570623a1223dcbef21be86ac3dc985ba7903  3dartmaker-install.sh" | sha256sum -c
+wget -q --show-progress -O 3dartmaker-install.sh https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/3dartmaker-install.sh
+echo "ec699263c4c1c71cda2cfd3844ee77012a2b9529310f93d14c68d1edc1b54e1f  3dartmaker-install.sh" | sha256sum -c
 bash 3dartmaker-install.sh
 ```
 
@@ -21,7 +21,7 @@ bash 3dartmaker-install.sh
 - Für den Generator braucht er quickjs (Debian 13: wird nur geladen, nicht installiert) oder Node.js (ältere Systeme: er fragt vor der Installation).
 - Mit `bash 3dartmaker-install.sh --probe` siehst du nur, was er tun würde. Dabei wird nichts verändert.
 - Danach gibt es den Befehl **`3DArtmaker-upgrade`**. Er holt neue Versionen aller installierten 3D-Artmaker-Pakete, prüft Klipper und das Betriebssystem und fragt vor jedem Schritt.
-- **RF2000 / RF2000 v2, Z-Max-Endstop (ab 1.7.7):** `3DArtmaker-upgrade` trägt den unteren Endschalter (`[rf_z_max]`, Pin PH1) in die Config ein, damit das Bett nie weiter als bis zum Schalter fährt. Dafür muss Klipper neu genug sein: erst in Mainsail **Firmware-Update → Update starten**, danach `3DArtmaker-upgrade` ausführen. Teste den Schalter danach mit `QUERY_ENDSTOPS`: frei `z_max:open`, von Hand gedrückt `z_max:TRIGGERED`.
+- **RF2000 / RF2000 v2, Z-Max-Endstop (ab 1.7.7):** `3DArtmaker-upgrade` trägt den unteren Endschalter (`[rf_z_max]`, Pin PH1) in die Config ein, damit das Bett nie weiter als bis zum Schalter fährt. Dafür muss Klipper neu genug sein: erst in Mainsail **Firmware-Update → Update starten**, danach `3DArtmaker-upgrade` ausführen. Teste den Schalter danach mit `QUERY_ENDSTOPS`: frei `z_max:open`, von Hand gedrückt `z_max:TRIGGERED`. Mehr dazu unter [Z-Max-Endstop](#z-max-endstop-am-rf2000-und-rf2000-v2).
 - Auf Wunsch spielt er das **Mainsail-Design** ein (Marineblau mit dem 3D-Artmaker Logo, siehe [Mainsail-Design](#mainsail-design)). `3DArtmaker-upgrade` hält es dort aktuell, wo es schon liegt.
 - Protokoll: `~/3dartmaker-install.log`. Sicherungen der Config: `~/3dartmaker-backup/`.
 
@@ -50,6 +50,7 @@ Möchtest du lieber jedes Paket einzeln installieren, geht das wie unten beschri
    - [3D-Artmaker BootScreen Pi](#3d-artmaker-bootscreen-pi)
    - [System Terminal](#system-terminal)
    - [Mainsail-Design](#mainsail-design)
+- [Z-Max-Endstop am RF2000 und RF2000 v2](#z-max-endstop-am-rf2000-und-rf2000-v2)
 5. [Updates installieren](#5-updates-installieren)
 6. [Wenn etwas nicht klappt](#6-wenn-etwas-nicht-klappt)
 7. [Paket wieder entfernen](#7-paket-wieder-entfernen)
@@ -259,13 +260,13 @@ PRINT_END
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/skipr-filament_1.7.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/skipr-filament_1.7.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "c60519514bfd37a9886e64acb67f7ff8eb7fba95e5f916d54dbf45ae22b42c24  skipr-filament_1.7.6_all.deb" | sha256sum -c
+echo "0a2f27a026388c2d0f9641f3e42d024f535a20f9609d041556ad6f1d519e06ca  skipr-filament_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -274,7 +275,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-filament_1.7.6_all.deb
+sudo apt install ./skipr-filament_1.7.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -294,13 +295,13 @@ Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/skipr-update_1.7.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/skipr-update_1.7.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "eb99300e4db763dc71531cbbaa24df3e5a6e71b27abe8055ed20ca98c7819a63  skipr-update_1.7.6_all.deb" | sha256sum -c
+echo "873e0c07058c817c4a427a73a2f2b3d91f6a6a6362b699a95ac0da5a675ad8a9  skipr-update_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -309,7 +310,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-update_1.7.6_all.deb
+sudo apt install ./skipr-update_1.7.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Das kann ein paar Minuten dauern.
@@ -339,13 +340,13 @@ Dieses Paket gehört zu Boards mit **ATmega2560**. Pro Drucker kannst du nur ein
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/rf-update_1.7.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-update_1.7.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "53e156a0e11b713dabd0b902f849c0b270ababcdb7641569660f11b3a6207063  rf-update_1.7.6_all.deb" | sha256sum -c
+echo "8d41e9bca323c8992beeac4c3760fe328c904cf1dad1a3869e8e63fb8d8b53f4  rf-update_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -354,7 +355,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-update_1.7.6_all.deb
+sudo apt install ./rf-update_1.7.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -390,13 +391,13 @@ Mit dem Paket **rf-multi** laufen bis zu 4 Drucker an einem Raspberry Pi. Jeder 
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/rf-multi_1.7.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-multi_1.7.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "ed2d203c27319f4c143e38c3e5c936ddf56f4ff582f4110a798afc8a215305b0  rf-multi_1.7.6_all.deb" | sha256sum -c
+echo "339a5d12eaaf4a9f625dbcfca654a23c808c5b9c67db8ff4ed758aee8dc46963  rf-multi_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen.
@@ -404,7 +405,7 @@ Am Ende der Ausgabe muss `OK` stehen.
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-multi_1.7.6_all.deb
+sudo apt install ./rf-multi_1.7.7_all.deb
 ```
 
 **4. Weiteren Drucker einrichten:**
@@ -445,13 +446,13 @@ Einen Drucker wieder entfernen: `sudo rf-multi remove RF2000`. Der Ordner mit Co
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/skipr-bootlogo_1.7.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/skipr-bootlogo_1.7.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "34cd448973683afa7614f4e12d50d90dd8e92594d6da4b90d6fdf9bc1d3fa453  skipr-bootlogo_1.7.6_all.deb" | sha256sum -c
+echo "af7d6ac6bdfdbd9e915db2c1ce6b0a22dda53c76d95c9ec389d9e42439977397  skipr-bootlogo_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -460,7 +461,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./skipr-bootlogo_1.7.6_all.deb
+sudo apt install ./skipr-bootlogo_1.7.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter.
@@ -485,13 +486,13 @@ Dieses Paket ist für den Raspberry Pi. Das Display muss schon funktionieren, da
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/rf-bootlogo_1.7.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-bootlogo_1.7.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "96e911d4b1a1abfe628382bb92c7e2324189745187816a8d4a83f6a0bf552d3e  rf-bootlogo_1.7.6_all.deb" | sha256sum -c
+echo "ac0c89c064c8b693c803d52d1f02adfe52e92f73236e285d0e3c6b60e1777f42  rf-bootlogo_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -500,7 +501,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 
 ```bash
 sudo apt update
-sudo apt install ./rf-bootlogo_1.7.6_all.deb
+sudo apt install ./rf-bootlogo_1.7.7_all.deb
 ```
 
 Wird nach einem Passwort gefragt, gib es noch einmal ein. Kommt eine Frage mit `J/n` oder `Y/n`, drücke `J` oder `Y` und dann Enter. Dein Drucker lädt dabei ImageMagick nach, das dauert einen Moment.
@@ -535,13 +536,13 @@ Dieses Paket fügt Mainsail links den Menüpunkt **System Terminal** hinzu. Dort
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/rf-terminal_1.7.6_all.deb
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/rf-terminal_1.7.7_all.deb
 ```
 
 **2. Datei prüfen:**
 
 ```bash
-echo "7ed020df49c230491412ee866f824ad122cf9e9ea4000598311be285201c64a4  rf-terminal_1.7.6_all.deb" | sha256sum -c
+echo "b436a213cb5849bc3132c966a897bbbccf96fb5d5a0a8bc4ced9bd9aa7108227  rf-terminal_1.7.7_all.deb" | sha256sum -c
 ```
 
 Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nicht weiter.
@@ -549,7 +550,7 @@ Am Ende der Ausgabe muss `OK` stehen. Steht dort etwas anderes, installiere nich
 **3. Installieren:**
 
 ```bash
-sudo apt install ./rf-terminal_1.7.6_all.deb
+sudo apt install ./rf-terminal_1.7.7_all.deb
 ```
 
 **Geklappt?** Am Ende steht `System-Terminal ist installiert`.
@@ -583,8 +584,8 @@ Die Seiten **Firmware-Update** und **System Terminal** haben dieselben Farben:
 
 ```bash
 cd ~
-wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.6/mainsail-theme.tar.gz
-echo "6c5a20e9c1861ea2eb22cd07db608fb2718aec927a6bb190ec53ce06c88239de  mainsail-theme.tar.gz" | sha256sum -c
+wget https://github.com/Dennis02121978/3D-Artmaker/releases/download/v1.7.7/mainsail-theme.tar.gz
+echo "78b621f0f332b849640db99d3fdd1e4ccce7ed40e5a2e33e5b95e68af9d2cb4a  mainsail-theme.tar.gz" | sha256sum -c
 tar xzf mainsail-theme.tar.gz -C ~/printer_data/config/
 ```
 
@@ -597,6 +598,47 @@ Hast du alles installiert, gibst du das hier ein und schließt danach das Fenste
 ```bash
 exit
 ```
+
+## Z-Max-Endstop am RF2000 und RF2000 v2
+
+Unten an der Z-Achse sitzt beim RF2000 und RF2000 v2 ein zweiter Endschalter (Pin **PH1**, wie in der RF-Repetier-Firmware). Ab **1.7.7** wird er ausgewertet:
+
+- Das Bett fährt nicht weiter nach unten, wenn der Schalter ausgelöst ist. Steht der Tisch beim Start schon ganz unten, rattert der Motor beim Homing nicht mehr.
+- **Objekt ausgeben** fährt das Bett genau bis zum Schalter, höchstens bis Z 210.
+
+Der RF1000 hat diesen Schalter nicht, dort ändert sich nichts.
+
+### Einspielen mit Klipper
+
+1. In Mainsail **Firmware-Update → Update starten** ausführen. Damit kommt das neue Klipper auf den Drucker.
+2. Im System Terminal oder per SSH `3DArtmaker-upgrade` ausführen. Er holt die neue Installer-Version, trägt `[rf_z_max]` in die `printer.cfg` ein, passt „Objekt ausgeben“ in der `rf_display.cfg` an und startet Klipper neu. Vorher sichert er die Config nach `~/3dartmaker-backup/`. Gespeicherte Kalibrierwerte bleiben erhalten.
+3. Bei mehreren Druckern erledigt er das für jeden RF2000 und RF2000 v2. Meldet er „Klipper ist noch zu alt“, führe zuerst Schritt 1 aus.
+
+Von Hand: diesen Abschnitt in die `printer.cfg` über den Block `SAVE_CONFIG` setzen, aber erst **nach** dem Klipper-Update:
+
+```ini
+[rf_z_max]
+pin: ^!PH1
+seek_limit: 210
+```
+
+### Schalter testen (vor der ersten Fahrt)
+
+> [!WARNING]
+> Teste den Schalter, bevor du „Objekt ausgeben“ benutzt. Reagiert er nicht (Kabel ab, Schalter defekt), fährt das Bett bis Z 210 und der Motor rattert am Anschlag.
+
+1. Bett **nicht** ganz unten: `QUERY_ENDSTOPS` in der Mainsail-Konsole muss `z_max:open` melden.
+2. Schalter von Hand gedrückt halten (oder Bett steht unten): Jetzt muss `z_max:TRIGGERED` erscheinen.
+
+### MKS SKIPR
+
+Beim SKIPR trägt der Installer den Schalter **nicht** selbst ein, weil die Verkabelung dort nicht feststeht. In der `printer.cfg` aus dem Config Creator steht der Abschnitt auskommentiert, vorgeschlagen für den freien Anschluss **Z+ (PB14)**. Schalte ihn nur ein, wenn der Schalter wirklich dort angeschlossen ist, und führe danach den Schaltertest aus. Du brauchst dafür das Klipper aus dem [Klipper-Fork](https://github.com/Dennis02121978/klipper). „Objekt ausgeben“ gibt es beim SKIPR nicht als Menüpunkt, in der Konsole fährt `RF_Z_MAX_SEEK` bis zum Schalter.
+
+### Marlin
+
+[Marlin-RFxxxx](https://github.com/Dennis02121978/Marlin-RFxxxx/releases) wertet den Schalter ab **v1.0.12** aus (`M3079` = Objekt ausgeben). Test mit `M119`: frei `z_max: open`, gedrückt `z_max: TRIGGERED`.
+
+---
 
 ## 5. Updates installieren
 
