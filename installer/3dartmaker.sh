@@ -906,6 +906,29 @@ theme_dirs() {   # Datenordner (printer_data, printer_*_data), in denen unser De
     return 0
 }
 
+all_data_dirs() {   # Datenordner aller Klipper-Instanzen (mehrere Drucker mit rf-multi oder KIAUH)
+    local d
+    for d in "$KHOME/printer_data" "$KHOME"/printer_*_data; do
+        [ -d "$d/config" ] && echo "$d"
+    done
+    return 0
+}
+
+theme_foreign() {   # Datenordner -> 0 = dort liegt ein eigenes Design (custom.css ohne unsere Kennung)
+    [ -f "$1/config/.theme/custom.css" ] && ! grep -qs '3D-Artmaker Design' "$1/config/.theme/custom.css"
+}
+
+theme_apply_all() {   # 3D-Artmaker Design in jede Instanz, eigene Designs bleiben
+    local d f same
+    for d in $(all_data_dirs); do
+        if theme_foreign "$d"; then warn "~/${d##*/}: eigenes Design gefunden, bleibt unverändert"; continue; fi
+        same=1
+        for f in $THEME_FILES; do cmp -s "$WORK/theme/.theme/$f" "$d/config/.theme/$f" || same=0; done
+        if [ "$same" = 1 ]; then ok "~/${d##*/}: Design ist aktuell"
+        else theme_copy "$d"; ok "~/${d##*/}: Design eingespielt (Mainsail mit Strg+F5 neu laden)"; fi
+    done
+}
+
 theme_fetch() {   # laedt mainsail-theme.tar.gz und entpackt nach $WORK/theme
     [ -d "$WORK/theme/.theme" ] && return 0
     release_download mainsail-theme.tar.gz
@@ -921,7 +944,7 @@ theme_copy() {   # Datenordner
 
 choose_theme() {
     [ "$HAS_MAINSAIL" = 1 ] || return 0
-    ui_yesno "Mainsail-Design" "3D-Artmaker Design für Mainsail einspielen?\n\nMarineblau mit dem 3D-Artmaker Logo, Ordner ~/$TARGET_DIR/config/.theme. Die Menüpunkte (System Terminal, Firmware-Update) bleiben.\nEntfernen: Ordner .theme löschen.\n3DArtmaker-upgrade hält das Design aktuell." && THEME=1
+    ui_yesno "Mainsail-Design" "3D-Artmaker Design für Mainsail einspielen?\n\nMarineblau mit dem 3D-Artmaker Logo, Ordner config/.theme. Bei mehreren Druckern bekommt es jeder. Die Menüpunkte (System Terminal, Firmware-Update) und eigene Designs bleiben.\nEntfernen: custom.css im Ordner .theme bei jedem Drucker löschen.\n3DArtmaker-upgrade hält das Design aktuell." && THEME=1
     return 0
 }
 
@@ -929,21 +952,14 @@ install_theme() {
     [ "$THEME" = 1 ] || return 0
     head1 "Mainsail-Design"
     theme_fetch || { warn "Design konnte nicht geladen werden, übersprungen"; return 0; }
-    theme_copy "$KHOME/$TARGET_DIR"
-    ok "Design eingespielt nach ~/$TARGET_DIR/config/.theme (Mainsail mit Strg+F5 neu laden)"
+    theme_apply_all
 }
 
-upgrade_theme() {   # nur, wo das Design schon liegt
-    local dirs d f same
-    dirs=$(theme_dirs); [ -n "$dirs" ] || return 0
+upgrade_theme() {   # liegt das Design bei einem Drucker, kommt es auf alle
+    [ -n "$(theme_dirs)" ] || return 0
     head1 "Mainsail-Design"
     theme_fetch || { warn "Design konnte nicht geladen werden, übersprungen"; return 0; }
-    for d in $dirs; do
-        same=1
-        for f in $THEME_FILES; do cmp -s "$WORK/theme/.theme/$f" "$d/config/.theme/$f" || same=0; done
-        if [ "$same" = 1 ]; then ok "~/${d##*/}: Design ist aktuell"
-        else theme_copy "$d"; ok "~/${d##*/}: Design aktualisiert (Mainsail mit Strg+F5 neu laden)"; fi
-    done
+    theme_apply_all
 }
 
 restart_klipper() {

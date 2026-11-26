@@ -23,7 +23,7 @@ bash 3dartmaker-install.sh
 - Mit `bash 3dartmaker-install.sh --probe` siehst du nur, was er tun würde. Dabei wird nichts verändert.
 - Danach gibt es den Befehl **`3DArtmaker-upgrade`**. Er holt neue Versionen aller installierten 3D-Artmaker-Pakete, prüft Klipper und das Betriebssystem und fragt vor jedem Schritt.
 - **RF2000 / RF2000 v2, Z-Max-Endstop (ab 1.7.7):** `3DArtmaker-upgrade` trägt den unteren Endschalter (`[rf_z_max]`, Pin PH1) in die Config ein, damit das Bett nie weiter als bis zum Schalter fährt. Dafür muss Klipper neu genug sein: erst in Mainsail **Firmware-Update → Update starten**, danach `3DArtmaker-upgrade` ausführen. Teste den Schalter danach mit `QUERY_ENDSTOPS`: frei `z_max:open`, von Hand gedrückt `z_max:TRIGGERED`. Mehr dazu unter [Z-Max-Endstop](#z-max-endstop-am-rf2000-und-rf2000-v2).
-- Auf Wunsch spielt er das **Mainsail-Design** ein (Marineblau mit dem 3D-Artmaker Logo, siehe [Mainsail-Design](#mainsail-design)). `3DArtmaker-upgrade` hält es dort aktuell, wo es schon liegt.
+- Auf Wunsch spielt er das **Mainsail-Design** ein (Marineblau mit dem 3D-Artmaker Logo, siehe [Mainsail-Design](#mainsail-design)). Ab 1.7.9 bekommen es bei mehreren Druckern **alle** Instanzen, `3DArtmaker-upgrade` hält es aktuell.
 - Protokoll: `~/3dartmaker-install.log`. Sicherungen der Config: `~/3dartmaker-backup/`.
 
 Was der Installer macht:
@@ -579,7 +579,9 @@ Die Seiten **Firmware-Update** und **System Terminal** haben dieselben Farben:
 
 ![System Terminal im 3D-Artmaker Design](docs/design/03_system_terminal.png)
 
-**Am einfachsten:** `3DArtmaker-upgrade` ausführen (holt zuerst die neue Installer-Version), dann `3DArtmaker-install` starten. Bei der Config **Config nicht ändern** wählen und bei **Mainsail-Design** mit **Ja** antworten. Danach hält `3DArtmaker-upgrade` das Design in diesem Ordner aktuell.
+**Am einfachsten:** `3DArtmaker-upgrade` ausführen (holt zuerst die neue Installer-Version), dann `3DArtmaker-install` starten. Bei der Config **Config nicht ändern** wählen und bei **Mainsail-Design** mit **Ja** antworten. Danach hält `3DArtmaker-upgrade` das Design aktuell.
+
+**Mehrere Drucker (ab 1.7.9):** Das Design kommt in den Config-Ordner **jedes** Druckers. Liegt es erst bei einem, ergänzt `3DArtmaker-upgrade` die anderen. Hat ein Drucker ein eigenes Design (`custom.css` ohne 3D-Artmaker-Kennung), bleibt es unverändert. Neue Drucker aus `rf-multi` übernehmen das Design vom ersten Drucker.
 
 **Von Hand:**
 
@@ -658,7 +660,7 @@ Jedes installierte Paket hat in Mainsail einen eigenen Eintrag. Für Updates bra
 
 Starte Updates am besten nur, wenn kein Druck läuft.
 
-**Das Mainsail-Design** ist kein Paket und taucht deshalb nicht im Update Manager auf. Neue Versionen des Designs holt `3DArtmaker-upgrade`: Es ersetzt die Dateien in `.theme` in allen Druckerordnern, in denen das Design schon liegt, und lässt Ordner ohne Design in Ruhe. Danach lädst du Mainsail mit **Strg+F5** neu, damit der Browser die neuen Farben und das Logo nicht aus dem Zwischenspeicher nimmt. Die Seiten Firmware-Update, System Terminal und Filament bekommen ihre Farben dagegen mit dem jeweiligen Paket, also über den Update Manager.
+**Das Mainsail-Design** ist kein Paket und taucht deshalb nicht im Update Manager auf. Neue Versionen des Designs holt `3DArtmaker-upgrade`: Liegt das Design bei mindestens einem Drucker, spielt es die Dateien in `.theme` bei allen Druckern ein (ab 1.7.9). Eigene Designs und die `navi.json` bleiben unverändert. Danach lädst du Mainsail mit **Strg+F5** neu, damit der Browser die neuen Farben und das Logo nicht aus dem Zwischenspeicher nimmt. Die Seiten Firmware-Update, System Terminal und Filament bekommen ihre Farben dagegen mit dem jeweiligen Paket, also über den Update Manager.
 
 | Eintrag | Was der Klick erneuert | Was du sonst noch tun musst |
 |---|---|---|
@@ -795,11 +797,12 @@ sudo reboot
 **Mainsail-Design:** Lösche nur die Design-Dateien und lass die `navi.json` stehen, sonst verschwinden auch die Menüpunkte System Terminal und Firmware-Update:
 
 ```bash
-cd ~/printer_data/config/.theme
-rm -f custom.css logo.svg sidebar-logo.svg sidebar-background.svg favicon.png
+for d in ~/printer_data ~/printer_*_data; do
+  (cd "$d/config/.theme" 2>/dev/null && rm -f custom.css logo.svg sidebar-logo.svg sidebar-background.svg favicon.png)
+done
 ```
 
-Lade Mainsail danach mit **Strg+F5** neu.
+Bei mehreren Druckern muss das Design bei **allen** gelöscht werden (das macht der Befehl oben), sonst spielt `3DArtmaker-upgrade` es wieder ein. Lade Mainsail danach mit **Strg+F5** neu.
 
 **System Terminal:**
 
